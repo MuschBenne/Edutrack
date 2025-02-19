@@ -1,29 +1,49 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import User from './db_models/User';
+import { HandleRegister } from './modules/Register';
+import { HandleLogin } from './modules/Login';
+import { HandleLanding } from './modules/Landing';
+import { HandleLogout } from './modules/Logout';
+import { HandleApp } from './modules/Application';
 
 mongoose.connect("mongodb://127.0.0.1:27017")
 const app = express();
 const port = 3000;
 
+/**
+ * Landing page
+ */
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  HandleLanding(req, res);
 });
 
 /**
- * Register benji as user
+ * Handle register
  */
 app.get("/register", async (req, res) => {
-  const newUser = new User({
-    username: "Benji"
-  });
+  HandleRegister(req, res);
+});
 
-  await newUser.save().then(() => {
-    if(User.findById({username: "Benji"}))
-      res.send("Name already registered");
-    else
-      res.send("Success!");
-  })
+/**
+ * Handle login
+ */
+app.get("/login", async (req, res) => {
+  HandleLogin(req, res);
+});
+
+/**
+ * Handle logout
+ */
+app.get("/logout", async (req, res) => {
+  HandleLogout(req, res);
+});
+
+/**
+ * Handle app
+ */
+app.get("/app", async (req, res) => {
+  HandleApp(req, res);
 });
 
 app.listen(port, () => {

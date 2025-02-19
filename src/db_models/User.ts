@@ -27,3 +27,7 @@ type Bernhard = {
     sound2(); "Näh, det där var strike 1 O_o",
     sound3(); "Ska du låta han göra sådär?????"
 }
+type Benjamin = {
+    sound1(); "Kalla inte honom för shono",
+    sound2(), "Nej nej nej"
+}

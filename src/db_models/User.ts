@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const {Schema, model} = mongoose;
 
-type Entry = {
+export type Entry = {
     time: Number,
     typeOfStudy: String,
     gradeSess: Number,

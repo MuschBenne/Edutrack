@@ -4,36 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+	<link rel="stylesheet" href="master.css">
 </head>
-<body>
+<body class="centeredItemsH">
+	<div id="inputContainer" class="centeredItems">
+		<input type="text" value="" id="user" placeholder="Username"></input>
+		<input type="text" value="" id="pass" placeholder="Password"></input>
+		<input type="text" value="" id="class" placeholder="Class"></input>  
+		<input type="text" value="" id="email" placeholder="Email"></input>
+		<input type="button" onclick="sendthedata()" value="Submit"></input>       
+	</div>
     <script>
-        //gör en try send the data som kollar att alla värden finns med
-function sendthedata() {
-    let user = document.getElementById("user");
-    let pass = document.getElementById("pass");
-    let klass = document.getElementById("klass");
-    let email = document.getElementById("email");
+    //TODO: gör en try send the data som kollar att alla värden finns med
+	async function sendthedata() {
+	    let userValue = document.getElementById("user").value;
+	    let passValue = document.getElementById("pass").value;
+	    let classValue = document.getElementById("class").value;
+	    let emailValue = document.getElementById("email").value;
 
-    fetch("localhost:3000/register", {
-  method: "POST",
-  body: JSON.stringify({
-    user: user,
-    pass: pass,
-    klass: klass,
-    email: email
-  }),
-  headers: {
-    "Content-type": "application/json; charset=UTF-8"
-  }
-});
+		let response = await fetch("http://localhost:3000/register", {
+	  		method: "POST",
+	  		body: JSON.stringify({
+	  		  user: userValue,
+	  		  pass: passValue,
+	  		  class: classValue,
+	  		  email: emailValue
+	  		}),
+	  		headers: {
+	  		  "Content-type": "application/json; charset=UTF-8"
+	  		}
+		});
 
-}
+		const res = await response;
+		if(res && res.status === 200) {
+			console.log("Det gick bra!");
+		}
+		else {
+			console.log("Det gick dåligt...");
+			console.log(res);
+		}
 
+	}
     </script>
-    <input type="text" value="" id="user" placeholder="Username"></input><br>
-    <input type="text" value="" id="pass" placeholder="Password"></input><br>
-    <input type="text" value="" id="klass" placeholder="Class"></input><br>       
-    <input type="text" value="" id="email" placeholder="Email"></input><br>
-    <input type="button" onclick="sendthedata()">Submit</input>       
 </body>
 </html>

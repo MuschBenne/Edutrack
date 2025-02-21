@@ -7,6 +7,8 @@ import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
 import path from "path";
+import { addCourse } from './modules/courseManager';
+import { stringify } from 'querystring';
 
 mongoose.connect("mongodb://127.0.0.1:27017")
 const app = express();
@@ -62,6 +64,12 @@ app.get("/logout", async (req, res) => {
 app.get("/app", async (req, res) => {
   HandleApp(req, res);
 });
+
+app.get("/registerCourse", (req, res) => {
+  console.log(req.query);
+  addCourse (req.query.name as string ,req.query.courseId as string)
+});
+
 
 /**
  * Master css file

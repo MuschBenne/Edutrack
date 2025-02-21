@@ -56,10 +56,10 @@
 
 		const res = await response;
 		if(res && res.status === 200) {
-			console.log("Det gick bra!");
+			console.log("User created!");
 		}
 		else {
-			console.log("Det gick dåligt...");
+			console.log("Username already exist");
 			console.log(res);
 		}
 

@@ -15,7 +15,7 @@ const userSchema = new Schema({
     class: String,
     activeCourses: Array<String>,
     pastCourses: Array<String>,
-    sessions: Map <String, Map <String, Entry>>
+    sessions: Map <String, Map <String, Array<Entry>>>
 });
 
 const User = model("User", userSchema);

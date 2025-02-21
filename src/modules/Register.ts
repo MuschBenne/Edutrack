@@ -1,18 +1,20 @@
+import { Request, Response } from "express";
 import User, { Entry } from "../db_models/User";
 
-export async function HandleRegister(req, res){
-  const testUsr = "Jakob";
-  const newUser = new User({
-      username: testUsr,
-      password: "Test",
-      mail: "Test",
-      class: "Test",
-      activeCourses: new Array<String>(),
-      pastCourses: new Array<String>(),
-      sessions: new Map <String, Map <String, Entry>>()
+// fixa lite if saster för vad som kan gå åt HELVETE
+export async function HandleRegister(req: Request, res: Response){
+    const reqData = req.body;
+    const newUser = new User({
+        username: reqData.user,
+        password: reqData.pass,
+        mail: reqData.email,
+        class: reqData.class,
+        activeCourses: new Array<String>(),
+        pastCourses: new Array<String>(),
+        sessions: new Map <String, Map <String, Entry>>()
     });
-    
+      
     await newUser.save().then(() => {
-          res.send("Success!");
+        res.sendStatus(200);
     })
 }

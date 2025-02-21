@@ -1,0 +1,23 @@
+.centeredItemsH {
+    display: flex;
+    justify-content: center;
+}
+
+.centeredItems {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+#inputContainer {
+    width: 50vw;
+    height: 50vw;
+    margin-top: 10%;
+    flex-flow:column;
+}
+
+#inputContainer > input {
+    width: 100%;
+    margin: 1%;
+    text-align: center;
+}

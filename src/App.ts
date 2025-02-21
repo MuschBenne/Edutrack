@@ -6,9 +6,11 @@ import { HandleLogin } from './modules/Login';
 import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
+import path from "path";
 
 mongoose.connect("mongodb://127.0.0.1:27017")
 const app = express();
+app.use(express.json());
 const port = 3000;
 
 /**
@@ -21,9 +23,24 @@ app.get('/', (req, res) => {
 /**
  * Handle register
  */
-app.get("/register", async (req, res) => {
-  HandleRegister(req, res);
+app.get("/register",  (req, res) => {
+  const options = {
+    root: path.join(__dirname)
+};
+  res.sendFile("./views/Register.html", options, (err: Error) => {
+    if(err === undefined){
+      console.log(res.statusCode);
+      
+    }
+    else {
+      console.error(err.message);
+    }
+  });
 });
+
+app.post("/register", async (req, res) => {
+  HandleRegister(req, res);
+})
 
 /**
  * Handle login
@@ -45,6 +62,25 @@ app.get("/logout", async (req, res) => {
 app.get("/app", async (req, res) => {
   HandleApp(req, res);
 });
+
+/**
+ * Master css file
+ */
+
+app.get("/master.css", (req, res) => {
+  const options = {
+    root: path.join(__dirname)
+  };
+  res.sendFile("./views/master.css", options, (err: Error) => {
+    if(err === undefined){
+      console.log(res.statusCode);
+      
+    }
+    else {
+      console.error(err.message);
+    }
+  });
+})
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}\nUse Ctrl + C to stop the server...`);

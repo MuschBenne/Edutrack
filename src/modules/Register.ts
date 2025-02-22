@@ -9,26 +9,42 @@ export async function HandleRegister(req: Request, res: Response){
         password: reqData.pass,
         mail: reqData.email,
         class: reqData.class,
-        activeCourses: new Array<String>(),
-        pastCourses: new Array<String>(),
-        sessions: new Map <String, Map <String, Entry>>()
+        activeCourses: new Array<string>(),
+        pastCourses: new Array<string>(),
+        sessions: new Map <string, Map <string, Entry>>()
     });
+
+    // Try/catch statements, försöker en grej, avbryter och gör en annan grej om något går fel.
+    // (läs på om det känns konstigt)
     try {
+        // Validera den nyskapade användaren mot hur User's Schema ser ut 
+        // (blir fel som catchas om något inte stämmer)
         await User.validate(newUser);
-        let foundUser = await User.findOne({username: reqData.user}).exec();
+
+        // TODO: Försäkra att användare med den angivna [emailen] inte finns
+        // Försök hitta en användare med det angivna namnet
+        const foundUser = await User.findOne({username: reqData.user}).exec();
+        // Om foundUser är null...
         if(!foundUser){
             await newUser.save().then(() => {
                 res.sendStatus(200);
             });
         }
+        // Om foundUser inte är null...
         else {
+            console.log("Error: User already found");
             res.sendStatus(400);
         }
     }
+    // Denna del av koden nås om await User.validate(newUser); misslyckas.
     catch (err){
-        if (err instanceof mongoose.Error.ValidationError)
+        if (err instanceof mongoose.Error.ValidationError){
             console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
-        else
+            res.status(400).json(err.errors);
+        }
+        else {
             console.log("Error:", err);
+            res.status(400).json(err.message);
+        }
     }
 }

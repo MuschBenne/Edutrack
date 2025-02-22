@@ -11,12 +11,12 @@
 		<input type="text" value="" id="user" placeholder="Username"></input>
 		<input type="password" value="" id="pass" placeholder="Password"></input>
 		<input type="email" value="" id="email" placeholder="Email"></input>
-		<select name="Class" id="Class">
+		<select name="Class" id="class">
 		  <option value="DV">DV</option>
 		  <option value="IT">IT</option>
 		  <option value="ES">ES</option>
 		</select>
-		<input type="button" onclick="checkthedata()" value="Submit"></input>       
+		<input type="button" onclick="checkTheData()" value="Submit"></input>       
 	</div>
     <script>
 
@@ -25,29 +25,26 @@
 	let classElement = document.getElementById("class");
 	let emailElement = document.getElementById("email");
 
-	async function checkthedata() {
+	async function checkTheData() {
 		if (passElement.value.length < 8 || passElement.value.length > 20) {
-		alert("Does not meet the requirements, between 8 to 20 characthers.")
-		return;
-	}
+			alert("Does not meet the requirements, between 8 to 20 characthers.");
+			return;
+		}
 		if (userElement.value.length > 20){
-		alert("Name is to long, maximum of 20 characthers.")
-		return;
-	}
-
-		
+			alert("Name is to long, maximum of 20 characthers.");
+			return;
+		}
+		sendTheData();		
 	}
     //TODO: gör en try send the data som kollar att alla värden finns med
-	async function sendthedata() {
-	    
-
+	async function sendTheData() {
 		let response = await fetch("http://localhost:3000/register", {
 	  		method: "POST",
 	  		body: JSON.stringify({
-	  		  user: userValue,
-	  		  pass: passValue,
-	  		  class: classValue,
-	  		  email: emailValue
+	  		  user: userElement.value,
+	  		  pass: passElement.value,
+	  		  class: classElement.value,
+	  		  email: emailElement.value
 	  		}),
 	  		headers: {
 	  		  "Content-type": "application/json; charset=UTF-8"
@@ -62,7 +59,6 @@
 			console.log("Det gick dåligt...");
 			console.log(res);
 		}
-
 	}
     </script>
 </body>

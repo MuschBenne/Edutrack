@@ -65,6 +65,12 @@ app.get("/app", async (req, res) => {
   HandleApp(req, res);
 });
 
+/**
+ * Course manager
+ * 
+ * TODO: Lägg till väg för att ta bort kurs
+ * TODO: Lägg till väg för att lägga till/ta bort användarnamn till kurser
+ */
 app.get("/registerCourse", (req, res) => {
   console.log(req.query);
   addCourse (req.query.name as string ,req.query.courseId as string)

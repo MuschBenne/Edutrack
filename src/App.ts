@@ -49,7 +49,7 @@ app.post("/register", async (req, res) => {
 /**
  * Handle login route GET (Display website)
  */
-app.post("/login", async (req, res) => {
+app.get("/login", async (req, res) => {
 	res.render("Login");
 });
 
@@ -72,6 +72,7 @@ app.get("/logout", async (req, res) => {
  */
 
 // TODO: Använd paketet "express-session" för att se till att en inloggad användare hålls inloggad
+// TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
 	const data = {
 		name: "Jakob"
@@ -88,6 +89,7 @@ app.get("/app", async (req, res) => {
  * TODO: Läs av query för att bestämma vad som skall göras, vi kan ha en parameter som heter "action"
  * 		 så en url ser ut som:
  * 		 localhost:3000/courseManager?action=addCourse&name=PKD&courseId=11111
+ * TODO: [Långt fram], se till att användaren vars session är aktiv och som anropar dessa actions är admin
  */
 app.get("/courseManager", async (req, res) => {
 	console.log(req.query);

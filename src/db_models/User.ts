@@ -13,9 +13,9 @@ const userSchema = new Schema({
     password: String,
     mail: String,
     class: String,
-    activeCourses: Array<String>,
-    pastCourses: Array<String>,
-    sessions: Map <String, Map <String, Array<Entry>>>
+    activeCourses: Array<string>,
+    pastCourses: Array<string>,
+    sessions: Map <string, Map <string, Array<Entry>>>
 });
 
 const User = model("User", userSchema);

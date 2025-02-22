@@ -1,68 +1,83 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import User from './db_models/User';
 import { HandleRegister } from './modules/Register';
 import { HandleLogin } from './modules/Login';
 import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
 import path from "path";
-import { addCourse } from './modules/courseManager';
-import { stringify } from 'querystring';
+import { addCourse } from './modules/CourseManager';
 
-mongoose.connect("mongodb://127.0.0.1:27017")
-const app = express();
-app.use(express.json());
 const port = 3000;
+const app = express();
+
+const options = {
+    root: path.join(__dirname)
+};
+
+// Connecta till databasen
+mongoose.connect("mongodb://127.0.0.1:27017")
+
+// Express middleware:
+// Parsea JSON kroppen av requests direkt
+app.use(express.json());
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 /**
  * Landing page
  */
-app.get('/', (req, res) => {
-  HandleLanding(req, res);
+app.get('/', (req: Request, res: Response) => {
+	HandleLanding(req, res);
 });
 
 /**
- * Handle register
+ * Handle register GET 
  */
 app.get("/register",  (req, res) => {
-  const options = {
-    root: path.join(__dirname)
-};
-  res.sendFile("./views/Register.html", options, (err: Error) => {
-    if(err === undefined){
-      console.log(res.statusCode);
-      
-    }
-    else {
-      console.error(err.message);
-    }
-  });
+	res.render("Register");
 });
 
+/**
+ * Handle register POST request (Actual register action)
+ */
 app.post("/register", async (req, res) => {
-  HandleRegister(req, res);
+	HandleRegister(req, res);
 })
 
 /**
- * Handle login
+ * Handle login route GET (Display website)
  */
-app.get("/login", async (req, res) => {
-  HandleLogin(req, res);
+app.post("/login", async (req, res) => {
+	res.render("Login");
+});
+
+/**
+ * Handle login route POST (Actual login action)
+ */
+app.post("/login", async (req, res) => {
+	HandleLogin(req, res);
 });
 
 /**
  * Handle logout
  */
 app.get("/logout", async (req, res) => {
-  HandleLogout(req, res);
+	HandleLogout(req, res);
 });
 
 /**
  * Handle app
  */
+
+// TODO: Använd paketet "express-session" för att se till att en inloggad användare hålls inloggad
 app.get("/app", async (req, res) => {
-  HandleApp(req, res);
+	const data = {
+		name: "Jakob"
+	}
+	res.render("Application", data);
+	HandleApp(req, res);
 });
 
 /**
@@ -71,9 +86,9 @@ app.get("/app", async (req, res) => {
  * TODO: Lägg till väg för att ta bort kurs
  * TODO: Lägg till väg för att lägga till/ta bort användarnamn till kurser
  */
-app.get("/registerCourse", (req, res) => {
-  console.log(req.query);
-  addCourse (req.query.name as string ,req.query.courseId as string)
+app.get("/registerCourse", async (req, res) => {
+	console.log(req.query);
+	res.sendStatus(await addCourse (req.query.name as string, req.query.courseId as string));
 });
 
 
@@ -82,9 +97,7 @@ app.get("/registerCourse", (req, res) => {
  */
 
 app.get("/master.css", (req, res) => {
-  const options = {
-    root: path.join(__dirname)
-  };
+  
   res.sendFile("./views/master.css", options, (err: Error) => {
     if(err === undefined){
       console.log(res.statusCode);

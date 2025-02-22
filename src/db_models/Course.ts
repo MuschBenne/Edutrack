@@ -4,7 +4,7 @@ const {Schema, model} = mongoose;
 const course = new Schema ({
     courseId: String,
     name: String,
-    students: Array<String>
+    students: Array<string>
 })
 
 const Course = model("Course", course);

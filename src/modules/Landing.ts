@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import User from "../db_models/User";
 
 export async function HandleLanding(req: Request, res: Response){
-    res.send("Hello world");
+    // TODO: Skapa en kul landing page, alltså: vad ska man se när man först går in på hemsidan localhost:3000
+    // Mesta av sidan kan göras i viewen "Landing.ejs"
+    res.render("Landing");
 }

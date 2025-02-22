@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 
 export async function HandleRegister(req: Request, res: Response){
     const reqData = req.body;
+    // Skapa en nya användare med hjälp av datan från requestet, enligt Schemat som definieras i User.ts.
     const newUser = new User({
         username: reqData.user,
         password: reqData.pass,

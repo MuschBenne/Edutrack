@@ -85,9 +85,15 @@ app.get("/app", async (req, res) => {
  * 
  * TODO: Lägg till väg för att ta bort kurs
  * TODO: Lägg till väg för att lägga till/ta bort användarnamn till kurser
+ * TODO: Läs av query för att bestämma vad som skall göras, vi kan ha en parameter som heter "action"
+ * 		 så en url ser ut som:
+ * 		 localhost:3000/courseManager?action=addCourse&name=PKD&courseId=11111
  */
-app.get("/registerCourse", async (req, res) => {
+app.get("/courseManager", async (req, res) => {
 	console.log(req.query);
+	// Exempel: if(req.query.action === "addCourse") { ... } else if(req.query.action === "removeCourse") osv.
+	// Vi använder res.sendStatus för att skicka ett svar med en statuskod. Koden returneras från addCourse
+	// baserat på huruvida funktionen kunde genomföras
 	res.sendStatus(await addCourse (req.query.name as string, req.query.courseId as string));
 });
 

@@ -12,7 +12,7 @@ export async function HandleRegister(req: Request, res: Response){
         class: reqData.class,
         activeCourses: new Array<string>(),
         pastCourses: new Array<string>(),
-        sessions: new Map <string, Map <string, Entry>>()
+        sessions: {debug: "test"}
     });
 
     // Try/catch statements, försöker en grej, avbryter och gör en annan grej om något går fel.

@@ -8,5 +8,26 @@
 <body>
     <!-- Skapa själva applikationen -->
     <h3>Hello <%= name %></h3>
+    Session duration: <input id="duration" type="text" placeholder="Session duration"><br>
+    Session type: <input id="type" type="text" placeholder="Type of studying"><br>
+    Session Rating: <input id="rating" type="number" min="1" max="5" value="1"><br>
+    Health Rating: <input id="health" type="number" min="1" max="5" value="1"><br>
+    <button onclick="addSession()">Add session</button>
+    <script>
+        function addSession(){
+            fetch("http://localhost:3000/app?action=addStudySession", {
+                method: "POST",
+	  		    body: JSON.stringify({
+                    time: document.getElementById("duration").value ?? -1,
+                    type: document.getElementById("type").value ?? "lecture",
+                    rating: document.getElementById("rating").value,
+                    health: document.getElementById("health").value 
+	  		    }),
+	  		    headers: {
+	  		        "Content-type": "application/json; charset=UTF-8"
+	  		    }
+            })
+        }
+    </script>
 </body>
 </html>

@@ -3,23 +3,25 @@ import session from "express-session";
 import User, { Entry } from "../db_models/User";
 
 export async function HandleApp(req: Request, res: Response){
-    const testStudySession: Entry = {
-        time: Number.parseInt(req.body.time),
-        typeOfStudy: req.body.type,
-        gradeSess: req.body.rating,
-        health: req.body.health
-    }
     switch(req.query.action){
-		case "addStudySession":
-			const result = await addStudySession("Jakob", "PKD", testStudySession);
-            res.status(result[0]).json({msg: result[1]});
+        case "addStudySession":
+            // TODO: Se till att användaren bestäms av express session
+            // TODO: Se till att kursen anges av användaren i webbläsaren.
+            const studySession: Entry = {
+                time: Number.parseInt(req.body.time),
+                typeOfStudy: req.body.type,
+                gradeSess: Number.parseInt(req.body.rating),
+                health: Number.parseInt(req.body.health)
+            }
+			const result = await addStudySession("Jakob", "PKD", studySession);
+            res.status(result[0] as number).json({msg: result[1]});
 			break;
 		default:
 			res.status(400).json({msg: "Invalid action: " + req.query.action})
 	}
 }
 
-async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<Array<any>> {
+async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<Array<number | string>> {
     // Try to find user
     let user = await User.findOne({username: userName});
     if(!user)
@@ -49,4 +51,18 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
     })
     return [200, "User study session added successfully"];
         
+}
+
+// TODO: Lägg till en registerToCourse funktion som registrerar en användare till en kurs (och en kurs till en användare)
+async function registerToCourse() {
+    return;
+}
+// TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
+async function fetchRegisteredCourses() {
+    return;
+}
+
+//TODO: Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
+async function fetchSessions() {
+    return;
 }

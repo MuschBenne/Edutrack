@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import session from "express-session";
 import mongoose from 'mongoose';
 import { HandleRegister } from './modules/Register';
 import { HandleLogin } from './modules/Login';
@@ -21,6 +22,13 @@ mongoose.connect("mongodb://127.0.0.1:27017")
 // Express middleware:
 // Parsea JSON kroppen av requests direkt
 app.use(express.json());
+
+app.use(session({
+	secret: 'BJB-AB-Forever',
+	resave: false,
+	saveUninitialized: true,
+	cookie: {}
+}));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -78,6 +86,9 @@ app.get("/app", async (req, res) => {
 		name: "Jakob"
 	}
 	res.render("Application", data);
+});
+
+app.post("/app", async (req, res) => {
 	HandleApp(req, res);
 });
 

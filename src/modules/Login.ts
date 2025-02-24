@@ -1,7 +1,26 @@
 import User from "../db_models/User";
+import { Request, Response } from "express";
+import mongoose from "mongoose";
 
-
-export async function HandleLogin(req, res){
+export async function HandleLogin(req:Request, res:Response){
     // TODO: Skapa en funktion för att hantera inloggning
     //       Använd Register.ts som mall
+    
+    const reqData=req.body
+
+    //kolla om user finns
+    const foundUser = await User.findOne({username: reqData.user}).exec();
+    //kolla om password matchar
+    if(!foundUser){
+        console.log("Error: User already found");
+        res.sendStatus(400);
+    }else
+        if(reqData.pass!==foundUser.password){
+            console.log("password doesnt match");
+        res.sendStatus(400);
+        }else{
+            res.status(200).json({ message: "Login successful", user:reqData.user });
+        }
+        
+    
 }

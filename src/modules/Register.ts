@@ -22,20 +22,29 @@ export async function HandleRegister(req: Request, res: Response){
         // (blir fel som catchas om något inte stämmer)
         await User.validate(newUser);
 
-        // TODO: Försäkra att användare med den angivna [emailen] inte finns
+        // TOCHECK: Försäkra att användare med den angivna [emailen] inte finns
         // Försök hitta en användare med det angivna namnet
         const foundUser = await User.findOne({username: reqData.user}).exec();
         // Om foundUser är null...
+        const foundEmail = await User.findOne({mail: reqData.email}).exec();
+
         if(!foundUser){
-            await newUser.save().then(() => {
+            if (!foundEmail)
+                await newUser.save().then(() => {
                 res.sendStatus(200);
             });
+            else {
+                console.log("Error: Email already found");
+                res.sendStatus(400);
+            }
         }
         // Om foundUser inte är null...
         else {
             console.log("Error: User already found");
             res.sendStatus(400);
         }
+        // Om foundEmail inte är null...
+        
     }
     // Denna del av koden nås om await User.validate(newUser); misslyckas.
     catch (err){

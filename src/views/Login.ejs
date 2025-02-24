@@ -6,7 +6,38 @@
     <title>Login</title>
 </head>
 <body>
-    <h2>Hello login!</h2>
+    <h2>Hello and Welcome to EduTrack</h2>
     <!---TODO: Skapa en sida lik Register.html som låter användare logga in-->
+    <div id="inputContainer" class="centeredItems">
+        <input type="text" value="" id="user" placeholder="Username"></input>
+        <input type="password" value="" id="pass" placeholder="Password"></input>
+        <input type="button" onclick="tryLogin()" value="Log in"><input>
+    </div>
+    <script>
+
+        let userElement = document.getElementById("user");
+        let passElement = document.getElementById("pass");
+    
+        async function sendTheData() {
+		let response = await fetch("http://localhost:3000/register", {
+	  		method: "POST",
+	  		body: JSON.stringify({
+	  		  user: userElement.value,
+	  		  pass: passElement.value
+	  		}),
+	  		headers: {
+	  		  "Content-type": "application/json; charset=UTF-8"
+	  		}
+		});
+
+		const res = await response;
+		if(res && res.status === 200) {
+			console.log("User logged in!");
+		}
+        else (res && res.status === 400){ 
+			console.log("Username already exists");
+            }
+        }    
+    </script>
 </body>
 </html>

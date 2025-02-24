@@ -11,11 +11,16 @@ export async function HandleLogin(req:Request, res:Response){
     //kolla om user finns
     const foundUser = await User.findOne({username: reqData.user}).exec();
     //kolla om password matchar
-    if(foundUser){
-        if(password=foundUser.password){
-            //login
-        }
+    if(!foundUser){
+        console.log("Error: User already found");
+        res.sendStatus(400);
     }else
-        console.log("wrong username or password")
+        if(reqData.pass!==foundUser.password){
+            console.log("password doesnt match");
+        res.sendStatus(400);
+        }else{
+            res.status(200).json({ message: "Login successful", user:reqData.user });
+        }
+        
     
 }

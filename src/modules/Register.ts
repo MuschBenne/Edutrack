@@ -27,7 +27,7 @@ export async function HandleRegister(req: Request, res: Response){
         const foundUser = await User.findOne({username: reqData.user}).exec();
         // Om foundUser är null...
         const foundEmail = await User.findOne({mail: reqData.email}).exec();
-
+        
         if(!foundUser){
             if (!foundEmail)
                 await newUser.save().then(() => {

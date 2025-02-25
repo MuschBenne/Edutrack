@@ -1,4 +1,6 @@
 import Course from "../db_models/Course";
+import User from "../db_models/User";
+import mongoose from "mongoose";
 
 export async function addCourse(name: string, courseId: string): Promise<number>{
     const newCourse = new Course({
@@ -34,3 +36,23 @@ export async function removeCourse(courseId: string){
 //       Denna bör lägga till en student i kursens "students" array
 //       Granska i removeCourse hur vi hittade en course från ett courseID.
 //       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.
+
+export async function addStudent(courseId:string, studentId: string){
+    //kolla om course finns
+    const foundCourse = Course.find({courseId:courseId}).exec();
+    //kolla om student finns && inte finns i course
+    const foundUser = User.find({studentId:studentId}).exec();
+
+    //lägg till i course arrayen
+    Course.updateOne(
+        {courseId:courseId},
+        {$addToSet: {students:studentId}} //TOCHECK studentID inte defined i databas, borde läggas till?
+
+    )
+
+    //uppdatera students active course
+    User.updateOne(
+        {studentId:studentId},
+        {$addToSet: {activeCourses:courseId}} //TOCHECK kanske att man vill läga till namnet så att det blir lätt att visa kurser man går
+    )
+}

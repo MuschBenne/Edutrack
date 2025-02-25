@@ -7,7 +7,7 @@ import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
 import path from "path";
-import { addCourse } from './modules/CourseManager';
+import { addCourse, addStudent } from './modules/CourseManager';
 
 const port = 3000;
 const app = express();
@@ -107,7 +107,12 @@ app.get("/courseManager", async (req, res) => {
 	// Exempel: if(req.query.action === "addCourse") { ... } else if(req.query.action === "removeCourse") osv.
 	// Vi använder res.sendStatus för att skicka ett svar med en statuskod. Koden returneras från addCourse
 	// baserat på huruvida funktionen kunde genomföras
-	res.sendStatus(await addCourse (req.query.name as string, req.query.courseId as string));
+	if(req.query.action === "addCourse"){
+		res.sendStatus(await addCourse(req.query.name as string, req.query.courseId as string));
+	}
+	else if(req.query.action === "addStudent"){
+		res.sendStatus(await addStudent(req.query.courseId as string, req.query.username as string))
+	}
 });
 
 

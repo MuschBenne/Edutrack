@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>Hello and Welcome to EduTrack</h2>
-    <!---TODO: Skapa en sida lik Register.html som låter användare logga in-->
+    <!--TO CHECK: Skapa en sida lik Register.html som låter användare logga in-->
     <div id="inputContainer" class="centeredItems">
         <input type="text" value="" id="user" placeholder="Username"></input>
         <input type="password" value="" id="pass" placeholder="Password"></input>
@@ -34,7 +34,7 @@
 		});
 
 		const res = await response.json();
-        
+
 		if (res && res.status === 200) {
 			console.log("User logged in!");
             window.location.href = "/application";

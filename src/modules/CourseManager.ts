@@ -38,9 +38,8 @@ export async function removeCourse(courseId: string){
 //       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.
 
 export async function addStudent(courseId:string, username: string){
-    //kolla om course finns
+
     const foundCourse = Course.find({courseId:courseId}).exec();
-    //kolla om student finns && inte finns i course
     const foundUser = User.find({username:username}).exec();
 
     if(foundCourse && foundUser){
@@ -50,11 +49,12 @@ export async function addStudent(courseId:string, username: string){
         {$addToSet: {students:username}} //TOCHECK 
 
     )
-
     //uppdatera students active course
     User.updateOne(
         {username:username},
         {$addToSet: {activeCourses:courseId}} //TOCHECK 
     )
+    }else{
+        console.log("student eller course finns inte");
     }
 }

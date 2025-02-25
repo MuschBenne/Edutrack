@@ -34,5 +34,7 @@ export async function HandleRegister(req: Request, res: Response){
                 res.sendStatus(200).json({message: "User created"});
             });
             else {   
-    }
+            }
+        }
+    } //TODO: Add catch statement
 }

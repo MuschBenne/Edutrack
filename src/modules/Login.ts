@@ -19,7 +19,14 @@ export async function HandleLogin(req:Request, res:Response){
             }
         
     }
-    catch (error) {
+    
+    catch (err) {
+        if (err instanceof mongoose.Error.ValidationError){
+                    console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
+                    res.status(400).json(err.errors);
+        }
+        else {
         res.status(500).json({message: "Something went really wrong"});
+        } 
     }
 }

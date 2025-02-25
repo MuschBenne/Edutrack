@@ -31,17 +31,15 @@ export async function HandleRegister(req: Request, res: Response){
         if(!foundUser){
             if (!foundEmail)
                 await newUser.save().then(() => {
-                res.sendStatus(200);
+                res.sendStatus(200).json({message: "User created"});
             });
             else {
-                console.log("Error: Email already found");
-                res.sendStatus(400);
+                res.status(400).json({ message: "Email already found"});
             }
         }
         // Om foundUser inte är null...
         else {
-            console.log("Error: User already found");
-            res.sendStatus(400);
+            res.status(400).json({ message: "User already exist"});
         }
         // Om foundEmail inte är null...
         

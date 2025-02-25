@@ -13,6 +13,9 @@
         <input type="password" value="" id="pass" placeholder="Password"></input>
         <input type="button" onclick="tryLogin()" value="Log in"><input>
     </div>
+
+    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+
     <script>
 
         let userElement = document.getElementById("user");
@@ -30,14 +33,15 @@
 	  		}
 		});
 
-		const res = await response;
-		if(res && res.status === 200) {
+		const res = await response.json();
+        
+		if (res && res.status === 200) {
 			console.log("User logged in!");
+            window.location.href = "/application";
 		}
-        else if (res && res.status === 400){ 
-			console.log("Username already exists");
-            
-            }
+        else {
+            errorMessage.innerText = res.message;
+        }
         }    
     </script>
 </body>

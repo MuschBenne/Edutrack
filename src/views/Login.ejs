@@ -34,8 +34,9 @@
 		if(res && res.status === 200) {
 			console.log("User logged in!");
 		}
-        else (res && res.status === 400){ 
+        else if (res && res.status === 400){ 
 			console.log("Username already exists");
+            
             }
         }    
     </script>

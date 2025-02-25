@@ -11,13 +11,22 @@ export async function addCourse(name: string, courseId: string): Promise<number>
     console.log(name,courseId);
 
     // TODO: Se till att en kurs med detta IDt inte redan finns innan vi lägger till den
+    const foundCourseID = await Course.findOne({courseId: courseId}).exec();
 
-    await newCourse.save().then(() => {
-        console.log("course added");
-        return 200;
-    });
+    const foundCourseName = await Course.findOne({name: name}).exec();
+
+    if (!foundCourseID) {
+        if (!foundCourseName) {
+            await newCourse.save().then(() => {
+                console.log("course added");
+                return 200;
+        });
+    }
+    else {
+        return 400;
+    }
+}
     
-    return 400;
 }
 
 export async function removeCourse(courseId: string){

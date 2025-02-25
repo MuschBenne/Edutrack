@@ -10,7 +10,7 @@ export async function addCourse(name: string, courseId: string): Promise<number>
     })
     console.log(name,courseId);
 
-    // TODO: Se till att en kurs med detta IDt inte redan finns innan vi lägger till den
+    // TOCHECK: Se till att en kurs med detta IDt inte redan finns innan vi lägger till den
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
 
     const foundCourseName = await Course.findOne({name: name}).exec();

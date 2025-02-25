@@ -33,26 +33,6 @@ export async function HandleRegister(req: Request, res: Response){
                 await newUser.save().then(() => {
                 res.sendStatus(200).json({message: "User created"});
             });
-            else {
-                res.status(400).json({ message: "Email already found"});
-            }
-        }
-        // Om foundUser inte är null...
-        else {
-            res.status(400).json({ message: "User already exist"});
-        }
-        // Om foundEmail inte är null...
-        
-    }
-    // Denna del av koden nås om await User.validate(newUser); misslyckas.
-    catch (err){
-        if (err instanceof mongoose.Error.ValidationError){
-            console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
-            res.status(400).json(err.errors);
-        }
-        else {
-            console.log("Error:", err);
-            res.status(400).json(err.message);
-        }
+            else {   
     }
 }

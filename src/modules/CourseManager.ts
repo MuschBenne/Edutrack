@@ -11,16 +11,17 @@ export async function addCourse(name: string, courseId: string): Promise<number>
     console.log(name,courseId);
 
     // TOCHECK: Se till att en kurs med detta IDt inte redan finns innan vi lägger till den
+    // CHECKED: Ser väl bra ut, frågan är bara om fler kurser får ha samma namn? Framtida terminer, samma kursnamn?
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
 
     const foundCourseName = await Course.findOne({name: name}).exec();
 
     if (!foundCourseID) {
         if (!foundCourseName) {
-            await newCourse.save().then(() => {
+            return await newCourse.save().then(() => {
                 console.log("course added");
                 return 200;
-        });
+            });
     }
     else {
         return 400;
@@ -51,19 +52,22 @@ export async function addStudent(courseId:string, username: string){
     const foundCourse = Course.find({courseId:courseId}).exec();
     const foundUser = User.find({username:username}).exec();
 
-    if(foundCourse && foundUser){
-    //lägg till i course arrayen
-    Course.updateOne(
-        {courseId:courseId},
-        {$addToSet: {students:username}} //TOCHECK 
+    if(foundCourse && foundUser) {
+        //lägg till i course arrayen
+        Course.updateOne(
+            {courseId:courseId},
+            {$addToSet: {students:username}} //TOCHECK 
 
-    )
-    //uppdatera students active course
-    User.updateOne(
-        {username:username},
-        {$addToSet: {activeCourses:courseId}} //TOCHECK 
-    )
-    }else{
+        ).exec();
+        //uppdatera students active course
+        User.updateOne(
+            {username:username},
+            {$addToSet: {activeCourses:courseId}} //TOCHECK 
+        ).exec();
+        return 200;
+    }
+    else {
         console.log("student eller course finns inte");
+        return 400;
     }
 }

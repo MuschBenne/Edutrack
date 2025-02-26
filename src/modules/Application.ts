@@ -69,9 +69,8 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
         
 }
 
-
 // TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
-export async function fetchRegisteredCourses(username: string) {
+export async function fetchRegisteredCourses(username: string): Promise<Array<string>> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
 
     // if (!foundUser) { //måste returna array 
@@ -82,7 +81,8 @@ export async function fetchRegisteredCourses(username: string) {
     return foundUser.activeCourses; // Now correctly accessing the property
 }
 
-//TODO: Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
+// TODO: (1/2) Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
+// TODO: (2/2) Se till att denna data sparas i cookien, så att vi slipper hämta den massa gånger
 async function fetchSessions() {
     return;
 }

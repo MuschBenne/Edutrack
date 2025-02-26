@@ -2,6 +2,12 @@ import User from "../db_models/User";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
+export async function RenderLogin(req: Request, res: Response){
+    // TODO: Se till att en redan inloggad användare redirectas till /app istället.
+    //       använd res.redirect().
+    res.render("Login");
+}
+
 export async function HandleLogin(req:Request, res:Response){
     // TOOCHECK: Skapa en funktion för att hantera inloggning
     const reqData = req.body;

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import session from "express-session";
 import mongoose from 'mongoose';
 import { HandleRegister } from './modules/Register';
-import { HandleLogin } from './modules/Login';
+import { HandleLogin, RenderLogin } from './modules/Login';
 import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp, RenderApp } from './modules/Application';
@@ -65,7 +65,7 @@ app.post("/register", async (req, res) => {
  * Handle login route GET (Display website)
  */
 app.get("/login", async (req, res) => {
-	res.render("Login");
+	RenderLogin(req, res);
 });
 
 /**

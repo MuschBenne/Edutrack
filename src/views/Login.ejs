@@ -22,27 +22,27 @@
         let passElement = document.getElementById("pass");
     
         async function tryLogin() {
-		let response = await fetch("http://localhost:3000/login", {
-	  		method: "POST",
-	  		body: JSON.stringify({
-	  		  user: userElement.value,
-	  		  pass: passElement.value
-	  		}),
-	  		headers: {
-	  		  "Content-type": "application/json; charset=UTF-8"
-	  		}
-		});
+		    let response = await fetch("http://localhost:3000/login", {
+                method: "POST",
+                body: JSON.stringify({
+                user: userElement.value,
+                pass: passElement.value
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+		    });
 
-		const res = await response.json();
+            const res = await response.json();
 
-		if (res && res.status === 200) {
-			console.log("User logged in!");
-            window.location.href = "/application";
-		}
-        else {
-            errorMessage.innerText = res.message;
+            if (res && res.status === 200) {
+                console.log("User logged in!");
+                window.location.href = "/application";
+            }
+            else {
+                errorMessage.innerText = res.message;
+            }
         }
-        }    
     </script>
 </body>
 </html>

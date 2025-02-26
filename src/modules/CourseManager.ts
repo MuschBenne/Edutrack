@@ -1,8 +1,35 @@
 import Course from "../db_models/Course";
+import express, { Request, Response } from 'express';
 import User from "../db_models/User";
 import mongoose from "mongoose";
 
-export async function addCourse(name: string, courseId: string): Promise<number>{
+export async function HandleCourseManager(req: Request, res: Response){
+    console.log(req.query);
+	// Exempel: if(req.query.action === "addCourse") { ... } else if(req.query.action === "removeCourse") osv.
+	// Vi använder res.sendStatus för att skicka ett svar med en statuskod. Koden returneras från addCourse
+	// baserat på huruvida funktionen kunde genomföras
+    switch(req.query.action) {
+        case "addCourse":
+            res.sendStatus(await addCourse(req.query.name as string, req.query.courseId as string));
+            break;
+        case "addStudent":
+            res.sendStatus(await addStudent(req.query.courseId as string, req.query.username as string));
+            break;
+        case "removeCourse":
+            res.sendStatus(await removeCourse(req.query.courseId as string)); // TOCHECK
+            break;
+        case "deleteUser":
+            //res.sendStatus(await deleteUser(req.query.username as string)); // TODO: Implementera deleteUser
+            break;
+        case "removeStudentFromCourse": // TOCHECK
+            res.sendStatus(await removeStudentFromCourse(req.query.courseID as string, req.query.username as string));
+            break;
+        default:
+            res.status(400).json({message: "CourseManager: Action [" + req.query.action + "] not found."})
+    }
+}
+
+async function addCourse(name: string, courseId: string): Promise<number>{
     const newCourse = new Course({
         courseId:courseId,
         name:name,
@@ -22,15 +49,15 @@ export async function addCourse(name: string, courseId: string): Promise<number>
                 console.log("course added");
                 return 200;
             });
+        }
+        else {
+            return 400;
+        }
     }
-    else {
-        return 400;
-    }
-}
     
 }
 
-export async function removeCourse(courseId: string){
+async function removeCourse(courseId: string){
     const foundCourse = Course.find({courseId:courseId}).exec();
     if (foundCourse) {
         await Course.deleteOne({ courseId:courseId });
@@ -44,12 +71,12 @@ export async function removeCourse(courseId: string){
 
 }
 
-export async function removeStudentFromCourse(courseId: string, username: string){
+async function removeStudentFromCourse(courseId: string, username: string){
     try {
         const foundCourse = await Course.find({courseId:courseId}).exec();
         if (!foundCourse)
             console.log(`No course found with ID: ${courseId}`);
-        
+
         const updatedCourse = await Course.updateOne(
             { courseId },
             { $pull: { students: username } } 
@@ -57,11 +84,14 @@ export async function removeStudentFromCourse(courseId: string, username: string
 
         if (updatedCourse.modifiedCount > 0) {
             console.log("Student " + username + " removed from course " + courseId);
+            return 200;
         } else {
             console.log("Student " + username + " not found in course " + courseId);
+            return 400;
         }
     } catch (error) {
         console.error("Error removing student:", error);
+        return 500;
     }
 }
 
@@ -70,7 +100,7 @@ export async function removeStudentFromCourse(courseId: string, username: string
 //       Granska i removeCourse hur vi hittade en course från ett courseID.
 //       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.
 
-export async function addStudent(courseId:string, username: string){
+async function addStudent(courseId:string, username: string){
 
     const foundCourse = Course.find({courseId:courseId}).exec();
     const foundUser = User.find({username:username}).exec();

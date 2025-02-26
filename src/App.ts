@@ -7,7 +7,7 @@ import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
 import path from "path";
-import { addCourse, addStudent, removeCourse } from './modules/CourseManager';
+import { HandleCourseManager } from './modules/CourseManager';
 
 const port = 3000;
 const app = express();
@@ -24,11 +24,16 @@ mongoose.connect("mongodb://127.0.0.1:27017")
 // Parsea JSON kroppen av requests direkt
 app.use(express.json());
 
+const MongoStore = require("connect-mongo");
+
 app.use(session({
 	secret: 'BJB-AB-Forever',
 	resave: false,
-	saveUninitialized: true,
-	cookie: {}
+	saveUninitialized: false,
+	store: MongoStore.create({
+		mongoUrl: "mongodb://127.0.0.1:27017/session-store"
+	}),
+	cookie: {httpOnly: true}
 }));
 
 
@@ -86,7 +91,7 @@ app.get("/logout", async (req, res) => {
 // TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
 	const data = {
-		name: "Jakob"
+		name: req.session["user"] ?? "unknown"
 	}
 	res.render("Application", data);
 });
@@ -106,27 +111,8 @@ app.post("/app", async (req, res) => {
  * TODO: [Långt fram], se till att användaren vars session är aktiv och som anropar dessa actions är admin
  */
 app.get("/courseManager", async (req, res) => {
-	console.log(req.query);
-	// Exempel: if(req.query.action === "addCourse") { ... } else if(req.query.action === "removeCourse") osv.
-	// Vi använder res.sendStatus för att skicka ett svar med en statuskod. Koden returneras från addCourse
-	// baserat på huruvida funktionen kunde genomföras
-	if(req.query.action === "addCourse"){
-		res.sendStatus(await addCourse(req.query.name as string, req.query.courseId as string));
-	}
-	else if(req.query.action === "addStudent"){
-		res.sendStatus(await addStudent(req.query.courseId as string, req.query.username as string))
-	}
-	// else if(req.query.action === "removeStudent"){
-	// 	res.sendStatus(await removeStudent(req.query.courseId as string, req.query.username as string))
-	// }
-	else if(req.query.action === "removeCourse"){
-		res.sendStatus(await removeCourse(req.query.courseId as string)) //TOCHECK
-	}
-	else if(req.query.action === "deleteUser"){
-		res.sendStatus(await deleteUser(req.query.username as string)) //TOCHECK
-	}
+	HandleCourseManager(req, res);
 });
-
 
 
 /**

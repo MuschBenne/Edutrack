@@ -11,7 +11,7 @@
     <p>Please put in amount of minutes of your session (ex. 85)</p>
     Session duration: <input id="duration" type="text" placeholder="Session duration"><br>
     <p>Please pick the right session for your studies</p>
-    Session type: <select name="sessiontype" id="sessiontype" placeholder="Session Type">
+    Session type: <select name="sessiontype" id="sessiontype">
         <option value="Lecture">Lecture</option>
         <option value="Selfstudies">Self Studies</option>
         <option value="Homework">Homework</option>
@@ -20,9 +20,21 @@
         <option value="Labs">Labs</option>
       </select><br>
     <p>Pick the grade for the session where 5 is best and 1 is worst</p>
-    Session Rating: <input id="rating" type="number" min="1" max="5" value="1"><br>
+    Session Rating: <select name="rating" id="rating">
+        <option value="5">5</option>
+        <option value="4">4</option>
+        <option value="3">3</option>
+        <option value="2">2</option>
+        <option value="1">1</option>
+      </select><br>
     <p>Pick the grade for how you feel physically, if you are sick it's a 1, and 5 is you are feeling good.</p>
-    Physical wellbeing: <input id="health" type="number" min="1" max="5" value="1"><br>
+    Physical wellbeing: <select name="health" id="health">
+        <option value="5">5</option>
+        <option value="4">4</option>
+        <option value="3">3</option>
+        <option value="2">2</option>
+        <option value="1">1</option>
+      </select><br>
     <button onclick="addSession()">Add session</button>
     <script>
         function addSession(){

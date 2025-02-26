@@ -30,6 +30,7 @@ export async function HandleApp(req: Request, res: Response) {
     // TODO: Se till att returvärden på funktioner som anropas är Promise<Array<number | string>>
     let result = [];
     switch(req.query.action){
+        //TODO: Lägg till switch cases för resten av funktionerna i denna fil.
         case "addStudySession":
             // TODO: Se till att kursen anges av användaren i webbläsaren.
             const studySession: Entry = {

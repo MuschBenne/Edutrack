@@ -122,7 +122,11 @@ app.get("/courseManager", async (req, res) => {
 	else if(req.query.action === "removeCourse"){
 		res.sendStatus(await removeCourse(req.query.courseId as string)) //TOCHECK
 	}
+	else if(req.query.action === "deleteUser"){
+		res.sendStatus(await deleteUser(req.query.username as string)) //TOCHECK
+	}
 });
+
 
 
 /**

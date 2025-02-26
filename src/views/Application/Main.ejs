@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTrack</title>
+</head>
+<body>
+
+    <%- include("AppModules/Session"); %>
+    <h2>My courses</h2>
+    <!-- TODO: Lista alla courses som användaren är registrerad till-->
+     <ul>
+        <!-- Liten ledtråd, courses variabeln skickas med i data i res.render("/Application/Main", data).-->
+        <% courses.forEach(function(course){%>
+            <li></li>
+        <% }); %>
+         
+     </ul>
+</body>
+</html>

@@ -3,9 +3,22 @@ import session from "express-session";
 import User, { Entry } from "../db_models/User";
 
 export async function HandleApp(req: Request, res: Response){
+    // Se till att en användare är inloggad, annars skicka till login-skärmen
+    if (!req.session["user"])
+        res.status(403).redirect("/login");
+
+    // Resultat-arrayn har strukturen
+    // result[0]: Number = statuskod
+    // result[1]: String = meddelande till klienten
+    //
+    // Därav bör alla funktioner som anropas av requestet returnera en Promise<Array<number | string>>.
+    // Promise eftersom att funktionerna är async.
+    // (Se https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise för mer info).
+
+    // TODO: Se till att returvärden på funktioner som anropas är Promise<Array<number | string>>
+    let result = [];
     switch(req.query.action){
         case "addStudySession":
-            // TODO: Se till att användaren bestäms av express session
             // TODO: Se till att kursen anges av användaren i webbläsaren.
             const studySession: Entry = {
                 time: Number.parseInt(req.body.time),
@@ -13,12 +26,12 @@ export async function HandleApp(req: Request, res: Response){
                 gradeSess: Number.parseInt(req.body.rating),
                 health: Number.parseInt(req.body.health)
             }
-			const result = await addStudySession("Jakob", "PKD", studySession);
-            res.status(result[0] as number).json({msg: result[1]});
+			result = await addStudySession(req.session["user"], "PKD", studySession);
 			break;
 		default:
-			res.status(400).json({msg: "Invalid action: " + req.query.action})
+			result = [400, "Invalid action: " + req.query.action];
 	}
+    res.status(result[0] as number).json({msg: result[1]});
 }
 
 async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<Array<number | string>> {
@@ -66,4 +79,8 @@ async function fetchSessions() {
     return;
 }
 
-//TODO Skapa function som endast visar kurserna man inte är med i.
+// TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
+//       minus de som användaren redan är registrerad på
+async function fetchAvailableCourses() {
+    return;
+}

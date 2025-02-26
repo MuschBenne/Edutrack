@@ -9,16 +9,17 @@ export async function HandleLogin(req:Request, res:Response){
         //kolla om user finns
         const foundUser = await User.findOne({username: reqData.user}).exec();
         if(!foundUser) {
-            res.status(400).json({ message: "user doenst exist"});
+            res.status(400).json({ message: "Username does not exist"});
         }
         else {
             //kolla om password matchar
-            if(reqData.pass!==foundUser.password) {
-                res.status(400).json({ message: "password doesnt match"});
+            if(reqData.pass !== foundUser.password) {
+                res.status(400).json({ message: "Incorrect password"});
             }
             else {
                 // Här sätter vi användarens session
                 req.session["user"] = foundUser.username;
+                // TODO: Använd res.redirect för att omdirigera användaren till /app
                 res.status(200).json({ message: "Login successful", user:reqData.user });
             }
         }

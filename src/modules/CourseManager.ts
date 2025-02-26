@@ -128,14 +128,14 @@ async function addStudentToCourse(courseId:string, username: string){
 
 export async function deleteUser(username:string){
     const foundUser = await User.findOne({username:username}).exec();
-    if(!foundUser){
+    if(!foundUser) {
         console.log("student not found");
         return 400;
     }
     else{
-        const activeCourses= await fetchRegisteredCourses(username)
+        const activeCourses = await fetchRegisteredCourses(username)
 
-        for(let i=0;i>activeCourses.length;i++){
+        for(let i=0; i > activeCourses.length; i++){
             await removeStudentFromCourse(activeCourses[i],username);
         }
 

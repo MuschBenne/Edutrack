@@ -91,9 +91,10 @@ app.get("/logout", async (req, res) => {
 // TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
 	const data = {
-		name: req.session["user"] ?? "unknown"
+		name: req.session["user"] ?? "unknown",
+		courses: []
 	}
-	res.render("Application", data);
+	res.render("Application/Main", data);
 });
 
 app.post("/app", async (req, res) => {

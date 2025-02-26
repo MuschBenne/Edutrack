@@ -15,8 +15,6 @@ export async function HandleRegister(req: Request, res: Response){
         sessions: {debug: "test"}
     });
 
-    // Try/catch statements, försöker en grej, avbryter och gör en annan grej om något går fel.
-    // (läs på om det känns konstigt)
     try {
         // Validera den nyskapade användaren mot hur User's Schema ser ut 
         // (blir fel som catchas om något inte stämmer)
@@ -36,17 +34,17 @@ export async function HandleRegister(req: Request, res: Response){
                 });
             }
             else {  
-                res.status(400).json({message:"email already taken"});
+                res.status(400).json({message:"Email already taken"});
             }
         }
         else {
-            res.status(400).json({message:"username already taken"});
+            res.status(400).json({message:"Username already taken"});
         }
     }
     catch (err) {
         if (err instanceof mongoose.Error.ValidationError) {
-                    console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
-                    res.status(400).json(err.errors);
+            console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
+            res.status(400).json(err.errors);
         }
         else {
             res.status(500).json({message: "Something went really wrong"});

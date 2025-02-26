@@ -1,6 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import User, { Entry } from "../db_models/User";
 import mongoose from "mongoose";
+
+export async function RenderRegister(req: Request, res: Response, next: NextFunction){
+    if(req.session["user"])
+        res.redirect(307, "/app")
+    else
+        res.render("Register");
+}
 
 export async function HandleRegister(req: Request, res: Response){
     const reqData = req.body;

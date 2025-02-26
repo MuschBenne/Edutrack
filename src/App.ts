@@ -30,6 +30,7 @@ app.use(session({
 	secret: 'BJB-AB-Forever',
 	resave: false,
 	saveUninitialized: false,
+	unset: 'destroy',
 	store: MongoStore.create({
 		mongoUrl: "mongodb://127.0.0.1:27017/session-store"
 	}),
@@ -50,7 +51,7 @@ app.get('/', (req: Request, res: Response) => {
 /**
  * Handle register GET 
  */
-app.get("/register",  (req, res) => {
+app.get("/register", (req, res) => {
 	res.render("Register");
 });
 
@@ -78,8 +79,8 @@ app.post("/login", async (req, res) => {
 /**
  * Handle logout
  */
-app.get("/logout", async (req, res) => {
-	HandleLogout(req, res);
+app.get("/logout", async (req, res, next) => {
+	HandleLogout(req, res, next);
 });
 
 /**
@@ -112,17 +113,17 @@ app.get("/courseManager", async (req, res) => {
 
 app.get("/master.css", (req, res) => {
   
-  res.sendFile("./views/master.css", options, (err: Error) => {
-    if(err === undefined){
-      console.log(res.statusCode);
-      
-    }
-    else {
-      console.error(err.message);
-    }
-  });
+	res.sendFile("./views/master.css", options, (err: Error) => {
+    	if(err === undefined){
+    		console.log(res.statusCode);
+		
+    	}
+    	else {
+    		console.error(err.message);
+    	}
+  	});
 })
 
 app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}\nUse Ctrl + C to stop the server...`);
+	return console.log(`Express is listening at http://localhost:${port}\nUse Ctrl + C to stop the server...`);
 });

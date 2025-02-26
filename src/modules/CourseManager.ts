@@ -96,11 +96,6 @@ async function removeStudentFromCourse(courseId: string, username: string){
     }
 }
 
-// TOCHECK: Skapa funktion addStudentToCourse(courseID: string, username: string)
-//       Denna bör lägga till en student i kursens "students" array
-//       Granska i removeCourse hur vi hittade en course från ett courseID.
-//       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.
-
 async function addStudentToCourse(courseId:string, username: string){
 
     const foundCourse = Course.find({courseId:courseId}).exec();

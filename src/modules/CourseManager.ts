@@ -49,7 +49,7 @@ export async function removeStudentFromCourse(courseId: string, username: string
         const foundCourse = await Course.find({courseId:courseId}).exec();
         if (!foundCourse)
             console.log(`No course found with ID: ${courseId}`);
-        
+
         const updatedCourse = await Course.updateOne(
             { courseId },
             { $pull: { students: username } } 
@@ -57,11 +57,14 @@ export async function removeStudentFromCourse(courseId: string, username: string
 
         if (updatedCourse.modifiedCount > 0) {
             console.log("Student " + username + " removed from course " + courseId);
+            return 200;
         } else {
             console.log("Student " + username + " not found in course " + courseId);
+            return 400;
         }
     } catch (error) {
         console.error("Error removing student:", error);
+        return 500;
     }
 }
 

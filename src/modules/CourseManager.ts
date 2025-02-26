@@ -94,3 +94,21 @@ export async function addStudent(courseId:string, username: string){
         return 400;
     }
 }
+
+export async function deleteUser(username:string){
+    const foundUser = User.find({username:username}).exec();
+    if(!foundUser){
+        console.log("student not found");
+    }
+    else{
+        const activeCourses= fetchRegisteredCourses(username)
+
+        const updatedUser = await User.updateOne(
+            { username },
+            { $pull: { username: username } } 
+        );
+        if (updatedUser.modifiedCount > 0) {
+            console.log("Student " + username + " removed from Users ");
+        }
+    }
+}

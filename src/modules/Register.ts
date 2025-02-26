@@ -29,24 +29,26 @@ export async function HandleRegister(req: Request, res: Response){
         const foundEmail = await User.findOne({mail: reqData.email}).exec();
         
         // TOOCHECK: Lägg till en "else" för både om vi HAR hittat en användare med det användarnamnet eller email.
-        if(!foundUser){
-            if (!foundEmail){
+        if(!foundUser) {
+            if (!foundEmail) {
                 await newUser.save().then(() => {
-                res.status(200).json({message: "User created"});
-            });
-            }else{  
+                    res.status(200).json({message: "User created"});
+                });
+            }
+            else {  
                 res.status(400).json({message:"email already taken"});
             }
-        }else{
+        }
+        else {
             res.status(400).json({message:"username already taken"});
         }
-}
+    }
     catch (err) {
-            if (err instanceof mongoose.Error.ValidationError){
-                        console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
-                        res.status(400).json(err.errors);
-            }
-            else {
+        if (err instanceof mongoose.Error.ValidationError) {
+                    console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
+                    res.status(400).json(err.errors);
+        }
+        else {
             res.status(500).json({message: "Something went really wrong"});
-            } 
-        }}
+        } 
+    }}

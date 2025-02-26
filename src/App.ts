@@ -102,9 +102,6 @@ app.post("/app", async (req, res) => {
 
 /**
  * Course manager
- * 
- * TODO: Lägg till väg för att ta bort kurs
- * TODO: Lägg till väg för att lägga till/ta bort användarnamn till kurser
  * TODO: Läs av query för att bestämma vad som skall göras, vi kan ha en parameter som heter "action"
  * 		 så en url ser ut som:
  * 		 localhost:3000/courseManager?action=addCourse&name=PKD&courseId=11111

@@ -11,7 +11,7 @@
     <div id="inputContainer" class="centeredItems">
         <input type="text" value="" id="user" placeholder="Username"></input>
         <input type="password" value="" id="pass" placeholder="Password"></input>
-        <input type="button" onclick="tryLogin()" value="Log in"><input>
+        <input type="button" onclick="sendTheData()" value="Log in"><input>
     </div>
 
     <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
@@ -22,7 +22,7 @@
         let passElement = document.getElementById("pass");
     
         async function sendTheData() {
-		let response = await fetch("http://localhost:3000/register", {
+		let response = await fetch("http://localhost:3000/login", {
 	  		method: "POST",
 	  		body: JSON.stringify({
 	  		  user: userElement.value,

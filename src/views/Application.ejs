@@ -8,10 +8,21 @@
 <body>
     <!-- Skapa själva applikationen -->
     <h3>Hello <%= name %></h3>
+    <p>Please put in amount of minutes of your session (ex. 85)</p>
     Session duration: <input id="duration" type="text" placeholder="Session duration"><br>
-    Session type: <input id="type" type="text" placeholder="Type of studying"><br>
+    <p>Please pick the right session for your studies</p>
+    Session type: <select name="sessiontype" id="sessiontype" placeholder="Session Type">
+        <option value="Lecture">Lecture</option>
+        <option value="Selfstudies">Self Studies</option>
+        <option value="Homework">Homework</option>
+        <option value="Project">Project</option>
+        <option value="TentaP">TentaP</option>
+        <option value="Labs">Labs</option>
+      </select><br>
+    <p>Pick the grade for the session where 5 is best and 1 is worst</p>
     Session Rating: <input id="rating" type="number" min="1" max="5" value="1"><br>
-    Health Rating: <input id="health" type="number" min="1" max="5" value="1"><br>
+    <p>Pick the grade for how you feel physically, if you are sick it's a 1, and 5 is you are feeling good.</p>
+    Physical wellbeing: <input id="health" type="number" min="1" max="5" value="1"><br>
     <button onclick="addSession()">Add session</button>
     <script>
         function addSession(){
@@ -19,7 +30,7 @@
                 method: "POST",
 	  		    body: JSON.stringify({
                     time: document.getElementById("duration").value ?? -1,
-                    type: document.getElementById("type").value ?? "lecture",
+                    type: document.getElementById("sessiontype").value,
                     rating: document.getElementById("rating").value,
                     health: document.getElementById("health").value 
 	  		    }),

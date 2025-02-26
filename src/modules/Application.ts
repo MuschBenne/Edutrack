@@ -2,7 +2,15 @@ import { Request, Response } from "express";
 import session from "express-session";
 import User, { Entry } from "../db_models/User";
 
-export async function HandleApp(req: Request, res: Response){
+export async function RenderApp(req: Request, res: Response) {
+    const data = {
+        name: req.session["user"] ?? "unknown",
+        courses: []
+    }
+    res.render("Application/Main", data);
+}
+
+export async function HandleApp(req: Request, res: Response) {
     // Se till att en användare är inloggad, annars skicka till login-skärmen
     if (!req.session["user"])
         res.status(403).redirect("/login");

@@ -5,7 +5,7 @@ import { HandleRegister } from './modules/Register';
 import { HandleLogin } from './modules/Login';
 import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
-import { HandleApp } from './modules/Application';
+import { HandleApp, RenderApp } from './modules/Application';
 import path from "path";
 import { HandleCourseManager } from './modules/CourseManager';
 
@@ -90,11 +90,7 @@ app.get("/logout", async (req, res) => {
 
 // TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
-	const data = {
-		name: req.session["user"] ?? "unknown",
-		courses: []
-	}
-	res.render("Application/Main", data);
+	RenderApp(req, res);
 });
 
 app.post("/app", async (req, res) => {

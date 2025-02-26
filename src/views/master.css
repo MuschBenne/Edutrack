@@ -6,6 +6,7 @@
 .centeredItems {
     justify-content: center;
     align-items: center;
+    color: #DBBB68;
     display: flex;
     flex-direction: column;
 }
@@ -27,11 +28,11 @@
     width: 100%;
     margin: 1%;
     text-align: center;
-    color: #152242;
+    color:black;
 }
 
 body {
-    background-color: #DBBB68;
+    background-color: #152242;
 }
 
 nav {
@@ -52,7 +53,7 @@ nav ul li {
 
 nav ul li a {
     text-decoration: none;
-    color: white;
+    color:#DBBB68;
     padding: 8px 12px;
 }
 
@@ -60,3 +61,14 @@ nav ul li a:hover {
     background-color: #555;
     border-radius: 5px;
 }
+
+.footer {
+    background-color: #DBBB68;  
+    color: #152242;            
+    text-align: center;      
+    padding: 5px 0;         
+    position: fixed;         
+    width: 100%;            
+    bottom: 0;               
+}
+

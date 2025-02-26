@@ -35,6 +35,8 @@
 
         let userElement = document.getElementById("user");
         let passElement = document.getElementById("pass");
+
+        let errorMessage = document.getElementById("errorMessage");
     
         async function tryLogin() {
 		    let response = await fetch("http://localhost:3000/login", {
@@ -54,7 +56,8 @@
                 window.location.href = "/app";
             }
             else {
-                errorMessage.innerText = res.json(message);
+                const responseJSON = await res.json();
+                errorMessage.innerText = responseJSON.message;
             }
         }
     </script>

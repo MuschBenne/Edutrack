@@ -75,18 +75,9 @@
 		if(res && res.status === 200) {
 			window.location.href = "/app";
 		}
-		// OBS: 400 Är generell felstatuskod
-		// sista else i funktionen kommer därför förmodligen aldrig nås.
-		
-		// TODO: (1/2) Får bara upp undefend ist för rätt meddelande från TS filen, lösssss
-		// TOCHECK: (2/2) Läs av res.json för att avgöra vad för fel som uppstått, visa detta för användaren.
-		else if(res && res.status === 400) {
-			errorMessage.innerText = res.json().message;
-			
-		} else {
-			// Detta kommer troligtvis inte nås (om inte något verkligen, verkligen bajsar på sig)
-			console.log("Something go wrong");
-			console.log(res);
+		else {
+			const responseJSON = await res.json();
+			errorMessage.innerText = responseJSON.message;
 		}
 	}
     </script>

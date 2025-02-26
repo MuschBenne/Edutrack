@@ -86,9 +86,6 @@ app.get("/logout", async (req, res) => {
  * Handle app
  */
 
-// TODO: Använd paketet "express-session" för att se till att en inloggad användare hålls inloggad
-
-// TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
 	RenderApp(req, res);
 });

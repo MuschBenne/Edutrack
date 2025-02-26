@@ -91,11 +91,11 @@ async function removeStudentFromCourse(courseId: string, username: string){
         }
     } catch (error) {
         console.error("Error removing student:", error);
-        return 500;
+        return 500; //TOCHECK
     }
 }
 
-// TODO: Skapa funktion addStudent(courseID: string, username: string)
+// TOCHECK: Skapa funktion addStudent(courseID: string, username: string)
 //       Denna bör lägga till en student i kursens "students" array
 //       Granska i removeCourse hur vi hittade en course från ett courseID.
 //       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.
@@ -122,5 +122,23 @@ async function addStudent(courseId:string, username: string){
     else {
         console.log("student eller course finns inte");
         return 400;
+    }
+}
+
+export async function deleteUser(username:string){
+    const foundUser = User.find({username:username}).exec();
+    if(!foundUser){
+        console.log("student not found");
+    }
+    else{
+        const activeCourses= fetchRegisteredCourses(username)
+
+        const updatedUser = await User.updateOne(
+            { username },
+            { $pull: { username: username } } 
+        );
+        if (updatedUser.modifiedCount > 0) {
+            console.log("Student " + username + " removed from Users ");
+        }
     }
 }

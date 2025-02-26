@@ -31,7 +31,7 @@ export async function HandleRegister(req: Request, res: Response){
         if(!foundUser){
             if (!foundEmail)
                 await newUser.save().then(() => {
-                res.sendStatus(200).json({message: "User created"});
+                res.status(200).json({message: "User created"});
             });
         }
     }

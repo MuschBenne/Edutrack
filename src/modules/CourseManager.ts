@@ -149,3 +149,5 @@ export async function deleteUser(username:string){
         }
     }
 }
+
+// fetchcourses TODO ska ta alla kursen och visa dem

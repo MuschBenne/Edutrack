@@ -48,10 +48,7 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
         
 }
 
-// TODO: Lägg till en registerToCourse funktion som registrerar en användare till en kurs (och en kurs till en användare)
-async function registerToCourse() {
-    return;
-}
+
 // TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
 export async function fetchRegisteredCourses(username: string) {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
@@ -68,3 +65,5 @@ export async function fetchRegisteredCourses(username: string) {
 async function fetchSessions() {
     return;
 }
+
+//TODO Skapa function som endast visar kurserna man inte är med i.

@@ -7,23 +7,34 @@
     <link rel="stylesheet" href="master.css">
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="login">Log in</a></li>
-            <li><a href="app">Sessions</a></li>
-            <li><a href="register">Register</a></li>
-        </ul>
-    </nav>
+    <div class="header-container">
+        <!-- Heading Section (Top-left aligned) -->
+        <div class="heading-section">
+            <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
+            
+        </div>
+
+        <!-- Navigation (Horizonally aligned beside the heading) -->
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="login">Log in</a></li>
+                <li><a href="app">Sessions</a></li>
+                <li><a href="register">Register</a></li>
+            </ul>
+        </nav>
+    </div>
 </body>
-<body class="centeredItems">
-    <h1>Hello and Welcome to EduTrack</h1>
-    <br>
+<body>
+    <div class="centeredItems">
+      <h1>Ahh, have you studied? Welcome back!</h1>
+
     <div id="inputContainer" class="centeredItems">
         <input type="text" value="" id="user" placeholder="Username"></input>
         <input type="password" value="" id="pass" placeholder="Password"></input>
         <input type="button" onclick="tryLogin()" value="Log in"></input>
     </div>
+    </div> 
 
     <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
 

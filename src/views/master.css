@@ -1,6 +1,7 @@
 .centeredItemsH {
     display: flex;
     justify-content: center;
+    margin: 0 auto
 }
 
 .centeredItems {
@@ -9,36 +10,62 @@
     color: #DBBB68;
     display: flex;
     flex-direction: column;
+    margin: 0 auto;
 }
 
 #inputContainer {
-    width: 50vw;
-    height: 50vh;
-    margin-top: 5%;
+    width: 20vw;
+    height: 60vh;
+    margin-top: -5%;
     flex-flow:column;
 }
 
 #inputContainer > input {
     width: 100%;
+    height: 30px;
     margin: 1%;
     text-align: center;
 }
 
 #inputContainer > select {
-    width: 100%;
+    width: 102%;
+    font-size: 30px;
     margin: 1%;
     text-align: center;
     color:black;
 }
 
-body {
-    background-color: #152242;
+section {
+    color: #DBBB68;
+    width: 50%;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #152242; /* Background color for the page */
+    overflow-x: hidden; /* To prevent horizontal scroll */
+}
+
+/* Header Container for Navigation and Heading */
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Space between navigation and heading */
+    align-items: center; /* Vertically center the items */
+    padding: 5px;
+}
+
+/* Heading Section (Top-left aligned) */
+.heading-section {
+    color:#DBBB68;
+    text-align: left;
+}
+
+
+/* Navigation Styling */
 nav {
     display: flex;
     justify-content: flex-end;
-    padding: 10px 20px;
 }
 
 nav ul {
@@ -62,13 +89,49 @@ nav ul li a:hover {
     border-radius: 5px;
 }
 
+/* Footer Styling */
 .footer {
-    background-color: #DBBB68;  
-    color: #152242;            
-    text-align: center;      
-    padding: 5px 0;         
-    position: fixed;         
-    width: 100%;            
-    bottom: 0;               
+    background-color: #DBBB68;
+    color: #152242;
+    text-align: center;
+    padding: 5px 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
 }
 
+.main-content {
+    display: flex;           /* Align the sections horizontally (side by side) */
+    justify-content: space-around; /* Distribute sections evenly */
+    align-items: flex-start; /* Align items to the top */
+    padding: 20px;
+    margin-top: 180px;
+    color: #DBBB68;
+}
+
+/* Flexbox for each section (icon on top, h2 and p below) */
+.section {
+    display: flex;
+    flex-direction: column; /* Stack icon, heading, and paragraph vertically */
+    align-items: center;    /* Center content horizontally */
+    gap: 10px;              /* Space between icon, heading, and paragraph */
+    width: 30%;             /* Adjust the width of each section */
+    text-align: center;     /* Center align text in each section */
+}
+
+/* Style for each heading */
+.section h2 {
+    color: #DBBB68;
+    margin: 5;              /* Remove any default margin from heading */
+}
+
+/* Make sure the text is aligned properly below the heading */
+.section p {
+    flex: 1; /* Makes sure the text takes up remaining space */
+    margin: 0; /* Remove default margin from paragraphs */
+}
+
+/* Optional: Styling for each icon */
+.section span {
+    font-size: 5rem;  /* Adjust the size of the icon */
+}

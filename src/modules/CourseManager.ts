@@ -64,11 +64,11 @@ export async function removeStudentFromCourse(courseId: string, username: string
         }
     } catch (error) {
         console.error("Error removing student:", error);
-        return 500;
+        return 500; //TOCHECK
     }
 }
 
-// TODO: Skapa funktion addStudent(courseID: string, username: string)
+// TOCHECK: Skapa funktion addStudent(courseID: string, username: string)
 //       Denna bör lägga till en student i kursens "students" array
 //       Granska i removeCourse hur vi hittade en course från ett courseID.
 //       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.

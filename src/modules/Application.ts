@@ -92,8 +92,9 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<st
 
 // TODO: (1/2) Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
 // TODO: (2/2) Se till att denna data sparas i cookien, så att vi slipper hämta den massa gånger
-async function fetchSessions() {
-    return;
+export async function fetchSessions(username:string): Promise <Array<Array<string>>> {
+    const foundUser = await User.findOne({ username: username }).exec();
+    return foundUser.sessions;
 }
 
 // TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,

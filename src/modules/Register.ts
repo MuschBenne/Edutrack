@@ -28,14 +28,18 @@ export async function HandleRegister(req: Request, res: Response){
         // Om foundUser är null...
         const foundEmail = await User.findOne({mail: reqData.email}).exec();
         
-        // TODO: Lägg till en "else" för både om vi HAR hittat en användare med det användarnamnet eller email.
+        // TOOCHECK: Lägg till en "else" för både om vi HAR hittat en användare med det användarnamnet eller email.
         if(!foundUser){
             if (!foundEmail){
                 await newUser.save().then(() => {
                 res.status(200).json({message: "User created"});
             });
+            }else{  
+                res.status(400).json({message:"email already taken"});
+            }
+        }else{
+            res.status(400).json({message:"username already taken"});
         }
-    }
 }
     catch (err) {
             if (err instanceof mongoose.Error.ValidationError){

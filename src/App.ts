@@ -23,11 +23,16 @@ mongoose.connect("mongodb://127.0.0.1:27017")
 // Parsea JSON kroppen av requests direkt
 app.use(express.json());
 
+const MongoStore = require("connect-mongo");
+
 app.use(session({
 	secret: 'BJB-AB-Forever',
 	resave: false,
-	saveUninitialized: true,
-	cookie: {}
+	saveUninitialized: false,
+	store: MongoStore.create({
+		mongoUrl: "mongodb://127.0.0.1:27017/session-store"
+	}),
+	cookie: {httpOnly: true}
 }));
 
 app.set('view engine', 'ejs');
@@ -83,7 +88,7 @@ app.get("/logout", async (req, res) => {
 // TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
 	const data = {
-		name: "Jakob"
+		name: req.session["user"] ?? "unknown"
 	}
 	res.render("Application", data);
 });

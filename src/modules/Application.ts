@@ -29,18 +29,13 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
     // This will be the key for the sessions map for a course
     const date = new Date().toDateString().replaceAll(" ", "_");
     
-    // Define the path to get to the course's saved dates for saved sessions
-    let pathString = "sessions." + courseID;
     // If no course sessions have been made for this course, despite the user being registered to it...
-    if(!user.get(pathString) && user.activeCourses.includes(courseID))
+    if(!user.sessions[courseID] && user.activeCourses.includes(courseID))
         // Create the empty object for this course
-        user.set(pathString, {});
+        user.sessions[courseID] = {};
     
-    // Update the path to get to the current date's sessions
-    pathString += "." + date;
-    // Get the sessions at the current date
-    if(!user.get(pathString)) // If no sessions have been saved for this date, create the first one
-        user.set(pathString, [sessionData]);
+    if(!user.sessions[courseID][date]) // If no sessions have been saved for this date, create the first one
+        user.sessions[courseID][date] = [sessionData];
     else
         user.sessions[courseID][date].push(sessionData); // Add additional session for the date
 
@@ -58,8 +53,15 @@ async function registerToCourse() {
     return;
 }
 // TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
-async function fetchRegisteredCourses() {
-    return;
+export async function fetchRegisteredCourses(username: string) {
+    const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
+
+    // if (!foundUser) { //måste returna array 
+    //     console.log("User not found");
+    //     return { status: 400, message: "User not found" }; // Return a proper response
+    // }
+
+    return foundUser.activeCourses; // Now correctly accessing the property
 }
 
 //TODO: Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum

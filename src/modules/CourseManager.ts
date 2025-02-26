@@ -2,6 +2,7 @@ import Course from "../db_models/Course";
 import express, { Request, Response } from 'express';
 import User from "../db_models/User";
 import mongoose from "mongoose";
+import { fetchRegisteredCourses } from "./Application";
 
 export async function HandleCourseManager(req: Request, res: Response){
     console.log(req.query);
@@ -126,12 +127,17 @@ async function addStudent(courseId:string, username: string){
 }
 
 export async function deleteUser(username:string){
-    const foundUser = User.find({username:username}).exec();
+    const foundUser = await User.findOne({username:username}).exec();
     if(!foundUser){
         console.log("student not found");
+        return 400;
     }
     else{
-        const activeCourses= fetchRegisteredCourses(username)
+        const activeCourses= await fetchRegisteredCourses(username)
+
+        for(let i=0;i>activeCourses.length;i++){
+            await removeStudentFromCourse(activeCourses[i],username);
+        }
 
         const updatedUser = await User.updateOne(
             { username },
@@ -139,6 +145,7 @@ export async function deleteUser(username:string){
         );
         if (updatedUser.modifiedCount > 0) {
             console.log("Student " + username + " removed from Users ");
+            return 200;
         }
     }
 }

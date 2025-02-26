@@ -3,6 +3,10 @@ import session from "express-session";
 import User, { Entry } from "../db_models/User";
 
 export async function RenderApp(req: Request, res: Response) {
+    if (!req.session["user"]){
+        res.status(403).redirect("/login");
+        return;
+    }
     const data = {
         name: req.session["user"] ?? "unknown",
         courses: []

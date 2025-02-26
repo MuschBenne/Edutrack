@@ -28,8 +28,9 @@ export async function HandleRegister(req: Request, res: Response){
         // Om foundUser är null...
         const foundEmail = await User.findOne({mail: reqData.email}).exec();
         
+        // TODO: Lägg till en "else" för både om vi HAR hittat en användare med det användarnamnet eller email.
         if(!foundUser){
-            if (!foundEmail)
+            if (!foundEmail){
                 await newUser.save().then(() => {
                 res.status(200).json({message: "User created"});
             });

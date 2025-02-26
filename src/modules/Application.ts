@@ -58,8 +58,15 @@ async function registerToCourse() {
     return;
 }
 // TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
-async function fetchRegisteredCourses() {
-    return;
+export async function fetchRegisteredCourses(username: string) {
+    const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
+
+    // if (!foundUser) { //måste returna array 
+    //     console.log("User not found");
+    //     return { status: 400, message: "User not found" }; // Return a proper response
+    // }
+
+    return foundUser.activeCourses; // Now correctly accessing the property
 }
 
 //TODO: Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum

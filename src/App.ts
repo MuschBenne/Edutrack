@@ -7,7 +7,7 @@ import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
 import path from "path";
-import { addCourse, addStudent, removeCourse } from './modules/CourseManager';
+import { addCourse, addStudent, removeCourse, removeStudentFromCourse } from './modules/CourseManager';
 
 const port = 3000;
 const app = express();
@@ -129,6 +129,9 @@ app.get("/courseManager", async (req, res) => {
 	}
 	else if(req.query.action === "deleteUser"){
 		res.sendStatus(await deleteUser(req.query.username as string)) //TOCHECK
+	}
+	else if(req.query.action === "removeStudentFromCourse"){
+		res.sendStatus(await removeStudentFromCourse(req.query.courseID as string, req.query.username as string)) //TOCHECK
 	}
 });
 

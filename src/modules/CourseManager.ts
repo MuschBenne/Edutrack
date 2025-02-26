@@ -13,8 +13,8 @@ export async function HandleCourseManager(req: Request, res: Response){
         case "addCourse":
             res.sendStatus(await addCourse(req.query.name as string, req.query.courseId as string));
             break;
-        case "addStudent":
-            res.sendStatus(await addStudent(req.query.courseId as string, req.query.username as string));
+        case "addStudentToCourse":
+            res.sendStatus(await addStudentToCourse(req.query.courseId as string, req.query.username as string));
             break;
         case "removeCourse":
             res.sendStatus(await removeCourse(req.query.courseId as string)); // TOCHECK
@@ -96,12 +96,12 @@ async function removeStudentFromCourse(courseId: string, username: string){
     }
 }
 
-// TOCHECK: Skapa funktion addStudent(courseID: string, username: string)
+// TOCHECK: Skapa funktion addStudentToCourse(courseID: string, username: string)
 //       Denna bör lägga till en student i kursens "students" array
 //       Granska i removeCourse hur vi hittade en course från ett courseID.
 //       Försök lista ut hur man redigerar en property av en course och sedan uppdaterar den i databassen.
 
-async function addStudent(courseId:string, username: string){
+async function addStudentToCourse(courseId:string, username: string){
 
     const foundCourse = Course.find({courseId:courseId}).exec();
     const foundUser = User.find({username:username}).exec();

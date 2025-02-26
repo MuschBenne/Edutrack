@@ -30,7 +30,9 @@ export async function HandleRegister(req: Request, res: Response){
         if(!foundUser) {
             if (!foundEmail) {
                 await newUser.save().then(() => {
+                    req.session["user"] = reqData.user;
                     res.status(200).json({message: "User created"});
+                    
                 });
             }
             else {  

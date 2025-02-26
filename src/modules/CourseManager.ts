@@ -42,6 +42,27 @@ export async function removeCourse(courseId: string){
 
 }
 
+export async function removeStudentFromCourse(courseId: string, username: string){
+    try {
+        const foundCourse = await Course.find({courseId:courseId}).exec();
+        if (!foundCourse)
+            console.log(`No course found with ID: ${courseId}`);
+        
+        const updatedCourse = await Course.updateOne(
+            { courseId },
+            { $pull: { students: username } } 
+        );
+
+        if (updatedCourse.modifiedCount > 0) {
+            console.log("Student " + username + " removed from course " + courseId);
+        } else {
+            console.log("Student " + username + " not found in course " + courseId);
+        }
+    } catch (error) {
+        console.error("Error removing student:", error);
+    }
+}
+
 // TODO: Skapa funktion addStudent(courseID: string, username: string)
 //       Denna bör lägga till en student i kursens "students" array
 //       Granska i removeCourse hur vi hittade en course från ett courseID.

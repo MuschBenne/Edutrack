@@ -35,9 +35,11 @@ export async function removeCourse(courseId: string){
     if (foundCourse) {
         await Course.deleteOne({ courseId:courseId });
         console.log("Course with ID " + courseId + " removed.")
+        return 200;
     }
     else {
         console.log("No course with ID " + courseId + " found.")
+        return 400; //TOCHECK
     }
 
 }

@@ -7,10 +7,11 @@ import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp } from './modules/Application';
 import path from "path";
-import { addCourse, addStudent } from './modules/CourseManager';
+import { addCourse, addStudent, removeCourse } from './modules/CourseManager';
 
 const port = 3000;
 const app = express();
+
 
 const options = {
     root: path.join(__dirname)
@@ -29,6 +30,7 @@ app.use(session({
 	saveUninitialized: true,
 	cookie: {}
 }));
+
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -80,6 +82,7 @@ app.get("/logout", async (req, res) => {
  */
 
 // TODO: Använd paketet "express-session" för att se till att en inloggad användare hålls inloggad
+
 // TODO: Se till att en session är igång, annars får inte en användare vara på denna sidan ens.
 app.get("/app", async (req, res) => {
 	const data = {
@@ -113,7 +116,17 @@ app.get("/courseManager", async (req, res) => {
 	else if(req.query.action === "addStudent"){
 		res.sendStatus(await addStudent(req.query.courseId as string, req.query.username as string))
 	}
+	// else if(req.query.action === "removeStudent"){
+	// 	res.sendStatus(await removeStudent(req.query.courseId as string, req.query.username as string))
+	// }
+	else if(req.query.action === "removeCourse"){
+		res.sendStatus(await removeCourse(req.query.courseId as string)) //TOCHECK
+	}
+	else if(req.query.action === "deleteUser"){
+		res.sendStatus(await deleteUser(req.query.username as string)) //TOCHECK
+	}
 });
+
 
 
 /**

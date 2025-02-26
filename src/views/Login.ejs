@@ -45,14 +45,13 @@
                 }
 		    });
 
-            const res = await response.json();
+            const res = await response;
 
             if (res && res.status === 200) {
-                console.log("User logged in!");
-                window.location.href = "/application";
+                window.location.href = "/app";
             }
             else {
-                errorMessage.innerText = res.message;
+                errorMessage.innerText = res.json(message);
             }
         }
     </script>

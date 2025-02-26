@@ -1,9 +1,29 @@
 <!-- Skapa själva applikationen -->
-<h3>Hello <%= name %></h3>
-<p>Please put in amount of minutes of your session (ex. 85)</p>
-Session duration: <input id="duration" type="text" placeholder="Session duration"><br>
-<p>Please pick the right session for your studies</p>
-Session type: <select name="sessiontype" id="sessiontype">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+	<link rel="stylesheet" href="master.css">
+</head>
+
+<body>
+  <nav>
+      <ul>
+          <li><a href="landing">Home</a></li>
+          <li><a href="login">Log in</a></li>
+          <li><a href="app">Sessions</a></li>
+          <li><a href="Register.ejs">Register</a></li>
+      </ul>
+  </nav>
+</body>
+<body class="centeredItems">
+  <h3>Hello <%= name %></h3>
+  <p>Please put in amount of minutes of your session (ex. 85)</p>
+  Session duration: <input id="duration" type="text" placeholder="Session duration"><br>
+  <p>Please pick the right session for your studies</p>
+  Session type: <select name="sessiontype" id="sessiontype">
     <option value="Lecture">Lecture</option>
     <option value="Selfstudies">Self Studies</option>
     <option value="Homework">Homework</option>
@@ -11,23 +31,23 @@ Session type: <select name="sessiontype" id="sessiontype">
     <option value="TentaP">TentaP</option>
     <option value="Labs">Labs</option>
   </select><br>
-<p>Pick the grade for the session where 5 is best and 1 is worst</p>
-Session Rating: <select name="rating" id="rating">
+  <p>Pick the grade for the session where 5 is best and 1 is worst</p>
+  Session Rating: <select name="rating" id="rating">
     <option value="5">5</option>
     <option value="4">4</option>
     <option value="3">3</option>
     <option value="2">2</option>
     <option value="1">1</option>
   </select><br>
-<p>Pick the grade for how you feel physically, if you are sick it's a 1, and 5 is you are feeling good.</p>
-Physical wellbeing: <select name="health" id="health">
+  <p>Pick the grade for how you feel physically, if you are sick it's a 1, and 5 is you are feeling good.</p>
+  Physical wellbeing: <select name="health" id="health">
     <option value="5">5</option>
     <option value="4">4</option>
     <option value="3">3</option>
     <option value="2">2</option>
     <option value="1">1</option>
   </select><br>
-<button onclick="addSession()">Add session</button>
+  <button onclick="addSession()">Add session</button>
 <script>
     function addSession(){
         fetch("http://localhost:3000/app?action=addStudySession", {
@@ -44,3 +64,5 @@ Physical wellbeing: <select name="health" id="health">
         })
     }
 </script>
+</body>
+</html>

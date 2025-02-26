@@ -7,6 +7,7 @@
     justify-content: center;
     align-items: center;
     display: flex;
+    flex-direction: column;
 }
 
 #inputContainer {
@@ -31,4 +32,32 @@
 
 body {
     background-color: #DBBB68;
+}
+
+nav {
+    display: flex;
+    justify-content: flex-end; /
+    background-color: #333; 
+    padding: 10px 20px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    padding: 8px 12px;
+}
+
+nav ul li a:hover {
+    background-color: #555;
+    border-radius: 5px;
 }

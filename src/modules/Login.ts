@@ -27,7 +27,6 @@ export async function HandleLogin(req:Request, res:Response){
                 req.session["user"] = foundUser.username;
                 // TODO: Använd res.redirect för att omdirigera användaren till /app
                 res.status(403).redirect("/app")
-                res.status(200).json({ message: "Login successful", user:reqData.user });
             }
         }
         

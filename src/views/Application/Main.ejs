@@ -17,5 +17,19 @@
         <% }); %>
          
      </ul>
+
+     <button onclick=fetchcourses()>fetchcourses</button>
+
+     <script>
+        function fetchcourses(){
+            fetch("http://localhost:3000/app?action=fetchCourses", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+        }
+     </script>
+     <a href="/logout"><div><h2>Logout</h2></div></a>
 </body>
 </html>

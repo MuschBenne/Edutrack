@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import session from "express-session";
 import User, { Entry } from "../db_models/User";
+import Course from "../db_models/Course";
 
 export async function RenderApp(req: Request, res: Response) {
     if (!req.session["user"]){
@@ -30,6 +31,7 @@ export async function HandleApp(req: Request, res: Response) {
     // TODO: Se till att returvärden på funktioner som anropas är Promise<Array<number | string>>
     let result = [];
     switch(req.query.action){
+        //TODO: Lägg till switch cases för resten av funktionerna i denna fil.
         case "addStudySession":
             // TODO: Se till att kursen anges av användaren i webbläsaren.
             const studySession: Entry = {
@@ -40,6 +42,8 @@ export async function HandleApp(req: Request, res: Response) {
             }
 			result = await addStudySession(req.session["user"], "PKD", studySession);
 			break;
+        case "fetchCourses":
+            result= await fetchAvailableCourses("Bernhard");
 		default:
 			result = [400, "Invalid action: " + req.query.action];
 	}
@@ -99,6 +103,10 @@ export async function fetchSessions(username:string): Promise <Array<Array<strin
 
 // TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
 //       minus de som användaren redan är registrerad på
-async function fetchAvailableCourses() {
-    return;
+async function fetchAvailableCourses(username:string): Promise <Array<string|number>>{
+    const allCourses = await Course.find({}, "name").exec();
+    const registeredCourses =await fetchRegisteredCourses(username);
+    const available = []
+    console.log(allCourses)
+    return [1] ;
 }

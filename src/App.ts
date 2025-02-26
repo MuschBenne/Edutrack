@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import session from "express-session";
 import mongoose from 'mongoose';
-import { HandleRegister } from './modules/Register';
+import { HandleRegister, RenderRegister } from './modules/Register';
 import { HandleLogin, RenderLogin } from './modules/Login';
 import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
@@ -51,8 +51,8 @@ app.get('/', (req: Request, res: Response) => {
 /**
  * Handle register GET 
  */
-app.get("/register", (req, res) => {
-	res.render("Register");
+app.get("/register", (req, res, next) => {
+	RenderRegister(req, res, next)
 });
 
 /**

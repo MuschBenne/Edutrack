@@ -64,10 +64,10 @@
 		// OBS: 400 Är generell felstatuskod
 		// sista else i funktionen kommer därför förmodligen aldrig nås.
 		
-		// TOCHECK: (1/2) Skicka med information i res.json om vad för fel som uppstått (från Register.ts)
+		// TODO: (1/2) Får bara upp undefend ist för rätt meddelande från TS filen, lösssss
 		// TOCHECK: (2/2) Läs av res.json för att avgöra vad för fel som uppstått, visa detta för användaren.
 		else if(res && res.status === 400) {
-			errorMessage.innertext = res.message;
+			errorMessage.innerText = res.message;
 			
 		} else {
 			// Detta kommer troligtvis inte nås (om inte något verkligen, verkligen bajsar på sig)

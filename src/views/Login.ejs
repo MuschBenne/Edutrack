@@ -11,7 +11,7 @@
     <div id="inputContainer" class="centeredItems">
         <input type="text" value="" id="user" placeholder="Username"></input>
         <input type="password" value="" id="pass" placeholder="Password"></input>
-        <input type="button" onclick="sendTheData()" value="Log in"><input>
+        <input type="button" onclick="tryLogin()" value="Log in"></input>
     </div>
 
     <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
@@ -21,28 +21,28 @@
         let userElement = document.getElementById("user");
         let passElement = document.getElementById("pass");
     
-        async function sendTheData() {
-		let response = await fetch("http://localhost:3000/login", {
-	  		method: "POST",
-	  		body: JSON.stringify({
-	  		  user: userElement.value,
-	  		  pass: passElement.value
-	  		}),
-	  		headers: {
-	  		  "Content-type": "application/json; charset=UTF-8"
-	  		}
-		});
+        async function tryLogin() {
+		    let response = await fetch("http://localhost:3000/login", {
+                method: "POST",
+                body: JSON.stringify({
+                user: userElement.value,
+                pass: passElement.value
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+		    });
 
-		const res = await response.json();
+            const res = await response.json();
 
-		if (res && res.status === 200) {
-			console.log("User logged in!");
-            window.location.href = "/application";
-		}
-        else {
-            errorMessage.innerText = res.message;
+            if (res && res.status === 200) {
+                console.log("User logged in!");
+                window.location.href = "/application";
+            }
+            else {
+                errorMessage.innerText = res.message;
+            }
         }
-        }    
     </script>
 </body>
 </html>

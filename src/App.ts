@@ -37,9 +37,9 @@ app.use(session({
 	cookie: {httpOnly: true}
 }));
 
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(__dirname + '/public'));
 
 /**
  * Landing page
@@ -111,18 +111,7 @@ app.get("/courseManager", async (req, res) => {
  * Master css file
  */
 
-app.get("/master.css", (req, res) => {
-  
-	res.sendFile("./views/master.css", options, (err: Error) => {
-    	if(err === undefined){
-    		console.log(res.statusCode);
-		
-    	}
-    	else {
-    		console.error(err.message);
-    	}
-  	});
-})
+
 
 app.listen(port, () => {
 	return console.log(`Express is listening at http://localhost:${port}\nUse Ctrl + C to stop the server...`);

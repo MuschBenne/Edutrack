@@ -87,7 +87,7 @@ app.get("/logout", async (req, res, next) => {
  * Handle app
  */
 
-app.get("/app", async (req, res) => {
+app.get(["app/", "/app*"], async (req, res) => {
 	RenderApp(req, res);
 });
 

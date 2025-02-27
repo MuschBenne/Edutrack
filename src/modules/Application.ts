@@ -9,12 +9,28 @@ export async function RenderApp(req: Request, res: Response) {
         return;
     }
     
-    const userCourses = await fetchRegisteredCourses(req.session["user"]);
-    const data = {
-        name: req.session["user"] ?? "unknown",
-        courses: userCourses ?? []
-    };
-    res.render("Application/Main", data);
+    let data = {};
+
+    switch(req.path){
+        case "/app/course_registration":
+            data = {
+                name: req.session["user"] ?? "unknown",
+            };
+            res.render("Application/CourseRegister", data);
+            break;
+        
+        case "/app/course_page":
+            res.render("Application/CoursePage", data);
+            break;
+
+        default:
+            const userCourses = await fetchRegisteredCourses(req.session["user"]);
+            data = {
+                name: req.session["user"] ?? "unknown",
+                courses: userCourses
+            };
+            res.render("Application/Main", data);
+    }
 }
 
 export async function HandleApp(req: Request, res: Response) {

@@ -3,10 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTrack</title>
+    <title>EduTrack - Course Registration</title>
+    <link rel="stylesheet" href="/master.css">
 </head>
-<body>
-    <!-- TODO Skapa en sida där man kan se alla tillgängliga kurser och registrera sig till dessa fritt -->
-     <h2>Here we are at the course registration site. Welcome, traveler.</h2>
+
+<body class="centeredItems">
+    <h2>Welcome, <%= name %>! Select a course to register:</h2>
+
+    <% if (availableCourses.length > 0) { %>
+        <label for="courseSelect">Choose a course:</label>
+        <select id="courseSelect">
+            <% availableCourses.forEach(function(course) { %>
+                <option value="<%= course.courseId %>"><%= course.name %></option>
+            <% }); %>
+        </select>
+        <input type="button" onclick="addStudentToNewCourse()" value="Register"></input>
+    <% } else { %>
+        <p>No available courses at the moment.</p>
+    <% } %>
+    
+    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+
+    <script>
+        async function addStudentToNewCourse(){
+            const selectedCourse = document.getElementById("courseSelect").value;
+            const username = "<%= name %>";
+
+            if (!selectedCourse) {
+                document.getElementById("errorMessage").innerText = "Please select a course to register.";
+                return;
+            }
+            
+            let response = await fetch("http://localhost:3000/app?action=addStudentToCourse", {
+                method:"POST",
+                body: JSON.stringify({ courseId: selectedCourse, username: username }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+            
+        
+            const res = await response.json();
+
+                if (res && res.status === 200) {
+                    window.location.href = "/app/course_registration";
+                }
+                else {
+                    const responseJSON = await res.json();
+                    errorMessage.innerText = responseJSON.message;
+                }
+        }
+    </script>
 </body>
 </html>

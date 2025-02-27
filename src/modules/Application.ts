@@ -13,8 +13,10 @@ export async function RenderApp(req: Request, res: Response) {
 
     switch(req.path){
         case "/app/course_registration":
+            const pickcourses = await fetchAvailableCourses(req.session["user"]); 
             data = {
                 name: req.session["user"] ?? "unknown",
+                availableCourses: pickcourses
             };
             res.render("Application/CourseRegister", data);
             break;

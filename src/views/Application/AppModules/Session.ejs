@@ -43,22 +43,9 @@
 
   <select name="course" id="course">
     <% courses.forEach(function(course) { %>
-      <option id="courseId"><%= course %></option>
+      <option id="courseId"><%= course.name %></option>
     <% }); %>
   </select>
-
-   <button onclick=fetchRegisteredCourses()>fetchcourses</button>
-
-   <script>
-      function fetchRegisteredCourses(){
-          fetch("http://localhost:3000/app?action=fetchCourses", {
-              method: "POST",
-              headers: {
-                  "Content-type": "application/json; charset=UTF-8"
-              }
-          });
-      }
-   </script>
 
 <script>
     function addSession(){

@@ -85,15 +85,19 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
 }
 
 // TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
-export async function fetchRegisteredCourses(username: string): Promise<Array<string>> {
+export async function fetchRegisteredCourses(username: string): Promise<Array<Object>> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
 
     // if (!foundUser) { //måste returna array 
     //     console.log("User not found");
     //     return { status: 400, message: "User not found" }; // Return a proper response
     // }
-
-    return foundUser.activeCourses; // Now correctly accessing the property
+    const courseList = foundUser.activeCourses ?? [];
+    // Hämta kursinfo för alla kurser utan fälten _id och __v (som annars alltid hänger med)
+    // Returnera tom array om dessa kurser inte skulle hittas av någon anledning.
+    const courses = await Course.find({courseId:{$in: courseList}}, "-_id -__v").exec() ?? [];
+    console.log(courses);
+    return courses;
 }
 
 // TODO: (1/2) Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum

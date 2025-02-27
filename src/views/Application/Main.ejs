@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduTrack</title>
+    <script>
+    </script>
 </head>
 <body>
+    <% if (courses){ %>
+        <script>
+            // Såhär sparas hämtad kursdata så att klienten skulle kunna använda den i en javascript kontext
+            // Isådanafall så får vi tåla VSCode error meddelandet.
+            const DATA_COURSE = [<%- courses %>];
+        </script>
+    <%}%>
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
@@ -13,7 +22,7 @@
             <li><a href="app">Sessions</a></li>
         </ul>
     </nav>
-
+    
     <%- include("AppModules/Session"); %>
     
      <a href="/logout"><div><h2>Logout</h2></div></a>

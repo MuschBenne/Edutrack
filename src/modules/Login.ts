@@ -1,6 +1,7 @@
 import User from "../db_models/User";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import { fetchRegisteredCourses } from "./Application";
 
 export async function RenderLogin(req: Request, res: Response){
     if(req.session["user"])

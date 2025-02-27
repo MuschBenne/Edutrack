@@ -131,7 +131,7 @@ export async function deleteUser(username:string){
         const activeCourses = await fetchRegisteredCourses(username)
 
         for(let i=0; i > activeCourses.length; i++){
-            await removeStudentFromCourse(activeCourses[i],username);
+            await removeStudentFromCourse(activeCourses[i]["courseId"],username);
         }
 
         const updatedUser = await User.updateOne(

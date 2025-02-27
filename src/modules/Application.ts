@@ -8,10 +8,12 @@ export async function RenderApp(req: Request, res: Response) {
         res.status(403).redirect("/login");
         return;
     }
+    
+    const userCourses = await fetchRegisteredCourses(req.session["user"]);
     const data = {
         name: req.session["user"] ?? "unknown",
-        courses: []
-    }
+        courses: userCourses ?? []
+    };
     res.render("Application/Main", data);
 }
 
@@ -40,7 +42,7 @@ export async function HandleApp(req: Request, res: Response) {
                 gradeSess: Number.parseInt(req.body.rating),
                 health: Number.parseInt(req.body.health)
             }
-			result = await addStudySession(req.session["user"], "PKD", studySession);
+			result = await addStudySession(req.session["user"], req.body.courseId, studySession);
 			break;
         case "fetchCourses":
             result= await fetchAvailableCourses("Bernhard");

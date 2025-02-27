@@ -20,7 +20,7 @@ export async function HandleCourseManager(req: Request, res: Response){
             res.sendStatus(await removeCourse(req.query.courseId as string)); // TOCHECK
             break;
         case "deleteUser":
-            //res.sendStatus(await deleteUser(req.query.username as string)); // TODO: Implementera deleteUser
+            res.sendStatus(await deleteUser(req.query.username as string)); // TOCHECK: Implementera deleteUser
             break;
         case "removeStudentFromCourse": // TOCHECK
             res.sendStatus(await removeStudentFromCourse(req.query.courseID as string, req.query.username as string));
@@ -145,4 +145,3 @@ export async function deleteUser(username:string){
     }
 }
 
-// fetchcourses TODO ska ta alla kursen och visa dem

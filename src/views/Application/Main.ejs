@@ -13,21 +13,20 @@
             <li><a href="app">Sessions</a></li>
         </ul>
     </nav>
-    <%- include("AppModules/Session"); %>
-    <h2>My courses</h2>
-    <!-- TODO: Lista alla courses som användaren är registrerad till-->
-     <ul>
-        <!-- Liten ledtråd, courses variabeln skickas med i data i res.render("/Application/Main", data).-->
-        <% courses.forEach(function(course){%>
-            <li></li>
-        <% }); %>
-         
-     </ul>
 
-     <button onclick=fetchcourses()>fetchcourses</button>
+    <%- include("AppModules/Session"); %>
+    <h2>My Courses</h2>
+
+    <ul>
+      <% courses.forEach(function(course) { %>
+        <li><%= course %></li>
+      <% }); %>
+    </ul>
+
+     <button onclick=fetchRegisteredCourses()>fetchcourses</button>
 
      <script>
-        function fetchcourses(){
+        function fetchRegisteredCourses(){
             fetch("http://localhost:3000/app?action=fetchCourses", {
                 method: "POST",
                 headers: {

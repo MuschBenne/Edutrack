@@ -35,7 +35,7 @@ export async function HandleApp(req: Request, res: Response) {
     switch(req.query.action){
         //TODO: Lägg till switch cases för resten av funktionerna i denna fil.
         case "addStudySession":
-            // TODO: Se till att kursen anges av användaren i webbläsaren.
+            // TOCHECK: Se till att kursen anges av användaren i webbläsaren.
             const studySession: Entry = {
                 time: Number.parseInt(req.body.time),
                 typeOfStudy: req.body.type,

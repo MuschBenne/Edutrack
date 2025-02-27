@@ -103,10 +103,12 @@ export async function fetchSessions(username:string): Promise <Array<Array<strin
 
 // TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
 //       minus de som användaren redan är registrerad på
-async function fetchAvailableCourses(username:string): Promise <Array<string|number>>{
-    const allCourses = await Course.find({}, "name").exec();
-    const registeredCourses =await fetchRegisteredCourses(username);
-    const available = []
-    console.log(allCourses)
-    return [1] ;
+async function fetchAvailableCourses(username: string): Promise<Array<string | number>> {
+    const allCourses = await Course.find({}, { name: 1, _id: 0 }).exec(); // Hämta enbart namn
+    const registeredCourses = await fetchRegisteredCourses(username);
+
+    // Extrahera kursnamnen från allCourses och filtrera bort de registrerade
+    return allCourses
+        .map(course => course.name) // Skapa en array av bara namn
+        .filter(name => !registeredCourses.includes(name));
 }

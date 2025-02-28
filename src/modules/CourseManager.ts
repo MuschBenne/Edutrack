@@ -153,3 +153,6 @@ export async function deleteUser(username:string){
 async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray>{
     return [404, "Not implemented", {}];
 }
+
+// TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
+//                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.

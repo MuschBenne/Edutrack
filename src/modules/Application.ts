@@ -25,7 +25,8 @@ export async function RenderApp(req: Request, res: Response) {
         
         case "/app/course_page":
             data = {
-                courseData: await fetchUserCourseData(req.session["user"],req.query.course as string)
+                courseData: JSON.stringify(await fetchUserCourseData(req.session["user"], req.query.course as string)),
+                courses: await fetchRegisteredCourses(req.session["user"])
             }
             console.log(data);
             res.render("Application/CoursePage", data);
@@ -49,10 +50,7 @@ export async function HandleApp(req: Request, res: Response) {
 
     let result = [];
     switch(req.query.action){
-        //TODO: Lägg till switch cases för resten av funktionerna i denna fil.
         case "addStudySession":
-            // TODO: Se till att kursen anges av användaren i webbläsaren.
-            //       (Se till att req.body.courseId är ett valid värde)
             const studySession: Entry = {
                 time: Number.parseInt(req.body.time),
                 typeOfStudy: req.body.type,

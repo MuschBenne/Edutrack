@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTrack: <%- courseData.name %></title>
+    <link rel="stylesheet" href="/master.css">
+    <title>EduTrack: <%= courseData.name %></title>
+    <script src="/static_functions.js"></script>
 </head>
 <body>
+    <% if (courseData){ %>
+        <script>
+            const COURSEDATA = <%- courseData %>;
+        </script>
+    <%}%>
     <!-- TODO: Visualisera alla sessions för denna kurs-->
     <!-- TODO: Se till att gränssnitt för att lägga till session lägger till för kursen vars sida vi är på nu-->
     <%- include("AppModules/Session"); %>

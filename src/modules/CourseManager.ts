@@ -6,10 +6,6 @@ import { fetchRegisteredCourses } from "./Application";
 import { ResponseArray } from "../App";
 
 export async function HandleCourseManager(req: Request, res: Response){
-    console.log(req.query);
-	// Exempel: if(req.query.action === "addCourse") { ... } else if(req.query.action === "removeCourse") osv.
-	// Vi använder res.sendStatus för att skicka ett svar med en statuskod. Koden returneras från addCourse
-	// baserat på huruvida funktionen kunde genomföras
     let result = [];
     switch(req.query.action) {
         case "addCourse":

@@ -104,7 +104,7 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
         
 }
 
-// TODO: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
+// TOCHECK: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
 export async function fetchRegisteredCourses(username: string): Promise<Array<Object>> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
 
@@ -131,8 +131,10 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
 //    return foundUser.sessions;
 //}
 
-// TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
+
+// TOCHECK: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
 //       minus de som användaren redan är registrerad på
+
 export async function fetchAvailableCourses(username: string): Promise<Array<object>> {
     const allCourses = await Course.find({}, "-_id -__v").exec(); 
     const registeredCourses = await fetchRegisteredCourses(username);

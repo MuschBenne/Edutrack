@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import session from "express-session";
 import User, { Entry } from "../db_models/User";
 import Course from "../db_models/Course";
+import { addStudentToCourse } from "./CourseManager";
 
 export async function RenderApp(req: Request, res: Response) {
     if (!req.session["user"]){
@@ -62,8 +63,12 @@ export async function HandleApp(req: Request, res: Response) {
             }
 			result = await addStudySession(req.session["user"], req.body.courseId, studySession);
 			break;
+        case "addStudentToCourse":
+            result = await addStudentToCourse(req.body.courseId, req.session["user"]);
+            break;
         case "fetchCourses":
-            result= await fetchAvailableCourses("Bernhard");
+            result= await fetchAvailableCourses(req.session["user"]);
+            break;
 		default:
 			result = [400, "Invalid action: " + req.query.action];
 	}
@@ -71,32 +76,29 @@ export async function HandleApp(req: Request, res: Response) {
 }
 
 async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<Array<number | string>> {
+    let course = await Course.findOne({courseId: courseID}).exec();
+    if(!course)
+        return [400, "Course with id [" + courseID + "] was not found in the database."];
     // Try to find user
-    let user = await User.findOne({username: userName});
+    let user = await User.findOne({username: userName}).exec();
     if(!user)
-        return [400, "Username was not found in the database."];
+        return [400, "Username [" + userName + "] was not found in the database."];
     // This will be the key for the sessions map for a course
     const date = new Date().toDateString().replaceAll(" ", "_");
     
     // Define the path to get to the course's saved dates for saved sessions
-    let pathString = "sessions." + courseID;
-    // If no course sessions have been made for this course, despite the user being registered to it...
-    if(!user.get(pathString) && user.activeCourses.includes(courseID))
-        // Create the empty object for this course
-        user.set(pathString, {});
-    
-    // Update the path to get to the current date's sessions
-    pathString += "." + date;
+    let pathString = "activeCourses." + courseID + ".sessions." + date;
+
     // Get the sessions at the current date
     if(!user.get(pathString)) // If no sessions have been saved for this date, create the first one
         user.set(pathString, [sessionData]);
     else
-        user.sessions[courseID][date].push(sessionData); // Add additional session for the date
+        user.activeCourses[courseID]["sessions"][date].push(sessionData); // Add additional session for the date
 
     // Mark the document as modified and then save it
-    user.markModified("sessions"); // EXTREMT viktig tydligen omg, många timmar...
+    user.markModified("activeCourses"); // EXTREMT viktig tydligen omg, många timmar...
     await user.save().then((savedDoc) => {
-        console.log(savedDoc.sessions[courseID][date]);
+        console.log(savedDoc.activeCourses[courseID][date]);
     })
     return [200, "User study session added successfully"];
         
@@ -106,24 +108,28 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
 export async function fetchRegisteredCourses(username: string): Promise<Array<Object>> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
 
-    // if (!foundUser) { //måste returna array 
-    //     console.log("User not found");
-    //     return { status: 400, message: "User not found" }; // Return a proper response
-    // }
-    const courseList = foundUser.activeCourses ?? [];
+    if (!foundUser) { //måste returna array 
+        console.log("User " + username + "not found");
+        return []; // Return a proper response
+    }
+    const courseList = foundUser.activeCourses ?? {};
+    let outList = [];
+    for(let course in courseList){
+        if(course != "_init")
+            outList.push(courseList[course]);
+    }
     // Hämta kursinfo för alla kurser utan fälten _id och __v (som annars alltid hänger med)
     // Returnera tom array om dessa kurser inte skulle hittas av någon anledning.
-    const courses = await Course.find({courseId:{$in: courseList}}, "-_id -__v").exec() ?? [];
-    console.log(courses);
-    return courses;
+    console.log(outList);
+    return outList;
 }
 
 // TODO: (1/2) Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
 // TODO: (2/2) Se till att denna data sparas i cookien, så att vi slipper hämta den massa gånger
-export async function fetchSessions(username:string): Promise <Array<Array<string>>> {
-    const foundUser = await User.findOne({ username: username }).exec();
-    return foundUser.sessions;
-}
+//export async function fetchSessions(username:string): Promise <Array<Array<string>>> {
+//    const foundUser = await User.findOne({ username: username }).exec();
+//    return foundUser.sessions;
+//}
 
 // TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
 //       minus de som användaren redan är registrerad på

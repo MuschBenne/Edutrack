@@ -17,9 +17,8 @@ export async function HandleRegister(req: Request, res: Response){
         password: reqData.pass,
         mail: reqData.email,
         class: reqData.class,
-        activeCourses: new Array<string>(),
-        pastCourses: new Array<string>(),
-        sessions: {debug: "test"}
+        activeCourses: {"_init": "init"},
+        pastCourses: {"_init": "init"}
     });
 
     try {

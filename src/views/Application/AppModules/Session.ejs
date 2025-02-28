@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-	<link rel="stylesheet" href="master.css">
 </head>
 
 <body class="centeredItems">
@@ -43,13 +42,18 @@
 
   <select name="course" id="course">
     <% courses.forEach(function(course) { %>
-      <option id="courseId"><%= course.name %></option>
+      <option value="<%- course.courseId %>"><%= course.name %></option>
     <% }); %>
   </select>
 
 <script>
-    function addSession(){
-        fetch("http://localhost:3000/app?action=addStudySession", {
+    async function addSession(){
+		let courseValue = document.getElementById("course").value;
+		if((!courseValue) || courseValue === ""){
+			alert("No course selected");
+			return;
+		}
+        let response = await fetch("http://localhost:3000/app?action=addStudySession", {
             method: "POST",
   		    body: JSON.stringify({
                 time: document.getElementById("duration").value ?? -1,
@@ -61,7 +65,9 @@
   		    headers: {
   		        "Content-type": "application/json; charset=UTF-8"
   		    }
-        })
+        });
+		let responseJSON = await response.json();
+        alert(responseJSON.msg);
     }
 </script>
 </body>

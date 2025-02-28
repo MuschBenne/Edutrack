@@ -42,16 +42,14 @@
                 }
             });
             
-        
-            const res = await response.json();
 
-                if (res && res.status === 200) {
-                    window.location.href = "/app/course_registration";
-                }
-                else {
-                    const responseJSON = await res.json();
-                    errorMessage.innerText = responseJSON.message;
-                }
+            if (response && response.status === 200) {
+                window.location.href = "/app/course_registration";
+            }
+            else {
+                const responseJSON = await response.json();
+                errorMessage.innerText = responseJSON.message;
+            }
         }
     </script>
 </body>

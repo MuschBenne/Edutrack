@@ -9,28 +9,30 @@ export async function HandleCourseManager(req: Request, res: Response){
 	// Exempel: if(req.query.action === "addCourse") { ... } else if(req.query.action === "removeCourse") osv.
 	// Vi använder res.sendStatus för att skicka ett svar med en statuskod. Koden returneras från addCourse
 	// baserat på huruvida funktionen kunde genomföras
+    let result = [];
     switch(req.query.action) {
         case "addCourse":
-            res.sendStatus(await addCourse(req.query.name as string, req.query.courseId as string));
+            result = await addCourse(req.query.name as string, req.query.courseId as string);
             break;
         case "addStudentToCourse":
-            res.sendStatus(await addStudentToCourse(req.query.courseId as string, req.query.username as string));
+            result = await addStudentToCourse(req.query.courseId as string, req.query.username as string);
             break;
         case "removeCourse":
-            res.sendStatus(await removeCourse(req.query.courseId as string)); // TOCHECK
+            result = await removeCourse(req.query.courseId as string); // TOCHECK
             break;
         case "deleteUser":
-            res.sendStatus(await deleteUser(req.query.username as string)); // TOCHECK: Implementera deleteUser
+            result = await deleteUser(req.query.username as string); // TOCHECK: Implementera deleteUser
             break;
         case "removeStudentFromCourse": // TOCHECK
-            res.sendStatus(await removeStudentFromCourse(req.query.courseID as string, req.query.username as string));
+            result = await removeStudentFromCourse(req.query.courseID as string, req.query.username as string);
             break;
         default:
             res.status(400).json({message: "CourseManager: Action [" + req.query.action + "] not found."})
     }
+    res.status(result[0]).json({message: result[1]})
 }
 
-async function addCourse(name: string, courseId: string): Promise<number>{
+async function addCourse(name: string, courseId: string): Promise<Array<number | string>>{
     const newCourse = new Course({
         courseId:courseId,
         name:name,
@@ -42,20 +44,15 @@ async function addCourse(name: string, courseId: string): Promise<number>{
     // CHECKED: Ser väl bra ut, frågan är bara om fler kurser får ha samma namn? Framtida terminer, samma kursnamn?
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
 
-    const foundCourseName = await Course.findOne({name: name}).exec();
-
     if (!foundCourseID) {
-        if (!foundCourseName) {
             return await newCourse.save().then(() => {
                 console.log("course added");
-                return 200;
+                return [200, "Course added"];
             });
-        }
-        else {
-            return 400;
-        }
     }
-    
+    else {
+        return [400, "Course with this ID already exists"];
+    }
 }
 
 async function removeCourse(courseId: string){
@@ -63,13 +60,12 @@ async function removeCourse(courseId: string){
     if (foundCourse) {
         await Course.deleteOne({ courseId:courseId });
         console.log("Course with ID " + courseId + " removed.")
-        return 200;
+        return [200, "Course with ID " + courseId + " removed."];
     }
     else {
         console.log("No course with ID " + courseId + " found.")
-        return 400; //TOCHECK
+        return [400, "No course with ID " + courseId + " found."]; //TOCHECK
     }
-
 }
 
 async function removeStudentFromCourse(courseId: string, username: string){
@@ -85,21 +81,29 @@ async function removeStudentFromCourse(courseId: string, username: string){
 
         if (updatedCourse.modifiedCount > 0) {
             console.log("Student " + username + " removed from course " + courseId);
-            return 200;
+            return [200, "Student " + username + " removed from course " + courseId];
         } else {
             console.log("Student " + username + " not found in course " + courseId);
-            return 400;
+            return [400, "Student " + username + " not found in course " + courseId];
         }
     } catch (error) {
         console.error("Error removing student:", error);
-        return 500; //TOCHECK
+        return [500, "Error removing student: " + error]; //TOCHECK
     }
 }
 
-async function addStudentToCourse(courseId:string, username: string){
+async function getNameById(courseId: string): Promise<string> {
+    const foundCourse = await Course.findOne({courseId:courseId}).exec();
+    if(!foundCourse)
+        return "";
+    else
+        return foundCourse.name;
+}
 
-    const foundCourse = Course.find({courseId:courseId}).exec();
-    const foundUser = User.find({username:username}).exec();
+export async function addStudentToCourse(courseId:string, username: string): Promise<Array<number | string>>{
+
+    const foundCourse = await Course.findOne({courseId:courseId}).exec();
+    const foundUser = await User.findOne({username:username}).exec();
 
     if(foundCourse && foundUser) {
         //lägg till i course arrayen
@@ -109,23 +113,22 @@ async function addStudentToCourse(courseId:string, username: string){
 
         ).exec();
         //uppdatera students active course
-        User.updateOne(
-            {username:username},
-            {$addToSet: {activeCourses:courseId}} //TOCHECK 
-        ).exec();
-        return 200;
+        foundUser.activeCourses[courseId] = {courseId: courseId, name: await getNameById(courseId), sessions: {_init: "init"}};
+        foundUser.markModified("activeCourses");
+        foundUser.save();
+        return [200, "Student added to course " + courseId];
     }
     else {
         console.log("student eller course finns inte");
-        return 400;
+        return [400, "Action 'addStudentToCourse' failed: Invalid student " + username + " or course " + courseId];
     }
 }
 
 export async function deleteUser(username:string){
     const foundUser = await User.findOne({username:username}).exec();
     if(!foundUser) {
-        console.log("student not found");
-        return 400;
+        console.log("Action deleteUser failed: User not found");
+        return [400, "Action deleteUser failed: User not found"];
     }
     else{
         const activeCourses = await fetchRegisteredCourses(username)
@@ -140,7 +143,7 @@ export async function deleteUser(username:string){
         );
         if (updatedUser.modifiedCount > 0) {
             console.log("Student " + username + " removed from Users ");
-            return 200;
+            return [200, "Student " + username + " removed from Users "];
         }
     }
 }

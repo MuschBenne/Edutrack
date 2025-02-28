@@ -8,7 +8,6 @@
 </head>
 
 <body class="centeredItems">
-  <h3>Hello <%= name %></h3>
   <p>Please put in amount of minutes of your session (ex. 85)</p>
   Session duration: <input id="duration" type="text" placeholder="Session duration"><br>
   <p>Please pick the right session for your studies</p>
@@ -38,6 +37,7 @@
   </select><br>
   <button onclick="addSession()">Add session</button>
 
+  <!-- TODO: Nedanstående select tag ska fasas ut, eftersom kursen ska impliceras utifrån vilken kurssida man är på-->
   <h2>My Courses</h2>
 
   <select name="course" id="course">
@@ -67,7 +67,7 @@
   		    }
         });
 		let responseJSON = await response.json();
-        alert(responseJSON.msg);
+        alert(responseJSON.message);
     }
 </script>
 </body>

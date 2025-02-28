@@ -9,9 +9,13 @@ import { HandleApp, RenderApp } from './modules/Application';
 import path from "path";
 import { HandleCourseManager } from './modules/CourseManager';
 
+/**
+ * Type ResponseArray: [statusCode: number, message: string, data (optional): object]
+ */
+export type ResponseArray = [number, string, object?]
+
 const port = 3000;
 const app = express();
-
 
 const options = {
     root: path.join(__dirname)

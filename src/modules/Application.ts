@@ -3,6 +3,7 @@ import session from "express-session";
 import User, { Entry } from "../db_models/User";
 import Course from "../db_models/Course";
 import { addStudentToCourse } from "./CourseManager";
+import { ResponseArray } from "../App";
 
 export async function RenderApp(req: Request, res: Response) {
     if (!req.session["user"]){
@@ -10,7 +11,7 @@ export async function RenderApp(req: Request, res: Response) {
         return;
     }
     
-    let data = {};
+    let data = {}; // Data to pass to the EJS renderer
 
     switch(req.path){
         case "/app/course_registration":
@@ -24,7 +25,7 @@ export async function RenderApp(req: Request, res: Response) {
         
         case "/app/course_page":
             data = {
-                sessions: await fetchStudySessions(req.session["user"],req.query.course as string)
+                courseData: await fetchUserCourseData(req.session["user"],req.query.course as string)
             }
             console.log(data);
             res.render("Application/CoursePage", data);
@@ -46,20 +47,12 @@ export async function HandleApp(req: Request, res: Response) {
     if (!req.session["user"])
         res.status(403).redirect("/login");
 
-    // Resultat-arrayn har strukturen
-    // result[0]: Number = statuskod
-    // result[1]: String = meddelande till klienten
-    //
-    // Därav bör alla funktioner som anropas av requestet returnera en Promise<Array<number | string>>.
-    // Promise eftersom att funktionerna är async.
-    // (Se https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise för mer info).
-
-    // TODO: Se till att returvärden på funktioner som anropas är Promise<Array<number | string>>
     let result = [];
     switch(req.query.action){
         //TODO: Lägg till switch cases för resten av funktionerna i denna fil.
         case "addStudySession":
-            // TOCHECK: Se till att kursen anges av användaren i webbläsaren.
+            // TODO: Se till att kursen anges av användaren i webbläsaren.
+            //       (Se till att req.body.courseId är ett valid värde)
             const studySession: Entry = {
                 time: Number.parseInt(req.body.time),
                 typeOfStudy: req.body.type,
@@ -72,16 +65,23 @@ export async function HandleApp(req: Request, res: Response) {
             result = await addStudentToCourse(req.body.courseId, req.session["user"]);
             break;
         case "fetchCourses":
-            result= await fetchAvailableCourses(req.session["user"]);
+            result = await fetchAvailableCourses(req.session["user"]);
             break;
         
 		default:
 			result = [400, "Invalid action: " + req.query.action];
 	}
-    res.status(result[0] as number).json({msg: result[1]});
+    res.status(result[0] as number).json({message: result[1], data: result[2]});
 }
 
-async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<Array<number | string>> {
+/**
+ * Save a study session entry to a specified User and Course.
+ * @param userName The user to add the session for
+ * @param courseID The course to add the session for
+ * @param sessionData The data to save to the User document
+ * @returns ResponseArray
+ */
+async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<ResponseArray> {
     let course = await Course.findOne({courseId: courseID}).exec();
     if(!course)
         return [400, "Course with id [" + courseID + "] was not found in the database."];
@@ -110,7 +110,11 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
         
 }
 
-// TOCHECK: Lägg till en fetchRegisteredCourses funktion som hämtar och returnerar arrayen med alla nuvarande användarens kurser
+/**
+ * Fetches an array of CourseData objects for all courses that a user is registered to.
+ * @param username: string - the user to fetch this data for
+ * @returns Promise resolving to an array of objects containing a User's saved coursedata
+ */
 export async function fetchRegisteredCourses(username: string): Promise<Array<Object>> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
 
@@ -119,20 +123,18 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
         return []; // Return a proper response
     }
     const courseList = foundUser.activeCourses ?? {};
-    let outList = [];
-    for(let course in courseList){
-        if(course != "_init")
-            outList.push(courseList[course]);
-    }
-    // Hämta kursinfo för alla kurser utan fälten _id och __v (som annars alltid hänger med)
-    // Returnera tom array om dessa kurser inte skulle hittas av någon anledning.
+    let outList = Object.values(courseList);
     console.log(outList);
     return outList;
 }
 
-// TODO: (1/2) Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
-// TODO: (2/2) Se till att denna data sparas i cookien, så att vi slipper hämta den massa gånger
-export async function fetchStudySessions(username: string, courseId:string): Promise<Object> {
+/**
+ * Fetches an object containing course sessions for this user and specific course.
+ * @param username: string - the user to fetch this data for
+ * @param courseId: string - the course ID to fetch the course data for
+ * @returns: SessionData for this course
+ */
+async function fetchStudySessions(username: string, courseId:string): Promise<Object> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
     if(!foundUser){
         return;
@@ -141,23 +143,36 @@ export async function fetchStudySessions(username: string, courseId:string): Pro
         return
     }
     return foundUser.activeCourses[courseId]["sessions"];
-    
-
-
-
-
-
 }
 
+/**
+ * Fetches a CourseData object containing name, id, and course sessions for this user.
+ * @param username: string - the user to fetch this data for
+ * @param courseId: string - the course ID to fetch the course data for
+ * @returns: UserCourseData for this course
+ */
+async function fetchUserCourseData(username: string, courseId:string): Promise<Object> {
+    const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
+    if(!foundUser){
+        return;
+    }
+    if(!foundUser.activeCourses[courseId]){
+        return
+    }
+    return foundUser.activeCourses[courseId];
+}
 
-// TOCHECK: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
-//       minus de som användaren redan är registrerad på
-
+/**
+ * Fetches an array of Course documents that a user is eligible to register for.
+ * A user is not eligible for a course of it has already registered for it.
+ * @param username: string - the user to fetch this data for
+ * @returns: A promise that resolves to an array of Course documents not already registered for.
+ */
 export async function fetchAvailableCourses(username: string): Promise<Array<object>> {
     const allCourses = await Course.find({}, "-_id -__v").exec(); 
     const registeredCourses = await fetchRegisteredCourses(username);
-
     
+    // Behåll bara IDs för registered courses så dessa kan jämföras i nedanstående filter
     const registeredCourseIds = registeredCourses.map(course => (course as { courseId: string }).courseId);
 
     // Filter för att ta bort registerade kurser

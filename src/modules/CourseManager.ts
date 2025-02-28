@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import User from "../db_models/User";
 import mongoose from "mongoose";
 import { fetchRegisteredCourses } from "./Application";
+import { ResponseArray } from "../App";
 
 export async function HandleCourseManager(req: Request, res: Response){
     console.log(req.query);
@@ -18,21 +19,21 @@ export async function HandleCourseManager(req: Request, res: Response){
             result = await addStudentToCourse(req.query.courseId as string, req.query.username as string);
             break;
         case "removeCourse":
-            result = await removeCourse(req.query.courseId as string); // TOCHECK
+            result = await removeCourse(req.query.courseId as string);
             break;
         case "deleteUser":
-            result = await deleteUser(req.query.username as string); // TOCHECK: Implementera deleteUser
+            result = await deleteUser(req.query.username as string);
             break;
-        case "removeStudentFromCourse": // TOCHECK
+        case "removeStudentFromCourse":
             result = await removeStudentFromCourse(req.query.courseID as string, req.query.username as string);
             break;
         default:
             res.status(400).json({message: "CourseManager: Action [" + req.query.action + "] not found."})
     }
-    res.status(result[0]).json({message: result[1]})
+    res.status(result[0]).json({message: result[1], data: result[2]})
 }
 
-async function addCourse(name: string, courseId: string): Promise<Array<number | string>>{
+async function addCourse(name: string, courseId: string): Promise<ResponseArray>{
     const newCourse = new Course({
         courseId:courseId,
         name:name,
@@ -40,8 +41,6 @@ async function addCourse(name: string, courseId: string): Promise<Array<number |
     })
     console.log(name,courseId);
 
-    // TOCHECK: Se till att en kurs med detta IDt inte redan finns innan vi lägger till den
-    // CHECKED: Ser väl bra ut, frågan är bara om fler kurser får ha samma namn? Framtida terminer, samma kursnamn?
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
 
     if (!foundCourseID) {
@@ -64,7 +63,7 @@ async function removeCourse(courseId: string){
     }
     else {
         console.log("No course with ID " + courseId + " found.")
-        return [400, "No course with ID " + courseId + " found."]; //TOCHECK
+        return [400, "No course with ID " + courseId + " found."];
     }
 }
 
@@ -88,11 +87,11 @@ async function removeStudentFromCourse(courseId: string, username: string){
         }
     } catch (error) {
         console.error("Error removing student:", error);
-        return [500, "Error removing student: " + error]; //TOCHECK
+        return [500, "Error removing student: " + error];
     }
 }
 
-async function getNameById(courseId: string): Promise<string> {
+async function getCourseNameFromId(courseId: string): Promise<string> {
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
     if(!foundCourse)
         return "";
@@ -100,7 +99,7 @@ async function getNameById(courseId: string): Promise<string> {
         return foundCourse.name;
 }
 
-export async function addStudentToCourse(courseId:string, username: string): Promise<Array<number | string>>{
+export async function addStudentToCourse(courseId:string, username: string): Promise<ResponseArray>{
 
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
     const foundUser = await User.findOne({username:username}).exec();
@@ -109,11 +108,13 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
         //lägg till i course arrayen
         Course.updateOne(
             {courseId:courseId},
-            {$addToSet: {students:username}} //TOCHECK 
+            {$addToSet: {students:username}}
 
         ).exec();
         //uppdatera students active course
-        foundUser.activeCourses[courseId] = {courseId: courseId, name: await getNameById(courseId), sessions: {_init: "init"}};
+        if(!foundUser.activeCourses)
+            foundUser.activeCourses = {};
+        foundUser.activeCourses[courseId] = {courseId: courseId, name: await getCourseNameFromId(courseId), sessions: null};
         foundUser.markModified("activeCourses");
         foundUser.save();
         return [200, "Student added to course " + courseId];
@@ -148,3 +149,11 @@ export async function deleteUser(username:string){
     }
 }
 
+// TODO: Statistik: Skriv en funktion fetchAllCourseSessionData som hämtar ett objekt
+//                  med alla användares sparade sessioner vid alla datum för denna kurs. Se til att datumen överlappar.
+//                  Alltså, om user1 har en array med två sessioner sparade för Feb_10_2024, 
+//                  och user2 har en array med två sessioner sparade för samma datum, kommer
+//                  det resulterande objektet ha fyra sessioner sparade för det datumet.
+async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray>{
+    return [404, "Not implemented", {}];
+}

@@ -43,6 +43,7 @@
 	let emailElement = document.getElementById("email");
 	
 	// Se till att rutorna är ifyllda ordentligt
+	// TODO: Se till att mail är propert ifyllt, alternativt ta bort mail, vi kommer ej ha en mailserver i dagsläget.
 	async function checkTheData() {
 		if (passElement.value.length < 8 || passElement.value.length > 20) {
 			alert("Does not meet the requirements, between 8 to 20 characthers.");

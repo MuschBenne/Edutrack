@@ -14,7 +14,6 @@ const userSchema = new Schema({
     mail: String,
     class: String,
     activeCourses: Object,
-    pastCourses: Object
 });
 
 const User = model("User", userSchema);

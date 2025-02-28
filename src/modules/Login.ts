@@ -11,7 +11,6 @@ export async function RenderLogin(req: Request, res: Response){
 }
 
 export async function HandleLogin(req:Request, res:Response){
-    // TOOCHECK: Skapa en funktion för att hantera inloggning
     const reqData = req.body;
     try {
         //kolla om user finns

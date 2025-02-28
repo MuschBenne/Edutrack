@@ -17,8 +17,7 @@ export async function HandleRegister(req: Request, res: Response){
         password: reqData.pass,
         mail: reqData.email,
         class: reqData.class,
-        activeCourses: {"_init": "init"},
-        pastCourses: {"_init": "init"}
+        activeCourses: null,
     });
 
     try {
@@ -26,13 +25,12 @@ export async function HandleRegister(req: Request, res: Response){
         // (blir fel som catchas om något inte stämmer)
         await User.validate(newUser);
 
-        // TOCHECK: Försäkra att användare med den angivna [emailen] inte finns
+        // TODO: Om email ska stanna kvar, se till att det är i rätt format
         // Försök hitta en användare med det angivna namnet
         const foundUser = await User.findOne({username: reqData.user}).exec();
         // Om foundUser är null...
         const foundEmail = await User.findOne({mail: reqData.email}).exec();
         
-        // TOCHECK: Lägg till en "else" för både om vi HAR hittat en användare med det användarnamnet eller email.
         if(!foundUser) {
             if (!foundEmail) {
                 await newUser.save().then(() => {

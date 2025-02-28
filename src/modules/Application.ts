@@ -23,8 +23,13 @@ export async function RenderApp(req: Request, res: Response) {
             break;
         
         case "/app/course_page":
+            data = {
+                sessions: await fetchStudySessions(req.session["user"],req.query.course as string)
+            }
+            console.log(data);
             res.render("Application/CoursePage", data);
             break;
+       
 
         default:
             const userCourses = await fetchRegisteredCourses(req.session["user"]);
@@ -69,6 +74,7 @@ export async function HandleApp(req: Request, res: Response) {
         case "fetchCourses":
             result= await fetchAvailableCourses(req.session["user"]);
             break;
+        
 		default:
 			result = [400, "Invalid action: " + req.query.action];
 	}
@@ -126,10 +132,22 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
 
 // TODO: (1/2) Lägg till en fetchSessions funktion som ger klienten alla sessions vi har sparat ned vid alla datum
 // TODO: (2/2) Se till att denna data sparas i cookien, så att vi slipper hämta den massa gånger
-//export async function fetchSessions(username:string): Promise <Array<Array<string>>> {
-//    const foundUser = await User.findOne({ username: username }).exec();
-//    return foundUser.sessions;
-//}
+export async function fetchStudySessions(username: string, courseId:string): Promise<Object> {
+    const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
+    if(!foundUser){
+        return;
+    }
+    if(!foundUser.activeCourses[courseId]){
+        return
+    }
+    return foundUser.activeCourses[courseId]["sessions"];
+    
+
+
+
+
+
+}
 
 // TODO: Lägg till en fetchAvailableCourses som hämtar en lista på alla kurser som finns i databasen,
 //       minus de som användaren redan är registrerad på

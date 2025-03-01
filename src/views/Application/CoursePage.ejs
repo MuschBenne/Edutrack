@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/master.css">
-    <title>EduTrack: <%= courseData.name %></title>
+    <title>EduTrack: <%= name %></title>
     <script src="/static_functions.js"></script>
 </head>
 <body>
@@ -13,6 +13,19 @@
             const COURSEDATA = <%- courseData %>;
         </script>
     <%}%>
+    <h1>All Registered Courses</h1>
+
+    <% if (courses && courses.length > 0) { %>
+        <ul>
+            <% courses.forEach(course => { %>
+                <li>
+                    <h2><%= course.name %></h2>
+                </li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No courses registered.</p>
+    <% } %>
     <!-- TODO: Visualisera alla sessions för denna kurs-->
     <!-- TODO: Se till att gränssnitt för att lägga till session lägger till för kursen vars sida vi är på nu-->
     <%- include("AppModules/Session"); %>

@@ -26,7 +26,8 @@ export async function RenderApp(req: Request, res: Response) {
         case "/app/course_page":
             data = {
                 courseData: JSON.stringify(await fetchUserCourseData(req.session["user"], req.query.course as string)),
-                courses: await fetchRegisteredCourses(req.session["user"])
+                courses: await fetchRegisteredCourses(req.session["user"]),
+                name: req.session["user"] ?? "unknown"
             }
             console.log(data);
             res.render("Application/CoursePage", data);

@@ -13,15 +13,21 @@
             const COURSEDATA = <%- courseData %>;
         </script>
     <%}%>
-    <h1>All Registered Courses</h1>
+    <h1>All Registered Courses</h1> 
 
-    <% if (courses && courses.length > 0) { %>
+    <% if (courseData.sessions) { %>
         <ul>
-            <% courses.forEach(course => { %>
-                <li>
-                    <h2><%= course.name %></h2>
-                </li>
-            <% }) %>
+            <% for(let date in courseData.sessions) { %> 
+                <% courseData.sessions[date].forEach((entry) => {%>
+                   <li>
+                    <%- entry.time %>,
+                    <%- entry.typeOfStudy %>,
+                    <%- entry.gradeSess %>,
+                    <%- entry.health %> 
+                   </li> 
+                <% }); %>
+
+            <% } %>
         </ul>
     <% } else { %>
         <p>No courses registered.</p>

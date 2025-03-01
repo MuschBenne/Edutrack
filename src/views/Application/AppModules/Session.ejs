@@ -29,15 +29,7 @@
   <button onclick="addSession()">Add session</button>
 
   <!-- TODO: Nedanstående <select> tag ska fasas ut, eftersom kursen ska impliceras utifrån vilken kurssida man är på-->
-  <h2>My Courses</h2>
-
-  <select name="course" id="course">
-    <% courses.forEach(function(course) { %>
-      <option value="<%- course.courseId %>"><%= course.name %></option>
-    <% }); %>
-  </select>
-  <button onclick="Coursepage()">Gå till kurs</button>
-
+  
 <script>
     async function addSession(){
 		let courseValue = document.getElementById("course").value;

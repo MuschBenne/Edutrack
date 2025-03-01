@@ -25,9 +25,24 @@
         </ul>
     </nav>
     
+    <h2>My Courses</h2>
+
+  <select name="course" id="course">
+    <% courses.forEach(function(course) { %>
+      <option value="<%- course.courseId %>"><%= course.name %></option>
+    <% }); %>
+  </select>
+  <button onclick="Coursepage()">Gå till kurs</button>
+
+  <script>
+    function Coursepage() {
+        const page = document.getElementById("course").value
+        window.location = "app/course_page?course="+page;
+    }
+  </script>
+    
     <!-- TODO: Flytta gränssnittet för att lägga till en session till CoursePage -->
     <!-- TODO: Sätt hit en lista med länkar till alla kurssidor som användaren är registrerad på -->
-    <%- include("AppModules/Session"); %>
     <a href="/app/course_registration"><h2>Register to course</h2></a>
     <a href="/logout"><div><h2>Logout</h2></div></a>
     <footer class="footer">

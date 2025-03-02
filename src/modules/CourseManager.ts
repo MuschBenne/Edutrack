@@ -177,26 +177,27 @@ async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArra
 //                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
 
 //ex på functioner
+//time spent over the whole period
 function averageTimeSpentOnCourse(){
 
 }
-
+//time spent over the whole period
 function averageHealth(){
 
 }
-
+//time spent over the whole period
 function averageRating(){
 
 }
-
+//returns stats for last week
 function lastWeeksAverages(){
 
 }
-
+//average rating for lecture over the whole period, if lectures are integrated better, maybe possible to access rating for each lecture
 function averageLectureRating(){
 
 }
-
+//
 function lectureAttendence(){
 
 }
@@ -206,5 +207,5 @@ function lastWeeksAttendenceAndAverage(){
 }
 
 function averageTimeSpentPerWeek(){
-    
+
 }

@@ -33,7 +33,7 @@
 		<input type="button" onclick="checkTheData()" value="Submit"></input>       
 	</div>
 
-	<div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+	<div class="centeredItems" id="errorMessage" style="color: red; margin-top: 10px;"></div>
 
     <script>
 
@@ -42,6 +42,10 @@
 	let classElement = document.getElementById("class");
 	let emailElement = document.getElementById("email");
 	
+	function isValidEmail(email) {
+		const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailPattern.test(email);
+	}
 	
 	// Se till att rutorna är ifyllda ordentligt
 	async function checkTheData() {
@@ -51,6 +55,10 @@
 		}
 		if (userElement.value.length > 20){
 			alert("Name is to long, maximum of 20 characthers.");
+			return;
+		}
+		if (!isValidEmail(emailElement.value)) {
+			alert("Please enter a valid email address.");
 			return;
 		}
 		// Om rutorna är ifyllda, skicka all data till servern

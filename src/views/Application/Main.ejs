@@ -34,19 +34,14 @@
     
     <div class="courses-container">
       <% courses.forEach(function(course) { %>
-        <div class="course-box" onclick="Coursepage('<%- course.courseId %>')">
-          <h3><%= course.name %></h3>
-          <p><%= course.description %></p> <!-- Optional description -->
-        </div>
+        <a href="/app/course_page?course=<%- course.courseId%>">
+          <div class="course-box">
+            <h3><%= course.name %></h3>
+            <p><%= course.description %></p> <!-- Optional description -->
+          </div>
+        </a>
       <% }); %>
     </div>
-  
-    <script>
-      function Coursepage(courseId) {
-          window.location = "app/course_page?course=" + courseId;
-      }
-    </script>
-    
     <footer class="footer">
         <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
     </footer>    

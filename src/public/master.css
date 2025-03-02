@@ -158,3 +158,12 @@ nav ul li a:hover {
     gap: 20px;
     justify-content: center;
 }
+
+.courses-container a:visited {
+    color: #DBBB68
+    
+}
+
+.sessionInputContent {
+    padding-bottom: 10%;
+}

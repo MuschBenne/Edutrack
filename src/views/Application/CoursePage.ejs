@@ -8,6 +8,14 @@
     <script src="/static_functions.js"></script>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="app">My Pages</a></li>
+            <li><a href="logout">Log out</a></li>
+        </ul>
+    </nav>
+
     <% if (courseData){ %>
         <script>
             const COURSEDATA = <%- courseData %>;
@@ -20,6 +28,7 @@
             <% for(let date in courseData.sessions) { %> 
                 <% courseData.sessions[date].forEach((entry) => {%>
                    <li>
+                    <%- date %>
                     <%- entry.time %>,
                     <%- entry.typeOfStudy %>,
                     <%- entry.gradeSess %>,

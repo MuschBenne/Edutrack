@@ -11,7 +11,6 @@ export type Entry = {
 const userSchema = new Schema({
     username: String,
     password: String,
-    mail: String,
     class: String,
     activeCourses: Object,
 });

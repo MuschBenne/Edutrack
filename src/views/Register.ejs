@@ -24,7 +24,6 @@
 	<div id="inputContainer" class="centeredItems">
 		<input type="text" value="" id="user" placeholder="Username"></input>
 		<input type="password" value="" id="pass" placeholder="Password"></input>
-		<input type="email" value="" id="email" placeholder="Email"></input>
 		<select name="Class" id="class">
 		  <option value="DV">DV</option>
 		  <option value="IT">IT</option>
@@ -40,10 +39,9 @@
 	let userElement = document.getElementById("user");
 	let passElement = document.getElementById("pass");
 	let classElement = document.getElementById("class");
-	let emailElement = document.getElementById("email");
+	
 	
 	// Se till att rutorna är ifyllda ordentligt
-	// TODO: Se till att mail är propert ifyllt, alternativt ta bort mail, vi kommer ej ha en mailserver i dagsläget.
 	async function checkTheData() {
 		if (passElement.value.length < 8 || passElement.value.length > 20) {
 			alert("Does not meet the requirements, between 8 to 20 characthers.");
@@ -64,8 +62,7 @@
 	  		body: JSON.stringify({
 	  		  user: userElement.value,
 	  		  pass: passElement.value,
-	  		  class: classElement.value,
-	  		  email: emailElement.value
+	  		  class: classElement.value
 	  		}),
 	  		headers: {
 	  		  "Content-type": "application/json; charset=UTF-8"

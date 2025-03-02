@@ -12,8 +12,8 @@
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
+            <li><a href="app">My Pages</a></li>
             <li><a href="logout">Log out</a></li>
-            <li><a href="app">Sessions</a></li>
         </ul>
     </nav>
 
@@ -23,12 +23,14 @@
     
     <% if (availableCourses.length > 0) { %>
         <label for="courseSelect">Choose a course:</label>
-        <select id="courseSelect">
+        <div class="courses-container">
             <% availableCourses.forEach(function(course) { %>
-                <option value="<%= course.courseId %>"><%= course.name %></option>
+              <div class="course-box" onclick="addStudentToNewCourse('<%= course.courseId %>')">
+                <h3><%= course.name %></h3>
+                <p><%= course.description %></p> <!-- Optional description -->
+              </div>
             <% }); %>
-        </select>
-        <input type="button" onclick="addStudentToNewCourse()" value="Register"></input>
+          </div>
     <% } else { %>
         <p>No available courses at the moment.</p>
     <% } %>
@@ -36,18 +38,18 @@
     <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
 
     <script>
-        async function addStudentToNewCourse(){
-            const selectedCourse = document.getElementById("courseSelect").value;
+        async function addStudentToNewCourse(courseId){
             const username = "<%= name %>";
+            console.log("Clicked courseId:", courseId); // Debugging log
 
-            if (!selectedCourse) {
+            if (!courseId) {
                 document.getElementById("errorMessage").innerText = "Please select a course to register.";
                 return;
             }
             
             let response = await fetch("http://localhost:3000/app?action=addStudentToCourse", {
                 method:"POST",
-                body: JSON.stringify({ courseId: selectedCourse, username: username }),
+                body: JSON.stringify({ courseId: courseId, username: username }),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }
@@ -59,7 +61,7 @@
             }
             else {
                 const responseJSON = await response.json();
-                errorMessage.innerText = responseJSON.message;
+                document.getElementById("errorMessage").innerText = responseJSON.message || "An error occurred.";
             }
         }
     </script>

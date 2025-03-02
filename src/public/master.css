@@ -135,3 +135,26 @@ nav ul li a:hover {
 .section span {
     font-size: 5rem;  /* Adjust the size of the icon */
 }
+
+.course-box {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    cursor: pointer;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.course-box:hover {
+    transform: scale(1.05);
+}
+
+.courses-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}

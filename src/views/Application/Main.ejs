@@ -6,20 +6,18 @@
     <title>EduTrack</title>
     <link rel="stylesheet" href="/master.css">
     <script src="/static_functions.js"></script>
-    <script>
-    </script>
+    
 </head>
 <body>
-  <div class="header-container">
-    <!-- Heading Section (Top-left aligned) -->
-    <div class="heading-section">
-        <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
-        
-    </div>
-
-    <!-- Navigation (Horizonally aligned beside the heading) -->
-    <%- include("CommonModules/Nav2") %>
-  </div>
+  <nav>
+      <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/app/course_registration">Register to course</a></li>
+          <li><a href="logout">Log out</a></li>
+          
+      </ul>
+  </nav>
+  
 </body>
 <body class="centeredItems"></body>
     <% if (courses){ %>
@@ -34,22 +32,21 @@
 
     <h2>My Courses</h2>
     
-  <select name="course" id="course">
-    <% courses.forEach(function(course) { %>
-      <option value="<%- course.courseId %>"><%= course.name %></option>
-    <% }); %>
-  </select>
-  <button onclick="Coursepage()">Pick Course</button>
-
-  <script>
-    function Coursepage() {
-        const page = document.getElementById("course").value
-        window.location = "app/course_page?course="+page;
-    }
-  </script>
+    <div class="courses-container">
+      <% courses.forEach(function(course) { %>
+        <div class="course-box" onclick="Coursepage('<%- course.courseId %>')">
+          <h3><%= course.name %></h3>
+          <p><%= course.description %></p> <!-- Optional description -->
+        </div>
+      <% }); %>
+    </div>
+  
+    <script>
+      function Coursepage(courseId) {
+          window.location = "app/course_page?course=" + courseId;
+      }
+    </script>
     
-    <!-- TODO: Flytta gränssnittet för att lägga till en session till CoursePage -->
-    <!-- TODO: Sätt hit en lista med länkar till alla kurssidor som användaren är registrerad på -->
     <footer class="footer">
         <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
     </footer>    

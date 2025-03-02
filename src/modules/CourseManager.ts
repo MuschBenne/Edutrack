@@ -169,7 +169,7 @@ async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArra
             allSessions.push(foundUser.activeCourses[courseId])
         }
     }
-    return allSessions;     //TOCHECK, i nuläget borde den returna en array med arrays för varje students sessions för kursen,
+    //return allSessions;     //TOCHECK, i nuläget borde den returna en array med arrays för varje students sessions för kursen,
                             // men lite osäker på hur jag ska omformatera till responseArray
 }
 

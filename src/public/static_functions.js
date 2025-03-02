@@ -16,3 +16,31 @@ function calculateAverageWellbeing(sessionData){
     }
     return wellbeingTotal / entryCount;
 }
+
+function calculateAverageRating(sessionData){
+    let ratingTotal = 0;
+    let entryCount = 0;
+    for(date in sessionData){
+        sessionData[date].forEach(session => {
+            ratingTotal += session.gradeSess;
+            entryCount++;
+        });
+    }
+    return ratingTotal/ entryCount;
+}
+
+//returns total time spent on course in minutes
+function calculateTotalTime(sessionData){
+    let timeTotal = 0;
+    for(date in sessionData){
+        sessionData[date].forEach(session => {
+            timeTotal += session.time;
+        })
+    }
+    return timeTotal; 
+}
+
+function hoursSpent(sessionData){
+    let timeSpent = calculateTotalTime(sessionData);
+    return (timeSpent / 60).toFixed(1);//returns string
+}

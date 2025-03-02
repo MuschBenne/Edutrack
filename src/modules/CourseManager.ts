@@ -151,8 +151,60 @@ export async function deleteUser(username:string){
 //                  och user2 har en array med två sessioner sparade för samma datum, kommer
 //                  det resulterande objektet ha fyra sessioner sparade för det datumet.
 async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray>{
-    return [404, "Not implemented", {}];
+    const foundCourseID = await Course.findOne({courseId: courseId}).exec();
+    if(!foundCourseID){
+        return [400, "No course with ID " + courseId + " found."];
+    }
+    let students= foundCourseID.students;
+    if(students.length==0){
+        return [400, "No students registered on" + courseId + " found."];
+    }
+    let allSessions = [];
+    for(let i=0;i<students.length;i++){
+        const foundUser = await User.findOne({ username: students[i] }).exec(); // Use findOne() and await
+        if (!foundUser) { //måste returna array 
+            console.log("User " + students[i] + "not found");
+            continue;
+        }else{
+            allSessions.push(foundUser.activeCourses[courseId])
+        }
+    }
+    return allSessions;     //TOCHECK, i nuläget borde den returna en array med arrays för varje students sessions för kursen,
+                            // men lite osäker på hur jag ska omformatera till responseArray
 }
 
 // TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
 //                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
+
+//ex på functioner
+function averageTimeSpentOnCourse(){
+
+}
+
+function averageHealth(){
+
+}
+
+function averageRating(){
+
+}
+
+function lastWeeksAverages(){
+
+}
+
+function averageLectureRating(){
+
+}
+
+function lectureAttendence(){
+
+}
+
+function lastWeeksAttendenceAndAverage(){
+
+}
+
+function averageTimeSpentPerWeek(){
+    
+}

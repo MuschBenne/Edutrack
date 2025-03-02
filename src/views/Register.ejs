@@ -24,6 +24,7 @@
 	<div id="inputContainer" class="centeredItems">
 		<input type="text" value="" id="user" placeholder="Username"></input>
 		<input type="password" value="" id="pass" placeholder="Password"></input>
+		<input type="email" value="" id="email" placeholder="Email"></input>
 		<select name="Class" id="class">
 		  <option value="DV">DV</option>
 		  <option value="IT">IT</option>
@@ -39,6 +40,7 @@
 	let userElement = document.getElementById("user");
 	let passElement = document.getElementById("pass");
 	let classElement = document.getElementById("class");
+	let emailElement = document.getElementById("email");
 	
 	
 	// Se till att rutorna är ifyllda ordentligt
@@ -62,7 +64,8 @@
 	  		body: JSON.stringify({
 	  		  user: userElement.value,
 	  		  pass: passElement.value,
-	  		  class: classElement.value
+	  		  class: classElement.value,
+			  email: emailElement.value
 	  		}),
 	  		headers: {
 	  		  "Content-type": "application/json; charset=UTF-8"

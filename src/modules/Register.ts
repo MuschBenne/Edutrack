@@ -15,6 +15,7 @@ export async function HandleRegister(req: Request, res: Response){
     const newUser = new User({
         username: reqData.user,
         password: reqData.pass,
+        mail: reqData.email,
         class: reqData.class,
         activeCourses: null,
     });
@@ -28,14 +29,19 @@ export async function HandleRegister(req: Request, res: Response){
         // Försök hitta en användare med det angivna namnet
         const foundUser = await User.findOne({username: reqData.user}).exec();
         // Om foundUser är null...
-        
+        const foundEmail = await User.findOne({mail: reqData.email}).exec();
         
         if(!foundUser) {
+            if (!foundEmail) {
                 await newUser.save().then(() => {
                     req.session["user"] = reqData.user;
                     res.status(200).json({message: "User created"});
                     
                 });
+            }
+            else {  
+                res.status(400).json({message:"Email already taken"});
+            }
             
         }
         else {

@@ -8,8 +8,19 @@
 </head>
 
 <body class="centeredItems">
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="logout">Log out</a></li>
+            <li><a href="app">Sessions</a></li>
+        </ul>
+    </nav>
+
+
     <h2>Welcome, <%= name %>! Select a course to register:</h2>
 
+    
     <% if (availableCourses.length > 0) { %>
         <label for="courseSelect">Choose a course:</label>
         <select id="courseSelect">
@@ -52,5 +63,8 @@
             }
         }
     </script>
+    <footer class="footer">
+        <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
+    </footer> 
 </body>
 </html>

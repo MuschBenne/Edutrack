@@ -10,6 +10,18 @@
     </script>
 </head>
 <body>
+  <div class="header-container">
+    <!-- Heading Section (Top-left aligned) -->
+    <div class="heading-section">
+        <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
+        
+    </div>
+
+    <!-- Navigation (Horizonally aligned beside the heading) -->
+    <%- include("CommonModules/Nav2") %>
+  </div>
+</body>
+<body class="centeredItems"></body>
     <% if (courses){ %>
         <script>
             // Såhär sparas hämtad kursdata så att klienten skulle kunna använda den i en javascript kontext
@@ -17,22 +29,17 @@
             const DATA_COURSE = [<%- courses %>];
         </script>
     <%}%>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="logout">Log out</a></li>
-            <li><a href="app">Sessions</a></li>
-        </ul>
-    </nav>
     
-    <h2>My Courses</h2>
+    <h1>Welcome to EduTrack <%= name %>!</h1>
 
+    <h2>My Courses</h2>
+    
   <select name="course" id="course">
     <% courses.forEach(function(course) { %>
       <option value="<%- course.courseId %>"><%= course.name %></option>
     <% }); %>
   </select>
-  <button onclick="Coursepage()">Gå till kurs</button>
+  <button onclick="Coursepage()">Pick Course</button>
 
   <script>
     function Coursepage() {
@@ -43,10 +50,8 @@
     
     <!-- TODO: Flytta gränssnittet för att lägga till en session till CoursePage -->
     <!-- TODO: Sätt hit en lista med länkar till alla kurssidor som användaren är registrerad på -->
-    <a href="/app/course_registration"><h2>Register to course</h2></a>
-    <a href="/logout"><div><h2>Logout</h2></div></a>
     <footer class="footer">
-        <p>Ideas on improvements? Email us at <a href="mailto:edutrack.com">edutrack.com</a></p>
+        <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
     </footer>    
 </body>
 </html>

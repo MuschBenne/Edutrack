@@ -230,16 +230,24 @@ async function averageHealth(responseArray:ResponseArray){
     const sessions = responseArray[2];
     const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
     const numStudents = foundCourseID.students.length
-    let timeTotal = 0;
+    let healthTotal = 0;
     for(let date in sessions){
         sessions[date].forEach(session => {
-            timeTotal += session.health;
+            healthTotal += session.health;
         })
-    }
+    }return healthTotal/numStudents;
 }
 //time spent over the whole period
-function averageRating(){
-
+async function averageRating(responseArray:ResponseArray){
+    const sessions = responseArray[2];
+    const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
+    const numStudents = foundCourseID.students.length
+    let ratingTotal = 0;
+    for(let date in sessions){
+        sessions[date].forEach(session => {
+            ratingTotal += session.gradeSess;
+        })
+    }return ratingTotal/numStudents;
 }
 //returns stats for last week
 function lastWeeksAverages(){
@@ -258,6 +266,6 @@ function lastWeeksAttendenceAndAverage(){
 
 }
 
-function averageTimeSpentPerWeek(){
+function averageTimeSpentWeekly(){
 
 }

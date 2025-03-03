@@ -215,7 +215,7 @@ async function averageTimeSpentOnCourse(responseArray:ResponseArray):Promise<num
     const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
     const numStudents = foundCourseID.students.length
     let timeTotal = 0;
-    for(date in sessions){
+    for(let date in sessions){
         sessions[date].forEach(session => {
             timeTotal += session.time;
         })
@@ -225,12 +225,12 @@ async function averageTimeSpentOnCourse(responseArray:ResponseArray):Promise<num
     
 }
 //time spent over the whole period
-async function averageHealth(responseArray:ResponseArray):Promise<number>{
+async function averageHealth(responseArray:ResponseArray){
     const sessions = responseArray[2];
     const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
     const numStudents = foundCourseID.students.length
     let timeTotal = 0;
-    for(date in sessions){
+    for(let date in sessions){
         sessions[date].forEach(session => {
             timeTotal += session.health;
         })

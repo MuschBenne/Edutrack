@@ -5,8 +5,15 @@ import mongoose from "mongoose";
 import { fetchRegisteredCourses } from "./Application";
 import { ResponseArray } from "../App";
 
+/**
+ * Router function for GET-requests to the path /courseManager
+ * @param req The Express request object
+ * @param res The Express response object
+ */
 export async function HandleCourseManager(req: Request, res: Response){
     let result = [];
+    // TODO: Fundera på vilka funktioners cases som bara admins borde få nå, se till att vi checkar 
+    // att deras session är admin isådanafall.
     switch(req.query.action) {
         case "addCourse":
             result = await addCourse(req.query.name as string, req.query.courseId as string);
@@ -29,6 +36,12 @@ export async function HandleCourseManager(req: Request, res: Response){
     res.status(result[0]).json({message: result[1], data: result[2]})
 }
 
+/**
+ * Add a course to the list of public courses, of which eligible users can elect to register to.
+ * @param name Student username
+ * @param courseId Course identifier
+ * @returns A promise, resolving into a ResponseArray.
+ */
 async function addCourse(name: string, courseId: string): Promise<ResponseArray>{
     const newCourse = new Course({
         courseId:courseId,
@@ -50,6 +63,11 @@ async function addCourse(name: string, courseId: string): Promise<ResponseArray>
     }
 }
 
+/**
+ * Remove a course from the list of public courses.
+ * @param courseId Course identifier
+ * @returns A promise, resolving into a ResponseArray
+ */
 async function removeCourse(courseId: string){
     const foundCourse = Course.find({courseId:courseId}).exec();
     if (foundCourse) {
@@ -63,6 +81,12 @@ async function removeCourse(courseId: string){
     }
 }
 
+/**
+ * Removes a student from a course
+ * @param courseId 
+ * @param username 
+ * @returns 
+ */
 async function removeStudentFromCourse(courseId: string, username: string){
     try {
         const foundCourse = await Course.find({courseId:courseId}).exec();

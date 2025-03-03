@@ -26,6 +26,15 @@
 
     <% if (courseData.sessions) { %>
         <ul>
+            <!-- TODO: Hitta på ett mer visuellt sätt att presentera datan på.
+            Detta genom Chart.js. Så försök lista ut hur vi kan se till att det hänger med till klienten 
+            (vi kan använda oss av deras CDN) och sen lista ut hur vi kan rendera sådana grafer på klienten.
+            - Hur kommer vi åt kursdatan på frontenden? 
+            - Vart skriver vi koden som använder sig av Chart.js? 
+            - Vad gör vi om Chart.js inte kan laddas av någon anledning?
+            https://www.chartjs.org/docs/latest/getting-started/ 
+            -->
+            
             <% for(let date in courseData.sessions) { %> 
                 <% courseData.sessions[date].forEach((entry) => {%>
                    <li>

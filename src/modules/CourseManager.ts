@@ -159,31 +159,58 @@ async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArra
     if(students.length==0){
         return [400, "No students registered on" + courseId + " found."];
     }
-    let allSessions = [];
+
+    let allSessions: { [date: string]: any[] } = {};
     for(let i=0;i<students.length;i++){
         const foundUser = await User.findOne({ username: students[i] }).exec(); // Use findOne() and await
+        
+        
         if (!foundUser) { //måste returna array 
             console.log("User " + students[i] + "not found");
             continue;
-        }else{
-            allSessions.push(foundUser.activeCourses[courseId])
         }
+        const sessions = foundUser.activeCourses[courseId] || [];
+        for (const session of sessions) {
+            const sessionDate = session.date;
+            if (!allSessions[sessionDate]) {
+                allSessions[sessionDate] = [];
+            }
+            allSessions[sessionDate].push(session);
+        }
+        }
+    
+        return [200,courseId, allSessions];
     }
-    //return allSessions;     //TOCHECK, i nuläget borde den returna en array med arrays för varje students sessions för kursen,
-                            // men lite osäker på hur jag ska omformatera till responseArray
-}
-
 // TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
 //                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
 
 //ex på functioner
 //time spent over the whole period
-function averageTimeSpentOnCourse(){
+async function averageTimeSpentOnCourse(responseArray:ResponseArray):Promise<number>{
+    const sessions = responseArray[2];
+    const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
+    const numStudents = foundCourseID.students.length
+    let timeTotal = 0;
+    for(date in sessions){
+        sessions[date].forEach(session => {
+            timeTotal += session.time;
+        })
+    }
 
+    return timeTotal/numStudents; 
+    
 }
 //time spent over the whole period
-function averageHealth(){
-
+async function averageHealth(responseArray:ResponseArray):Promise<number>{
+    const sessions = responseArray[2];
+    const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
+    const numStudents = foundCourseID.students.length
+    let timeTotal = 0;
+    for(date in sessions){
+        sessions[date].forEach(session => {
+            timeTotal += session.health;
+        })
+    }
 }
 //time spent over the whole period
 function averageRating(){

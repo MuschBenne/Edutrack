@@ -13,6 +13,7 @@ import { ResponseArray } from "../App";
 export async function HandleCourseManager(req: Request, res: Response){
     let result = [];
     // TODO: Fundera på vilka funktioners cases som bara admins borde få nå, se till att vi checkar 
+    // Borde det inte vara att man bara kollar så att funktionerna finns på admin sidan?
     // att deras session är admin isådanafall.
     switch(req.query.action) {
         case "addCourse":

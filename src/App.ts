@@ -109,8 +109,12 @@ app.get("/courseManager", async (req, res) => {
  * Admin panel
  */
 app.get("/admin", async (req, res) => {
-	//TODO: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
+	//TOCHECK: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
+	if (req.session["isAdmin"]) {
 	res.render("Admin");
+	} else {
+		res.status(400).json({message: "Access denied, admins only!"});
+	}
 });
 
 app.listen(port, () => {

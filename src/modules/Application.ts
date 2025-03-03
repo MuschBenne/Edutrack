@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import session from "express-session";
-import User, { Entry } from "../db_models/User";
+import User, { SessionEntry } from "../db_models/User";
 import Course from "../db_models/Course";
 import { addStudentToCourse } from "./CourseManager";
 import { ResponseArray } from "../App";
 
+/**
+ * Router function for GET-requests for the route /app/*
+ * @param req The Express request object.
+ * @param res The Express reponse object.
+ */
 export async function RenderApp(req: Request, res: Response) {
     if (!req.session["user"]){
         res.status(403).redirect("/login");
@@ -45,7 +50,12 @@ export async function RenderApp(req: Request, res: Response) {
     }
 }
 
-export async function HandleApp(req: Request, res: Response) {
+/**
+ * Router function for POST-requests for the route /app
+ * @param req The Express request object.
+ * @param res The Express reponse object.
+ */
+export async function HandleApp(req: Request, res: Response): Promise<void> {
     // Se till att en användare är inloggad, annars skicka till login-skärmen
     if (!req.session["user"])
         res.status(403).redirect("/login");
@@ -53,7 +63,7 @@ export async function HandleApp(req: Request, res: Response) {
     let result = [];
     switch(req.query.action){
         case "addStudySession":
-            const studySession: Entry = {
+            const studySession: SessionEntry = {
                 time: Number.parseInt(req.body.time),
                 typeOfStudy: req.body.type,
                 gradeSess: Number.parseInt(req.body.rating),
@@ -79,9 +89,9 @@ export async function HandleApp(req: Request, res: Response) {
  * @param userName The user to add the session for
  * @param courseID The course to add the session for
  * @param sessionData The data to save to the User document
- * @returns ResponseArray
+ * @returns Promise that resolves into a ResponseArray
  */
-async function addStudySession(userName: string, courseID: string, sessionData: Entry): Promise<ResponseArray> {
+async function addStudySession(userName: string, courseID: string, sessionData: SessionEntry): Promise<ResponseArray> {
     let course = await Course.findOne({courseId: courseID}).exec();
     if(!course)
         return [400, "Course with id [" + courseID + "] was not found in the database."];
@@ -126,23 +136,6 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
     let outList = Object.values(courseList);
     console.log(outList);
     return outList;
-}
-
-/**
- * Fetches an object containing course sessions for this user and specific course.
- * @param username: string - the user to fetch this data for
- * @param courseId: string - the course ID to fetch the course data for
- * @returns: SessionData for this course
- */
-async function fetchStudySessions(username: string, courseId:string): Promise<Object> {
-    const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
-    if(!foundUser){
-        return;
-    }
-    if(!foundUser.activeCourses[courseId]){
-        return
-    }
-    return foundUser.activeCourses[courseId]["sessions"];
 }
 
 /**

@@ -3,7 +3,6 @@ import session from "express-session";
 import mongoose from 'mongoose';
 import { HandleRegister, RenderRegister } from './modules/Register';
 import { HandleLogin, RenderLogin } from './modules/Login';
-import { HandleLanding } from './modules/Landing';
 import { HandleLogout } from './modules/Logout';
 import { HandleApp, RenderApp } from './modules/Application';
 import path from "path";
@@ -49,7 +48,7 @@ app.use(express.static(__dirname + '/public'));
  * Landing page
  */
 app.get('/', (req: Request, res: Response) => {
-	HandleLanding(req, res);
+	res.render("Landing");
 });
 
 /**
@@ -101,21 +100,18 @@ app.post("/app", async (req, res) => {
 
 /**
  * Course manager
- * TODO: Läs av query för att bestämma vad som skall göras, vi kan ha en parameter som heter "action"
- * 		 så en url ser ut som:
- * 		 localhost:3000/courseManager?action=addCourse&name=PKD&courseId=11111
- * TODO: [Långt fram], se till att användaren vars session är aktiv och som anropar dessa actions är admin
  */
 app.get("/courseManager", async (req, res) => {
 	HandleCourseManager(req, res);
 });
 
-
 /**
- * Master css file
+ * Admin panel
  */
-
-
+app.get("/admin", async (req, res) => {
+	//TODO: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
+	res.render("Admin");
+});
 
 app.listen(port, () => {
 	return console.log(`Express is listening at http://localhost:${port}\nUse Ctrl + C to stop the server...`);

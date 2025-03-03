@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import User, { Entry } from "../db_models/User";
+import User, { SessionEntry } from "../db_models/User";
 import mongoose from "mongoose";
 
 export async function RenderRegister(req: Request, res: Response, next: NextFunction){

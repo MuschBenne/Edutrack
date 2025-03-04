@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/master.css">
     <title>Admin page</title>
 </head>
 
-<body><p>Hello</p>
+<body>
     <div>
     <nav>
         <ul>
@@ -26,7 +27,7 @@
         <input type="button" onclick="addCourse()" value="Submit" ></input>
     </div>
 
-    <div>
+    <div id="inputContainer" class="centeredItems">
     <% if (users.length > 0) { %>
         <h2>All Users and Their Active Courses</h2>
         <ul>
@@ -43,14 +44,14 @@
     <% } %>
 </div>
 
-    <div>
+    <div id="inputContainer" class="centeredItems">
         <h2>Delete a user</h2>
         <input type="text" value="" id="user" placeholder="Existing user"></input>
         <input type="button" onclick="deleteUser()" value="Submit" ></input>
         
     </div>
 
-    <div>
+    <div id="inputContainer" class="centeredItems">
         <% if (courses.length > 0) { %>
             <h2>All available courses</h2>
             <ul>
@@ -66,7 +67,7 @@
         <% } %>
     </div>
 
-    <div>
+    <div id="inputContainer" class="centeredItems">
         <h2>Delete a Course</h2>
         <input type="text" value="" id="courseId2" placeholder="Course ID">
         <input type="button" onclick="deleteCourse()" value="Submit">
@@ -145,7 +146,6 @@ async function deleteCourse() {
         }
     }
     </script>
-    <!-- TODO: Skapa en adminpanel. Lägg till / ta bort kurser. Ta bort användare. 
-    Kolla vilka andra funktioner som bara admins ska kunna nå.-->
+    
 </body>
 </html>

@@ -15,24 +15,28 @@
 
 #inputContainer {
     width: 20vw;
-    height: 60vh;
+    max-width: 400px;  /* To prevent it from becoming too narrow on large screens */
+    height: 40vh;
     margin-top: -5%;
-    flex-flow:column;
+    display: flex;
+    flex-flow: column;
+    gap: 1%;
 }
+
 
 #inputContainer > input {
     width: 100%;
     height: 30px;
-    margin: 1%;
     text-align: center;
 }
 
+
 #inputContainer > select {
-    width: 102%;
+    width: 100%;  /* Make sure the select box doesn't overflow */
     font-size: 30px;
-    margin: 1%;
+    margin: 1%;  /* Optional: adjust if needed */
     text-align: center;
-    color:black;
+    color: black;
 }
 
 section {
@@ -167,3 +171,4 @@ nav ul li a:hover {
 .sessionInputContent {
     padding-bottom: 10%;
 }
+

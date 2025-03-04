@@ -10,18 +10,18 @@ import { ResponseArray } from "../App";
  * @param req The Express request object
  * @param res The Express response object
  */
-export async function HandleCourseManager(req: Request, res: Response){
+export async function HandleCourseManager(req: Request, res: Response) {
     let result = [];
-    // TODO: Fundera på vilka funktioners cases som bara admins borde få nå, se till att vi checkar 
-    // Borde det inte vara att man bara kollar så att funktionerna finns på admin sidan?
-    // att deras session är admin isådanafall.
-    switch(req.query.action) {
+
+    // Check if the user is an admin only once before the switch
+    if (!req.session["isAdmin"]) {
+        return res.status(400).json({ message: "Access denied, admins only!" });
+    }
+
+    // If the user is an admin, proceed with the switch
+    switch (req.query.action) {
         case "addCourse":
-            if (req.session["isAdmin"]) {
-                result = await addCourse(req.query.name as string, req.query.courseId as string);
-                } else {
-                    return res.status(400).json({message: "Access denied, admins only!"});
-                }
+            result = await addCourse(req.query.name as string, req.query.courseId as string);
             break;
         case "removeCourse":
             result = await removeCourse(req.query.courseId as string);
@@ -35,7 +35,8 @@ export async function HandleCourseManager(req: Request, res: Response){
         default:
             result = [404, "CourseManager: Action [" + req.query.action + "] not found."];
     }
-    res.status(result[0]).json({message: result[1], data: result[2]})
+
+    res.status(result[0]).json({ message: result[1], data: result[2] });
 }
 
 /**

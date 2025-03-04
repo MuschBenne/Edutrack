@@ -160,14 +160,12 @@ export async function deleteUser(username:string){
             await removeStudentFromCourse(activeCourses[i]["courseId"],username);
         }
 
-        const updatedUser = await User.updateOne(
-            { username },
-            { $pull: { username: username } } 
-        );
-        if (updatedUser.modifiedCount > 0) {
-            console.log("Student " + username + " removed from Users ");
-            return [200, "Student " + username + " removed from Users "];
-        }
+        const deletedUser = await User.deleteOne({ username });
+            if (deletedUser.deletedCount > 0) {
+                console.log(`Student ${username} removed from Users`);
+            return [200, `Student ${username} removed from Users`];
+            }   
+
     }
 }
 

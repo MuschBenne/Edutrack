@@ -20,12 +20,41 @@
     <div class="centeredItems" id="errorMessage" style="color: red; margin-top: 10px;"></div>
     
     <div id="inputContainer" class="centeredItems">
+        <h2>Create a new course</h2>
         <input type="text" value="" id="courseName" placeholder="Course Name"></input>
         <input type="text" value="" id="courseId" placeholder="Course ID"></input>
         <input type="button" onclick="addCourse()" value="Submit" ></input>
+
+        <h2>Delete a user</h2>
+        <input type="text" value="" id="user" placeholder="existing user"></input>
+        <input type="button" onclick="deleteUser()" value="Submit" ></input>
+        
     </div>
 
     <script>
+
+        async function deleteUser() {
+            let username = document.getElementById("user").value;
+
+            let url = `http://localhost:3000/courseManager?action=deleteUser&username=${username}`;
+            
+            let response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
+            if (response.ok) {
+                errorMessage.innerText = "Successfully deleted the user!";
+                errorMessage.style.color = "green";
+            } else {
+                let responseJSON = await response.json();
+                errorMessage.innerText = responseJSON.message || "Error deleting user";
+                errorMessage.style.color = "red";
+            }
+        }
+
         async function addCourse() {
         let courseName = encodeURIComponent(document.getElementById("courseName").value);
         let courseId = encodeURIComponent(document.getElementById("courseId").value);

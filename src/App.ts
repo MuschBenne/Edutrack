@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import session from "express-session";
 import mongoose from 'mongoose';
+import Course from './db_models/Course';
 import { HandleRegister, RenderRegister } from './modules/Register';
 import { HandleLogin, RenderLogin } from './modules/Login';
 import { HandleLogout } from './modules/Logout';
@@ -111,7 +112,11 @@ app.post("/courseManager", async (req, res) => {
 app.get("/admin", async (req, res) => {
 	//TOCHECK: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
 	if (req.session["isAdmin"]) {
-		res.render("Admin");
+		const allCourses = await Course.find({}, "-_id -__v").exec();
+		let data = {
+			courses: allCourses
+		}
+		res.render("Admin", data);
 	} else {
 		res.status(403).send("Access denied, admins only!");
 	}

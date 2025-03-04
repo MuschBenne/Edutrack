@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/master.css">
     <title>EduTrack: <%= name %></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <script src="/static_functions.js"></script>
+    <script type="module" src="/graph_logic.js"></script>
 </head>
 <body class="centeredItems">
     <nav>
@@ -18,22 +20,22 @@
 
     <% if (courseData){ %>
         <script>
+            // *OBS* Detta är viktigt för graferna.
             const COURSEDATA = <%- courseData %>;
         </script>
     <%}%>
     <h1><%-courseData.name %></h1>
     <h1>All Registered Sessions</h1> 
-
+    
+    <!-- TODO: Hitta på ett mer visuellt sätt att presentera datan på.
+    - Vad gör vi om Chart.js inte kan laddas av någon anledning?
+    https://www.chartjs.org/docs/latest/general/data-structures.html
+    -->
+    
+    <!-- Graph.js grafen: Alltid en canvas-tag i en div-tag. Sätt ett id på canvasen.-->
+    <div style="width: 800px;"><canvas id="graftest"></canvas></div>
     <% if (courseData.sessions) { %>
         <ul>
-            <!-- TODO: Hitta på ett mer visuellt sätt att presentera datan på.
-            Detta genom Chart.js. Så försök lista ut hur vi kan se till att det hänger med till klienten 
-            (vi kan använda oss av deras CDN) och sen lista ut hur vi kan rendera sådana grafer på klienten.
-            - Hur kommer vi åt kursdatan på frontenden? 
-            - Vart skriver vi koden som använder sig av Chart.js? 
-            - Vad gör vi om Chart.js inte kan laddas av någon anledning?
-            https://www.chartjs.org/docs/latest/getting-started/ 
-            -->
             
             <% for(let date in courseData.sessions) { %> 
                 <% courseData.sessions[date].forEach((entry) => {%>

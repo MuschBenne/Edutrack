@@ -44,3 +44,4 @@ function hoursSpent(sessionData){
     let timeSpent = calculateTotalTime(sessionData);
     return (timeSpent / 60).toFixed(1);//returns string
 }
+

@@ -226,39 +226,48 @@ async function averageTimeSpentOnCourse(responseArray:ResponseArray):Promise<num
         })
     }
 
-    return timeTotal/numStudents; 
+    return numStudents > 0 ? timeTotal/numStudents: 0 ; 
     
 }
 //time spent over the whole period
-async function averageHealth(responseArray:ResponseArray){
+function averageHealth(responseArray:ResponseArray){
     const sessions = responseArray[2];
-    const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
-    const numStudents = foundCourseID.students.length
+    let acc = 0;
     let healthTotal = 0;
     for(let date in sessions){
         sessions[date].forEach(session => {
             healthTotal += session.health;
+            acc++;
         })
-    }return healthTotal/numStudents;
+    }return acc > 0 ? healthTotal / acc : 0;
 }
 //time spent over the whole period
-async function averageRating(responseArray:ResponseArray){
+function averageRating(responseArray:ResponseArray){
     const sessions = responseArray[2];
-    const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
-    const numStudents = foundCourseID.students.length
+    let acc = 0;
     let ratingTotal = 0;
     for(let date in sessions){
         sessions[date].forEach(session => {
             ratingTotal += session.gradeSess;
+            acc++;
         })
-    }return ratingTotal/numStudents;
+    }return acc > 0 ? ratingTotal / acc : 0;
 }
-//returns stats for last week
-function lastWeeksAverages(){
 
-}
 //average rating for lecture over the whole period, if lectures are integrated better, maybe possible to access rating for each lecture
-function averageLectureRating(){
+function averageLectureRating(responseArray:ResponseArray){
+    const sessions = responseArray[2];
+    let acc = 0;
+    let ratingTotal = 0
+    for(let date in sessions){
+        sessions[date].forEach(session =>{
+            if(session.typeOfStudy =="Lecture"){
+            ratingTotal+=session.gradeSess;
+            acc++;
+            }
+        })
+    }return acc > 0 ? ratingTotal / acc : 0;
+
 
 }
 //
@@ -271,5 +280,10 @@ function lastWeeksAttendenceAndAverage(){
 }
 
 function averageTimeSpentWeekly(){
+
+}
+
+//returns stats for last week
+function lastWeeksAverages(){
 
 }

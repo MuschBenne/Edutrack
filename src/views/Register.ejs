@@ -49,18 +49,26 @@
 	
 	// Se till att rutorna är ifyllda ordentligt
 	async function checkTheData() {
-		if (passElement.value.length < 8 || passElement.value.length > 20) {
-			alert("Does not meet the requirements, between 8 to 20 characthers.");
+		if(userElement.value.length==0 || passElement.value.length == 0 || classElement.value.length == 0|| emailElement.value.length == 0){
+			alert("please fill all boxes")
 			return;
 		}
-		if (userElement.value.length > 20){
-			alert("Name is to long, maximum of 20 characthers.");
+		if (userElement.value.length > 20 || userElement.value.length <5){
+			alert("Name has to be 5 - 20 characters.");
 			return;
 		}
+
+		if (passElement.value.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,20}$/) == null) {
+			alert("Password must be 8-20 characters long, with at least one uppercase letter, one lowercase letter, and one digit.");
+			return;
+		}
+
 		if (!isValidEmail(emailElement.value)) {
 			alert("Please enter a valid email address.");
 			return;
 		}
+		
+		
 		// Om rutorna är ifyllda, skicka all data till servern
 		sendTheData();		
 	}

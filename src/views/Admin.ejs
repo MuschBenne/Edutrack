@@ -26,32 +26,28 @@
     </div>
 
     <script>
-        let courseNameElement = document.getElementById("courseName");
-        let courseIdElement = document.getElementById("courseId");
-
         async function addCourse() {
-            // TODO: Istället för att skicka name och courseId som JSON data, skicka det i urln
-            //       alltså ?action=addCourse&name=NAMN osv 
-            let response = await fetch("http://localhost:3000/courseManager?action=addCourse", {
-                method: "POST",
-                body: JSON.stringify({
-                    name: courseNameElement.value,
-                    courseId: courseIdElement.value
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            });
+        let courseName = encodeURIComponent(document.getElementById("courseName").value);
+        let courseId = encodeURIComponent(document.getElementById("courseId").value);
 
-            const res = await response;
-		    if(res && res.status === 200) {
-			    errorMessage.innerText = "Course added";
-		    }
-		    else {
-			    const responseJSON = await res.json();
-			    errorMessage.innerText = responseJSON.message;
-		    }
+        let url = `http://localhost:3000/courseManager?action=addCourse&name=${courseName}&courseId=${courseId}`;
+
+        let response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+
+        if (response.ok) {
+            errorMessage.innerText = "Course added successfully!";
+            errorMessage.style.color = "green";
+        } else {
+            let responseJSON = await response.json();
+            errorMessage.innerText = responseJSON.message || "Error adding course";
+            errorMessage.style.color = "red";
         }
+    }
     </script>
     <!-- TODO: Skapa en adminpanel. Lägg till / ta bort kurser. Ta bort användare. 
     Kolla vilka andra funktioner som bara admins ska kunna nå.-->

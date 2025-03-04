@@ -30,7 +30,9 @@
         let courseIdElement = document.getElementById("courseId");
 
         async function addCourse() {
-            let response = await fetch("http://localhost:3000/app?action=addCourse", {
+            // TODO: Istället för att skicka name och courseId som JSON data, skicka det i urln
+            //       alltså ?action=addCourse&name=NAMN osv 
+            let response = await fetch("http://localhost:3000/courseManager?action=addCourse", {
                 method: "POST",
                 body: JSON.stringify({
                     name: courseNameElement.value,

@@ -101,7 +101,7 @@ app.post("/app", async (req, res) => {
 /**
  * Course manager
  */
-app.get("/courseManager", async (req, res) => {
+app.post("/courseManager", async (req, res) => {
 	HandleCourseManager(req, res);
 });
 
@@ -111,9 +111,9 @@ app.get("/courseManager", async (req, res) => {
 app.get("/admin", async (req, res) => {
 	//TOCHECK: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
 	if (req.session["isAdmin"]) {
-	res.render("Admin");
+		res.render("Admin");
 	} else {
-		res.status(400).json({message: "Access denied, admins only!"});
+		res.status(403).send("Access denied, admins only!");
 	}
 });
 

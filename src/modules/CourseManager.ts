@@ -6,7 +6,7 @@ import { fetchRegisteredCourses } from "./Application";
 import { ResponseArray } from "../App";
 
 /**
- * Router function for GET-requests to the path /courseManager
+ * Router function for POST-requests to the path /courseManager
  * @param req The Express request object
  * @param res The Express response object
  */
@@ -23,9 +23,6 @@ export async function HandleCourseManager(req: Request, res: Response){
                     return res.status(400).json({message: "Access denied, admins only!"});
                 }
             break;
-        case "addStudentToCourse":
-            result = await addStudentToCourse(req.query.courseId as string, req.query.username as string);
-            break;
         case "removeCourse":
             result = await removeCourse(req.query.courseId as string);
             break;
@@ -36,7 +33,7 @@ export async function HandleCourseManager(req: Request, res: Response){
             result = await removeStudentFromCourse(req.query.courseID as string, req.query.username as string);
             break;
         default:
-            res.status(400).json({message: "CourseManager: Action [" + req.query.action + "] not found."})
+            result = [404, "CourseManager: Action [" + req.query.action + "] not found."];
     }
     res.status(result[0]).json({message: result[1], data: result[2]})
 }

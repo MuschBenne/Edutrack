@@ -7,6 +7,50 @@
 </head>
 
 <body><p>Hello</p>
+    <div>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/app">My Pages</a></li>
+            <li><a href="/logout">Log out</a></li>
+        </ul>
+    </nav>
+    </div>
+
+    <div class="centeredItems" id="errorMessage" style="color: red; margin-top: 10px;"></div>
+    
+    <div id="inputContainer" class="centeredItems">
+        <input type="text" value="" id="courseName" placeholder="Course Name"></input>
+        <input type="text" value="" id="courseId" placeholder="Course ID"></input>
+        <input type="button" onclick="addCourse()" value="Submit" ></input>
+    </div>
+
+    <script>
+        let courseNameElement = document.getElementById("courseName");
+        let courseIdElement = document.getElementById("courseId");
+
+        async function addCourse() {
+            let response = await fetch("http://localhost:3000/app?action=addCourse", {
+                method: "POST",
+                body: JSON.stringify({
+                    name: courseNameElement.value,
+                    courseId: courseIdElement.value
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
+            const res = await response;
+		    if(res && res.status === 200) {
+			    errorMessage.innerText = "Course added";
+		    }
+		    else {
+			    const responseJSON = await res.json();
+			    errorMessage.innerText = responseJSON.message;
+		    }
+        }
+    </script>
     <!-- TODO: Skapa en adminpanel. Lägg till / ta bort kurser. Ta bort användare. 
     Kolla vilka andra funktioner som bara admins ska kunna nå.-->
 </body>

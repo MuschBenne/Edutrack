@@ -17,7 +17,11 @@ export async function HandleCourseManager(req: Request, res: Response){
     // att deras session är admin isådanafall.
     switch(req.query.action) {
         case "addCourse":
-            result = await addCourse(req.query.name as string, req.query.courseId as string);
+            if (req.session["isAdmin"]) {
+                result = await addCourse(req.query.name as string, req.query.courseId as string);
+                } else {
+                    return res.status(400).json({message: "Access denied, admins only!"});
+                }
             break;
         case "addStudentToCourse":
             result = await addStudentToCourse(req.query.courseId as string, req.query.username as string);

@@ -8,6 +8,7 @@ import { HandleLogout } from './modules/Logout';
 import { HandleApp, RenderApp } from './modules/Application';
 import path from "path";
 import { HandleCourseManager } from './modules/CourseManager';
+import User from './db_models/User';
 
 /**
  * Type ResponseArray: [statusCode: number, message: string, data (optional): object]
@@ -113,8 +114,10 @@ app.get("/admin", async (req, res) => {
 	//TOCHECK: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
 	if (req.session["isAdmin"]) {
 		const allCourses = await Course.find({}, "-_id -__v").exec();
+		const allUsers = await User.find({}, "-__v").exec();
 		let data = {
-			courses: allCourses
+			courses: allCourses,
+			users: allUsers
 		}
 		res.render("Admin", data);
 	} else {

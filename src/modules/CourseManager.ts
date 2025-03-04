@@ -70,19 +70,18 @@ async function addCourse(name: string, courseId: string): Promise<ResponseArray>
  * @param courseId Course identifier
  * @returns A promise, resolving into a ResponseArray
  */
-async function removeCourse(courseId: string){
-    const foundCourse = Course.find({courseId:courseId}).exec();
-    if (foundCourse) {
-        await Course.deleteOne({ courseId:courseId });
-        console.log("Course with ID " + courseId + " removed.")
-        return [200, "Course with ID " + courseId + " removed."];
-    }
-    else {
-        console.log("No course with ID " + courseId + " found.")
-        return [400, "No course with ID " + courseId + " found."];
-    }
-}
+async function removeCourse(courseId: string) {
+    const foundCourse = await Course.findOne({ courseId: courseId }).exec();
 
+    if (!foundCourse) {
+        console.log("Course not found.");
+        return [404, "Course not found."];
+    }
+
+    await Course.deleteOne({ courseId: courseId });
+    console.log("Course with ID " + courseId + " removed.");
+    return [200, "Course with ID " + courseId + " removed."]
+}
 /**
  * Removes a student from a course
  * @param courseId 

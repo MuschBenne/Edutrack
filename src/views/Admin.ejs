@@ -24,14 +24,83 @@
         <input type="text" value="" id="courseName" placeholder="Course Name"></input>
         <input type="text" value="" id="courseId" placeholder="Course ID"></input>
         <input type="button" onclick="addCourse()" value="Submit" ></input>
+    </div>
 
+    <div>
+    <% if (users.length > 0) { %>
+        <h2>All Users and Their Active Courses</h2>
+        <ul>
+            <% users.forEach(function(user) { %>
+                <li>
+                    <strong>Username:</strong> <%= user.username %> | 
+                    <strong>Active Courses:</strong> 
+                    <!--TODO kanske se till att man ser en users alla reggade kurser-->
+                </li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <p>No users available.</p>
+    <% } %>
+</div>
+
+    <div>
         <h2>Delete a user</h2>
-        <input type="text" value="" id="user" placeholder="existing user"></input>
+        <input type="text" value="" id="user" placeholder="Existing user"></input>
         <input type="button" onclick="deleteUser()" value="Submit" ></input>
         
     </div>
 
+    <div>
+        <% if (courses.length > 0) { %>
+            <h2>All available courses</h2>
+            <ul>
+                <% courses.forEach(function(course) { %>
+                    <li>
+                        <strong>Course Name:</strong> <%= course.name %> | 
+                        <strong>Course ID:</strong> <%= course.courseId %>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>No courses available.</p>
+        <% } %>
+    </div>
+
+    <div>
+        <h2>Delete a Course</h2>
+        <input type="text" value="" id="courseId2" placeholder="Course ID">
+        <input type="button" onclick="deleteCourse()" value="Submit">
+        
+    </div>
+
     <script>
+
+async function deleteCourse() {
+            let courseId = document.getElementById("courseId2").value.trim();
+
+            let url = `http://localhost:3000/courseManager?action=removeCourse&courseId=${courseId}`;
+            
+            if (!courseId) {
+                errorMessage.innerText = "Course ID cannot be empty!";
+                errorMessage.style.color = "red";
+                return;
+            }
+
+            let response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
+            if (response.ok) {
+                window.location.href = "/admin"
+            } else {
+                let responseJSON = await response.json();
+                errorMessage.innerText = responseJSON.message || "Error deleting course";
+                errorMessage.style.color = "red";
+            }
+        }
 
         async function deleteUser() {
             let username = document.getElementById("user").value;
@@ -46,8 +115,7 @@
             });
 
             if (response.ok) {
-                errorMessage.innerText = "Successfully deleted the user!";
-                errorMessage.style.color = "green";
+                window.location.href = "/admin"
             } else {
                 let responseJSON = await response.json();
                 errorMessage.innerText = responseJSON.message || "Error deleting user";
@@ -69,8 +137,7 @@
         });
 
         if (response.ok) {
-            errorMessage.innerText = "Course added successfully!";
-            errorMessage.style.color = "green";
+            window.location.href = "/admin" 
         } else {
             let responseJSON = await response.json();
             errorMessage.innerText = responseJSON.message || "Error adding course";

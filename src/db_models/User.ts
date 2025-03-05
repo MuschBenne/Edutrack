@@ -5,7 +5,8 @@ export type SessionEntry = {
     time: Number,
     typeOfStudy: String,
     gradeSess: Number,
-    health: Number
+    health: Number,
+    mentalHealth: Number
 }
 
 const userSchema = new Schema({

@@ -67,7 +67,8 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
                 time: Number.parseInt(req.body.time),
                 typeOfStudy: req.body.type,
                 gradeSess: Number.parseInt(req.body.rating),
-                health: Number.parseInt(req.body.health)
+                health: Number.parseInt(req.body.health),
+                mentalHealth: Number.parseInt(req.body.mentalHealth)
             }
 			result = await addStudySession(req.session["user"], req.body.courseId, studySession);
 			break;

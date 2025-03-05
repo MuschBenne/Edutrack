@@ -50,7 +50,10 @@ app.use(express.static(__dirname + '/public'));
  * Landing page
  */
 app.get('/', (req: Request, res: Response) => {
-	res.render("Landing");
+	let data = {
+		activeSession: req.session["user"] ? true : false
+	}
+	res.render("Landing", data);
 });
 
 /**

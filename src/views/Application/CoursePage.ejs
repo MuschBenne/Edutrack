@@ -24,7 +24,11 @@
             const COURSEDATA = <%- courseData %>;
         </script>
     <%}%>
-    <h1><%-courseData.name %></h1>
+    <h1>Course: <%-courseData.name %></h1>
+    <div class="centeredItems">
+      <p>Have you studied today?</p>
+      <button class="course-box" onclick="togglePopup()">Add study session</button>
+    </div>
     <h1>All Registered Sessions</h1> 
     
     <!-- TODO: Hitta på ett mer visuellt sätt att presentera datan på.
@@ -55,9 +59,6 @@
         <p>No sessions registered.</p>
     <% } %>
 
-    <!-- TODO: Stylea add session knappen -->
-     <p>Have you studied today?</p>
-     <button onclick="togglePopup()">Add study session</button>
     <!-- TODO: Stylea popup rutan -->
     <div id="SessionPopupContainer" class="hidden">
         <div id="SessionPopup">

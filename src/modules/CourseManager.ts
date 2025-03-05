@@ -1,7 +1,6 @@
 import Course from "../db_models/Course";
 import express, { Request, Response } from 'express';
 import User from "../db_models/User";
-import mongoose from "mongoose";
 import { fetchRegisteredCourses } from "./Application";
 import { ResponseArray } from "../App";
 
@@ -72,9 +71,9 @@ async function addCourse(name: string, courseId: string): Promise<ResponseArray>
 /**
  * Remove a course from the list of public courses.
  * @param courseId Course identifier
- * @returns A promise, resolving into a ResponseArray
+ * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
-async function removeCourse(courseId: string) {
+async function removeCourse(courseId: string): Promise<ResponseArray> {
     const foundCourse = await Course.findOne({ courseId: courseId }).exec();
 
     if (!foundCourse) {
@@ -88,11 +87,11 @@ async function removeCourse(courseId: string) {
 }
 /**
  * Removes a student from a course
- * @param courseId 
- * @param username 
- * @returns 
+ * @param courseId Course identifier
+ * @param username User identifier
+ * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
-async function removeStudentFromCourse(courseId: string, username: string){
+async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray>{
     try {
         const foundCourse = await Course.find({courseId:courseId}).exec();
         if (!foundCourse)
@@ -116,6 +115,11 @@ async function removeStudentFromCourse(courseId: string, username: string){
     }
 }
 
+/**
+ * Gets the coursename from the same course ID
+ * @param courseId Course identifier
+ * @returns the given course name
+ */
 async function getCourseNameFromId(courseId: string): Promise<string> {
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
     if(!foundCourse)
@@ -124,6 +128,13 @@ async function getCourseNameFromId(courseId: string): Promise<string> {
         return foundCourse.name;
 }
 
+
+/**
+ * Adds a existing student to a course
+ * @param courseId Course identifier
+ * @param username User identifier
+ * @returns A promise, resolving into a ResponseArray containing a status code and a message
+ */
 export async function addStudentToCourse(courseId:string, username: string): Promise<ResponseArray>{
 
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
@@ -139,10 +150,10 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
         //uppdatera students active course
         if(!foundUser.activeCourses)
             foundUser.activeCourses = {};
-        foundUser.activeCourses[courseId] = {courseId: courseId, name: await getCourseNameFromId(courseId), sessions: null};
-        foundUser.markModified("activeCourses");
-        foundUser.save();
-        return [200, "Student added to course " + courseId];
+            foundUser.activeCourses[courseId] = {courseId: courseId, name: await getCourseNameFromId(courseId), sessions: null};
+            foundUser.markModified("activeCourses");
+            foundUser.save();
+            return [200, "Student added to course " + courseId];
     }
     else {
         console.log("student eller course finns inte");
@@ -150,7 +161,13 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
     }
 }
 
-export async function deleteUser(username:string){
+
+/**
+ * Deletes a user from all courses and database
+ * @param username User identifier
+ * @returns A promise, resolving into a ResponseArray containing a status code and a message
+ */
+export async function deleteUser(username:string): Promise<ResponseArray> {
     const foundUser = await User.findOne({username:username}).exec();
     if(!foundUser) {
         console.log("Action deleteUser failed: User not found");
@@ -166,7 +183,7 @@ export async function deleteUser(username:string){
         const deletedUser = await User.deleteOne({ username });
             if (deletedUser.deletedCount > 0) {
                 console.log(`Student ${username} removed from Users`);
-            return [200, `Student ${username} removed from Users`];
+                return [200, `Student ${username} removed from Users`];
             }   
 
     }
@@ -177,6 +194,12 @@ export async function deleteUser(username:string){
 //                  Alltså, om user1 har en array med två sessioner sparade för Feb_10_2024, 
 //                  och user2 har en array med två sessioner sparade för samma datum, kommer
 //                  det resulterande objektet ha fyra sessioner sparade för det datumet.
+
+/**
+ * Fetches all session data from all courses and users
+ * @param courseId Course identifier
+ * @returns A promise, resolving into a ResponseArray containing a status code and all the data
+ */
 async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray>{
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
     if(!foundCourseID){
@@ -208,12 +231,20 @@ async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArra
     
         return [200,courseId, allSessions];
     }
+
+
 // TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
 //                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
 
 //ex på functioner
 //time spent over the whole period
-async function averageTimeSpentOnCourse(responseArray:ResponseArray):Promise<number>{
+
+/**
+ * Gives the average time spent on a course for all students
+ * @param responeArray with all the data from all the sessions
+ * @returns A promise, that gives back a number
+ */
+async function averageTimeSpentOnCourse(responseArray:ResponseArray): Promise<number> {
     const sessions = responseArray[2];
     const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
     const numStudents = foundCourseID.students.length
@@ -227,7 +258,13 @@ async function averageTimeSpentOnCourse(responseArray:ResponseArray):Promise<num
     return numStudents > 0 ? timeTotal/numStudents: 0 ; 
     
 }
-//time spent over the whole period
+
+/**
+ * Gives the average health for all students.
+ * @param responeArray with all the data from all the sessions
+ * @returns A promise, that gives back a number
+ * //TOCHECK
+ */
 function averageHealth(responseArray:ResponseArray){
     const sessions = responseArray[2];
     let acc = 0;
@@ -239,7 +276,13 @@ function averageHealth(responseArray:ResponseArray){
         })
     }return acc > 0 ? healthTotal / acc : 0;
 }
-//time spent over the whole period
+
+/**
+ * Gives the average rating for all students.
+ * @param responeArray with all the data from all the sessions
+ * @returns A promise, that gives back a number
+ * //TOCHECK
+ */
 function averageRating(responseArray:ResponseArray){
     const sessions = responseArray[2];
     let acc = 0;

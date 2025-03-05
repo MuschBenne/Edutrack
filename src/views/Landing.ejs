@@ -13,9 +13,19 @@
             <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
             
         </div>
-        <!-- TOCHECK vill gärna förstå hur jag fixar så om det är en session igång att register och login bara istället visar logout -->
         <!-- Navigation (Horizonally aligned beside the heading) -->
-        <%- include("CommonModules/Nav") %>
+        <% if (activeSession === true) { %>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/app">My Pages</a></li>
+                    <li><a href="/logout">Log out</a></li>
+                </ul>
+            </nav>
+        <% ; %>
+        <% } else { %>
+            <%- include("CommonModules/Nav") %>
+        <% } %>
     </div>
 
     <div class="main-content">

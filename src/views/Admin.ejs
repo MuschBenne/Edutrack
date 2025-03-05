@@ -20,14 +20,14 @@
 
     <div class="centeredItems" id="errorMessage" style="color: red; margin-top: 10px;"></div>
     
-    <div id="inputContainer" class="centeredItems">
+    <div class="centeredItems">
         <h2>Create a new course</h2>
         <input type="text" value="" id="courseName" placeholder="Course Name"></input>
         <input type="text" value="" id="courseId" placeholder="Course ID"></input>
         <input type="button" onclick="addCourse()" value="Submit" ></input>
     </div>
 
-    <div id="inputContainer" class="centeredItems">
+    <div class="centeredItems">
     <% if (users.length > 0) { %>
         <h2>All Users and Their Active Courses</h2>
         <ul>
@@ -44,14 +44,14 @@
     <% } %>
 </div>
 
-    <div id="inputContainer" class="centeredItems">
+    <div class="centeredItems">
         <h2>Delete a user</h2>
         <input type="text" value="" id="user" placeholder="Existing user"></input>
         <input type="button" onclick="deleteUser()" value="Submit" ></input>
         
     </div>
 
-    <div id="inputContainer" class="centeredItems">
+    <div class="centeredItems">
         <% if (courses.length > 0) { %>
             <h2>All available courses</h2>
             <ul>
@@ -67,7 +67,7 @@
         <% } %>
     </div>
 
-    <div id="inputContainer" class="centeredItems">
+    <div class="centeredItems">
         <h2>Delete a Course</h2>
         <input type="text" value="" id="courseId2" placeholder="Course ID">
         <input type="button" onclick="deleteCourse()" value="Submit">

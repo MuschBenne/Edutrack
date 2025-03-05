@@ -49,6 +49,7 @@ body {
     padding: 0;
     background-color: #152242; /* Background color for the page */
     overflow-x: hidden; /* To prevent horizontal scroll */
+    padding-bottom: 15%;
 }
 
 /* Header Container for Navigation and Heading */

@@ -54,7 +54,23 @@
     <% } else { %>
         <p>No sessions registered.</p>
     <% } %>
-    <%- include("AppModules/Session"); %>
+
+    <!-- TODO: Stylea add session knappen -->
+     <p>Have you studied today?</p>
+     <button onclick="togglePopup()">Add study session</button>
+    <!-- TODO: Stylea popup rutan -->
+    <div id="SessionPopupContainer" onclick="togglePopup()" class="hidden">
+        <div id="SessionPopup" class="hidden">
+            <%- include("AppModules/Session"); %>
+        </div>
+    </div>
+
+    <script>
+        function togglePopup(){
+            document.getElementById("SessionPopupContainer").classList.toggle("hidden");
+            document.getElementById("SessionPopup").classList.toggle("hidden");
+        }
+    </script>
     <footer class="footer">
         <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
     </footer> 

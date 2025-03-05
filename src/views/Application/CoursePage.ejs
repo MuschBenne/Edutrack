@@ -59,16 +59,22 @@
      <p>Have you studied today?</p>
      <button onclick="togglePopup()">Add study session</button>
     <!-- TODO: Stylea popup rutan -->
-    <div id="SessionPopupContainer" onclick="togglePopup()" class="hidden">
-        <div id="SessionPopup" class="hidden">
+    <div id="SessionPopupContainer" class="hidden">
+        <div id="SessionPopup">
             <%- include("AppModules/Session"); %>
         </div>
     </div>
 
     <script>
+        let container = document.querySelector("#SessionPopupContainer");
+        container.addEventListener("click", (e) => {
+            if(e.target !== container)
+                return false;
+            container.classList.toggle("hidden");
+        });
+
         function togglePopup(){
             document.getElementById("SessionPopupContainer").classList.toggle("hidden");
-            document.getElementById("SessionPopup").classList.toggle("hidden");
         }
     </script>
     <footer class="footer">

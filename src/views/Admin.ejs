@@ -72,7 +72,6 @@
                 <li>
                     <strong>Username:</strong> <span class="username"><%= user.username %></span> | 
                     <a href="#" data-username="<%= user.username %>"class="getActivesLink">View Active Courses</a>
-                    <!--TODO kanske se till att man ser en users alla reggade kurser-->
                 </li>
             <% }); %>
         </ul>
@@ -115,98 +114,124 @@
     </div>
 
     <script>
-
+        // Function to delete a course using its ID
         async function deleteCourse() {
+            // Get the course ID from the input field and trim any leading/trailing spaces
             let courseId = document.getElementById("courseId2").value.trim();
-
+    
+            // Construct the URL with the courseId parameter for the delete request
             let url = `http://localhost:3000/courseManager?action=removeCourse&courseId=${courseId}`;
             
+            // Check if the course ID is empty, show an error message and stop execution
             if (!courseId) {
                 errorMessage.innerText = "Course ID cannot be empty!";
                 errorMessage.style.color = "red";
                 return;
             }
-
+    
+            // Make the POST request to delete the course
             let response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
                 }
             });
-
+    
+            // If the response is successful (status 200), redirect to the admin page
             if (response.ok) {
-                window.location.href = "/admin"
+                window.location.href = "/admin";
             } else {
+                // If there's an error, display the error message from the server
                 let responseJSON = await response.json();
                 errorMessage.innerText = responseJSON.message || "Error deleting course";
                 errorMessage.style.color = "red";
             }
         }
-
+    
+        // Function to delete a user by username
         async function deleteUser() {
+            // Get the username from the input field
             let username = document.getElementById("user").value;
-
+    
+            // Construct the URL with the username parameter for the delete request
             let url = `http://localhost:3000/courseManager?action=deleteUser&username=${username}`;
             
+            // Make the POST request to delete the user
             let response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
                 }
             });
-
+    
+            // If the response is successful (status 200), redirect to the admin page
             if (response.ok) {
-                window.location.href = "/admin"
+                window.location.href = "/admin";
             } else {
+                // If there's an error, display the error message from the server
                 let responseJSON = await response.json();
                 errorMessage.innerText = responseJSON.message || "Error deleting user";
                 errorMessage.style.color = "red";
             }
         }
-
+    
+        // Function to add a new course
         async function addCourse() {
-        let courseName = encodeURIComponent(document.getElementById("courseName").value);
-        let courseId = encodeURIComponent(document.getElementById("courseId").value);
-
-        let url = `http://localhost:3000/courseManager?action=addCourse&name=${courseName}&courseId=${courseId}`;
-
-        let response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
+            // Get the course name and course ID from input fields, encode them for URL
+            let courseName = encodeURIComponent(document.getElementById("courseName").value);
+            let courseId = encodeURIComponent(document.getElementById("courseId").value);
+    
+            // Construct the URL with the course name and course ID parameters
+            let url = `http://localhost:3000/courseManager?action=addCourse&name=${courseName}&courseId=${courseId}`;
+    
+            // Make the POST request to add the new course
+            let response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+    
+            // If the response is successful (status 200), redirect to the admin page
+            if (response.ok) {
+                window.location.href = "/admin";
+            } else {
+                // If there's an error, display the error message from the server
+                let responseJSON = await response.json();
+                errorMessage.innerText = responseJSON.message || "Error adding course";
+                errorMessage.style.color = "red";
             }
-        });
-
-        if (response.ok) {
-            window.location.href = "/admin" 
-        } else {
-            let responseJSON = await response.json();
-            errorMessage.innerText = responseJSON.message || "Error adding course";
-            errorMessage.style.color = "red";
         }
-    }
-
-    document.querySelectorAll(".getActivesLink").forEach((element) => {
-        element.addEventListener("click", getUserActiveCourses);
-    });
-
-    let ActiveCoursesContainer = document.querySelector("#ActiveCoursesContainer");
-    ActiveCoursesContainer.addEventListener("click", (e) => {
-        if(e.target !== ActiveCoursesContainer)
-            return false;
-        ActiveCoursesContainer.classList.toggle("hidden");
-    });
-
-    async function getUserActiveCourses(e) {
-        const username = e.target.dataset.username;
-        const url = "/courseManager?action=fetchRegisteredCourses&username="+username;
-        console.log(url);
-        let response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        })
+    
+        // Event listener to trigger the 'getUserActiveCourses' function when clicking on elements with the class 'getActivesLink'
+        document.querySelectorAll(".getActivesLink").forEach((element) => {
+            element.addEventListener("click", getUserActiveCourses);
+        });
+    
+        // Event listener for the ActiveCoursesContainer, to hide it when clicking outside
+        let ActiveCoursesContainer = document.querySelector("#ActiveCoursesContainer");
+        ActiveCoursesContainer.addEventListener("click", (e) => {
+            if (e.target !== ActiveCoursesContainer)
+                return false;
+            ActiveCoursesContainer.classList.toggle("hidden"); // Toggle the visibility of the container
+        });
+    
+        // Function to get the active courses for a user
+        async function getUserActiveCourses(e) {
+            // Get the username from the clicked element's dataset
+            const username = e.target.dataset.username;
+    
+            // Construct the URL to fetch the registered courses for the user
+            const url = "/courseManager?action=fetchRegisteredCourses&username=" + username;
+            console.log(url);
+    
+            // Make the POST request to fetch the active courses
+            let response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
         if(response.ok){
             // Find and display the popup container
             let popupContainer = document.querySelector("#ActiveCoursesContainer");

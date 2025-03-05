@@ -42,62 +42,76 @@
 	let classElement = document.getElementById("class");
 	let emailElement = document.getElementById("email");
 	
-	function isValidEmail(email) {
-		const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		return emailPattern.test(email);
-	}
-	
-	// Se till att rutorna är ifyllda ordentligt
-	async function checkTheData() {
-		if(userElement.value.length==0 || passElement.value.length == 0 || classElement.value.length == 0|| emailElement.value.length == 0){
-			alert("please fill all boxes")
-			return;
-		}
-		if (userElement.value.length > 20 || userElement.value.length <5){
-			alert("Name has to be 5 - 20 characters.");
-			return;
-		}
 
-		if (passElement.value.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,20}$/) == null) {
-			alert("Password must be 8-20 characters long, with at least one uppercase letter, one lowercase letter, and one digit.");
-			return;
-		}
+    // Function to validate if the email is in the correct format
+    function isValidEmail(email) {
+        // Regular expression to check the email pattern
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email); // Returns true if valid, false if not
+    }
+    
+    // Function to check if all required fields are filled out correctly
+    async function checkTheData() {
+        // Check if any of the fields (user, password, class, email) are empty
+        if(userElement.value.length == 0 || passElement.value.length == 0 || classElement.value.length == 0 || emailElement.value.length == 0) {
+            alert("Please fill all boxes");
+            return; // Stop execution if any field is empty
+        }
 
-		if (!isValidEmail(emailElement.value)) {
-			alert("Please enter a valid email address.");
-			return;
-		}
-		
-		
-		// Om rutorna är ifyllda, skicka all data till servern
-		sendTheData();		
-	}
+        // Check if the username length is between 5 and 20 characters
+        if (userElement.value.length > 20 || userElement.value.length < 5) {
+            alert("Name has to be 5 - 20 characters.");
+            return; // Stop execution if username is not within the length range
+        }
 
+        // Check if the password matches the required pattern (at least 1 uppercase, 1 lowercase, 1 number, length between 8 and 20)
+        if (passElement.value.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,20}$/) == null) {
+            alert("Password must be 8-20 characters long, with at least one uppercase letter, one lowercase letter, and one digit.");
+            return; // Stop execution if password doesn't match the pattern
+        }
 
-	async function sendTheData() {
-		let response = await fetch("http://localhost:3000/register", {
-	  		method: "POST",
-	  		body: JSON.stringify({
-	  		  user: userElement.value,
-	  		  pass: passElement.value,
-	  		  class: classElement.value,
-			  email: emailElement.value
-	  		}),
-	  		headers: {
-	  		  "Content-type": "application/json; charset=UTF-8"
-	  		}
-		});
+        // Check if the entered email is valid using the isValidEmail function
+        if (!isValidEmail(emailElement.value)) {
+            alert("Please enter a valid email address.");
+            return; // Stop execution if email is invalid
+        }
+        
+        // If all checks pass, send the data to the server
+        sendTheData();		
+    }
 
-		const res = await response;
-		if(res && res.status === 200) {
-			window.location.href = "/app";
-		}
-		else {
-			const responseJSON = await res.json();
-			errorMessage.innerText = responseJSON.message;
-		}
-	}
-    </script>
+    // Function to send registration data to the server
+    async function sendTheData() {
+        // Make a POST request to the server with the registration data
+        let response = await fetch("http://localhost:3000/register", {
+            method: "POST", 
+			// Set method to POST for submitting registration data
+            body: JSON.stringify({
+                user: userElement.value, // Get the username from the input
+                pass: passElement.value, // Get the password from the input
+                class: classElement.value, // Get the class from the input
+                email: emailElement.value // Get the email from the input
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8" // Set content type to JSON
+            }
+        });
+
+        // Await the server's response
+        const res = await response;
+
+        // If the response status is 200 (success), redirect to the app homepage
+        if(res && res.status === 200) {
+            window.location.href = "/app";
+        }
+        else {
+            // If the response is an error, parse the response and display the error message
+            const responseJSON = await res.json();
+            errorMessage.innerText = responseJSON.message; 
+			// Display the error message to the user
+        }
+    }
+</script>
 	<footer class="footer">
         <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
     </footer>    

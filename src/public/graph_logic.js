@@ -27,5 +27,19 @@ window.addEventListener("DOMContentLoaded", (e) => {
             }
           }
         );
+        new Chart(
+          document.getElementById('graftest2'),
+          {
+            type:'pie',
+            data : {
+              labels: ['Lecture','Selfstudies','Homework'],
+              datasets:[{ 
+                data  :[100,100,100],
+              hoverOffset: 4
+            }]
+          }
+          }
+        );
+      
       })();
 });

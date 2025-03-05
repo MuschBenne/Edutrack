@@ -2,7 +2,7 @@
  * Detta js dokument servas till användaren i webbläsaren och bör bara innehålla statiska funktioner.
  */
 
-//TODO: Statistik: Skapa funktioner som beräknar diverse genomsnitt på en användares data
+// Statistik: Skapa funktioner som beräknar diverse genomsnitt på en användares data
 
 // Exempel (Vi antar att sessionData är sessions biten på en activeCourses entry)
 function calculateAverageWellbeing(sessionData){

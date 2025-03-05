@@ -45,3 +45,6 @@ function hoursSpent(sessionData){
     return (timeSpent / 60).toFixed(1);//returns string
 }
 
+function timeSpentWeekly(sessionData){
+    
+}

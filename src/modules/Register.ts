@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import User, { SessionEntry } from "../db_models/User";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 export async function RenderRegister(req: Request, res: Response, next: NextFunction){
     if(req.session["user"])
@@ -11,10 +12,13 @@ export async function RenderRegister(req: Request, res: Response, next: NextFunc
 
 export async function HandleRegister(req: Request, res: Response){
     const reqData = req.body;
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(reqData.pass, salt);
     // Skapa en nya användare med hjälp av datan från requestet, enligt Schemat som definieras i User.ts.
     const newUser = new User({
         username: reqData.user,
-        password: reqData.pass,
+        password: hash, // Use the hashed password
         mail: reqData.email,
         class: reqData.class,
         activeCourses: null,
@@ -42,7 +46,6 @@ export async function HandleRegister(req: Request, res: Response){
             else {  
                 res.status(400).json({message:"Email already taken"});
             }
-            
         }
         else {
             res.status(400).json({message:"Username already taken"});

@@ -2,6 +2,7 @@ import User from "../db_models/User";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { fetchRegisteredCourses } from "./Application";
+import bcrypt from "bcryptjs";
 
 export async function RenderLogin(req: Request, res: Response){
     if(req.session["user"])
@@ -20,7 +21,7 @@ export async function HandleLogin(req:Request, res:Response){
         }
         else {
             //kolla om password matchar
-            if(reqData.pass !== foundUser.password) {
+            if(!(await bcrypt.compare(reqData.pass, foundUser.password))) {
                 res.status(400).json({ message: "Incorrect password"});
             }
             else {

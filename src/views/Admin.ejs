@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/master.css">
     <title>Admin page</title>
+    <style>
+        #ActiveCoursesPopup {
+            display: flex;
+            flex-flow:column;
+            margin-inline: auto; 
+            width: fit-content;
+            height: fit-content;
+            background-color: rgb(21, 34, 66, 1);
+            color: #DBBB68;
+            margin-bottom: 25%;
+            font-size: 1.5em;
+            padding: 5%;
+        }
+
+        #ActiveCoursesContainer {
+            position: fixed;
+            z-index: 99;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.25);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #ActiveCoursesPopup.hidden, #ActiveCoursesContainer.hidden{
+            display: none;
+        }
+
+        .getActivesLink {
+            font-weight: bold;
+            color: #DBBB68;
+        }
+        
+    </style>
 </head>
 
 <body>
@@ -33,8 +70,8 @@
         <ul>
             <% users.forEach(function(user) { %>
                 <li>
-                    <strong>Username:</strong> <%= user.username %> | 
-                    <strong>Active Courses:</strong> 
+                    <strong>Username:</strong> <span class="username"><%= user.username %></span> | 
+                    <a href="#" data-username="<%= user.username %>"class="getActivesLink">View Active Courses</a>
                     <!--TODO kanske se till att man ser en users alla reggade kurser-->
                 </li>
             <% }); %>
@@ -42,6 +79,9 @@
     <% } else { %>
         <p>No users available.</p>
     <% } %>
+</div>
+<div id="ActiveCoursesContainer" class="hidden">
+    <div id="ActiveCoursesPopup"></div>
 </div>
 
     <div class="centeredItems">
@@ -76,7 +116,7 @@
 
     <script>
 
-async function deleteCourse() {
+        async function deleteCourse() {
             let courseId = document.getElementById("courseId2").value.trim();
 
             let url = `http://localhost:3000/courseManager?action=removeCourse&courseId=${courseId}`;
@@ -143,6 +183,49 @@ async function deleteCourse() {
             let responseJSON = await response.json();
             errorMessage.innerText = responseJSON.message || "Error adding course";
             errorMessage.style.color = "red";
+        }
+    }
+
+    document.querySelectorAll(".getActivesLink").forEach((element) => {
+        element.addEventListener("click", getUserActiveCourses);
+    });
+
+    let ActiveCoursesContainer = document.querySelector("#ActiveCoursesContainer");
+    ActiveCoursesContainer.addEventListener("click", (e) => {
+        if(e.target !== ActiveCoursesContainer)
+            return false;
+        ActiveCoursesContainer.classList.toggle("hidden");
+    });
+
+    async function getUserActiveCourses(e) {
+        const username = e.target.dataset.username;
+        const url = "/courseManager?action=fetchRegisteredCourses&username="+username;
+        console.log(url);
+        let response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+        if(response.ok){
+            // Find and display the popup container
+            let popupContainer = document.querySelector("#ActiveCoursesContainer");
+            popupContainer.classList.toggle("hidden");
+            
+            // Find and clear the popup
+            let popup = document.querySelector("#ActiveCoursesPopup");
+            popup.innerHTML = "";
+            
+            // Populate the popup
+            let responseData = await response.json();
+            let list = document.createElement("ul");
+            responseData.data.forEach((element) => {
+                let entry = document.createElement("li");
+                entry.innerHTML = `Name: ${element.name}, ID: ${element.courseId}`;
+                list.appendChild(entry);
+            });
+            popup.appendChild(list);
+
         }
     }
     </script>

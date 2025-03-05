@@ -27,7 +27,7 @@ export async function HandleLogin(req:Request, res:Response){
             else {
                 // Här sätter vi användarens session
                 // TOCHECK: Assigna Admin roll på session till berättigade användare. 
-                const adminUsers = ['Benji', "Jakob","Berra"];
+                const adminUsers = ['Benji', "Jakob123","Berra"];
 
                 const isAdmin = adminUsers.includes(foundUser.username);
                 // Tänk på: Vart ska admin namn sparas? I databasen? Någonstans i koden? Lös som ni vill

@@ -32,6 +32,9 @@ export async function HandleCourseManager(req: Request, res: Response) {
         case "removeStudentFromCourse":
             result = await removeStudentFromCourse(req.query.courseID as string, req.query.username as string);
             break;
+        case "fetchRegisteredCourses":
+            result = [200, "Success", await fetchRegisteredCourses(req.query.username as string)];
+            break;
         default:
             result = [404, "CourseManager: Action [" + req.query.action + "] not found."];
     }

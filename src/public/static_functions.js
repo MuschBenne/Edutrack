@@ -46,19 +46,22 @@ function hoursSpent(sessionData){
 }
 
 
+function totalHoursSpentDivided(sessionData) {
+    const labels = ['Lecture', 'SelfStudies', 'Lesson', 'Homework', 'Labs', 'Project', 'TentaP', 'Other'];
+    const totalHours = {}; 
 
+    // Initialize totals with 0 for each label
+    labels.forEach(label => {
+        totalHours[label] = 0;
+    });
 
-function totalHoursSpentDivided(sessionData){
-    let lectureTotal = 0;
-    let selfstudiesTotal = 0;
-    let homeworkTotal = 0;
-    let projectTotal = 0;
-    let tentaPTotal = 0;
-    let labsTotal = 0;
-    let lessonTotal = 0;
-    let otherTotal = 0;
-
-    
-
-
+    // Iterate through sessionData
+    for (const date in sessionData) {
+        sessionData[date].forEach(session => {
+            if (labels.includes(session.typeOfStudy)) {
+                totalHours[session.typeOfStudy] += session.time;
+            }
+        });
+    }
+    return totalHours;
 }

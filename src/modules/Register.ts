@@ -3,13 +3,23 @@ import User, { SessionEntry } from "../db_models/User";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+/**
+ * Router function for GET-requests for the route /app/*
+ * @param req The Express request object.
+ * @param res The Express reponse object.
+ * @param next A callback function used to pass control to the next middleware function in the Express pipeline.
+ */
 export async function RenderRegister(req: Request, res: Response, next: NextFunction){
     if(req.session["user"])
         res.redirect(307, "/app")
     else
         res.render("Register");
 }
-
+/**
+ * Router function for POST-requests for the route /app/*
+ * @param req The Express request object.
+ * @param res The Express reponse object.
+ */
 export async function HandleRegister(req: Request, res: Response){
     const reqData = req.body;
     // Hash the password

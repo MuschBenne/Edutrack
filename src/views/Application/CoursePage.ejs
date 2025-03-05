@@ -21,7 +21,7 @@
     <% if (courseData){ %>
         <script>
             // *OBS* Detta är viktigt för graferna.
-            const COURSEDATA = <%- courseData %>;
+            const COURSEDATA = JSON.parse('<%- courseDataAsString %>');
         </script>
     <%}%>
     <h1>Course: <%-courseData.name %></h1>

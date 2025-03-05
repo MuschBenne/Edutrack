@@ -45,6 +45,20 @@ function hoursSpent(sessionData){
     return (timeSpent / 60).toFixed(1);//returns string
 }
 
-function timeSpentWeekly(sessionData){
+
+
+
+function totalHoursSpentDivided(sessionData){
+    let lectureTotal = 0;
+    let selfstudiesTotal = 0;
+    let homeworkTotal = 0;
+    let projectTotal = 0;
+    let tentaPTotal = 0;
+    let labsTotal = 0;
+    let lessonTotal = 0;
+    let otherTotal = 0;
+
     
+
+
 }

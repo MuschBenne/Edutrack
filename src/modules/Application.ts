@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import session from "express-session";
 import User, { SessionEntry } from "../db_models/User";
 import Course from "../db_models/Course";
-import { addStudentToCourse } from "./CourseManager";
+import { addStudentToCourse, fetchAllCourseSessionData } from "./CourseManager";
 import { ResponseArray } from "../App";
 
 /**
@@ -16,7 +16,10 @@ export async function RenderApp(req: Request, res: Response) {
         return;
     }
     
-    let data = {}; // Data to pass to the EJS renderer
+    interface DataObject {
+        [propName: string]: unknown;
+    }
+    let data: DataObject = {}; // Data to pass to the EJS renderer
 
     switch(req.path){
         case "/app/course_registration":
@@ -30,10 +33,30 @@ export async function RenderApp(req: Request, res: Response) {
         
         case "/app/course_page":
             data = {
-                courseData: await fetchUserCourseData(req.session["user"], req.query.course as string),
-                courseDataAsString: JSON.stringify(await fetchUserCourseData(req.session["user"], req.query.course as string)),
+                courseData: await fetchUserCourseData(
+                    req.session["user"], 
+                    req.query.course as string
+                ),
+                courseDataAsString: JSON.stringify(
+                    await fetchUserCourseData(
+                        req.session["user"], 
+                        req.query.course as string
+                    )
+                ),
                 courses: await fetchRegisteredCourses(req.session["user"]),
-                name: req.session["user"] ?? "unknown"
+                name: req.session["user"] ?? "unknown",
+                isAdmin: false
+            }
+
+            // If session is admin, allow graph rendering for all users' data
+            if(req.session["isAdmin"]) {
+                data.isAdmin = true;
+                let allCourseData = await fetchAllCourseSessionData(
+                    req.query.course as string
+                );
+                data.allCourseDataAsString = JSON.stringify(
+                    allCourseData[2]
+                );
             }
             console.log(data);
             res.render("Application/CoursePage", data);

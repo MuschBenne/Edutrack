@@ -66,4 +66,21 @@ window.addEventListener("DOMContentLoaded", (e) => {
         data: totalGrafData
     });
   })();
+
+  	// Admin only
+  	(async function() {
+    	const totaltime = totalHoursSpentDivided(ALLCOURSEDATA)
+    	const totalGrafData = {
+    	labels: Object.keys(totaltime),
+    	    datasets: [{
+    	    label: 'Total hours spent',
+    	    data: Object.values(totaltime),
+    	    hoverOffset: 4
+    	    }]
+    	};
+    	new Chart(document.getElementById('allCourseGraf'), {
+    		type: 'pie',
+    		data: totalGrafData
+    	});
+  	})();
 });

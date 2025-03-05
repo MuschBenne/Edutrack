@@ -24,6 +24,13 @@
             const COURSEDATA = JSON.parse('<%- courseDataAsString %>');
         </script>
     <%}%>
+
+    <% if (isAdmin){ %>
+        <script>
+            // *OBS* Detta är viktigt för graferna.
+            const ALLCOURSEDATA = JSON.parse('<%- allCourseDataAsString %>');
+        </script>
+    <%}%>
     <h1>Course: <%-courseData.name %></h1>
     <div class="centeredItems">
       <p>Have you studied today?</p>
@@ -58,7 +65,10 @@
     <% } else { %>
         <p>No sessions registered.</p>
     <% } %>
-
+    
+    <% if (isAdmin) { %>
+        <div style="width: 400px;"><canvas id="allCourseGraf"></canvas></div>
+    <% } %>
     <!-- TODO: Stylea popup rutan -->
     <div id="SessionPopupContainer" class="hidden">
         <div id="SessionPopup">
@@ -69,13 +79,14 @@
     <script>
         let container = document.querySelector("#SessionPopupContainer");
         container.addEventListener("click", (e) => {
+            // Prevent click-through of popup
             if(e.target !== container)
                 return false;
-            container.classList.toggle("hidden");
+            togglePopup();
         });
 
         function togglePopup(){
-            document.getElementById("SessionPopupContainer").classList.toggle("hidden");
+            container.classList.toggle("hidden");
         }
     </script>
     <footer class="footer">

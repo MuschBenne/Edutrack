@@ -14,7 +14,7 @@ export async function HandleCourseManager(req: Request, res: Response) {
 
     // Check if the user is an admin only once before the switch
     if (!req.session["isAdmin"]) {
-        return res.status(400).json({ message: "Access denied, admins only!" });
+        return res.status(400).json({ message: `Access denied, admins only! (${req.session["user"]} is not an admin)` });
     }
 
     // If the user is an admin, proceed with the switch
@@ -215,7 +215,7 @@ export async function deleteUser(username:string): Promise<ResponseArray> {
  * @param courseId Course identifier
  * @returns A promise, resolving into a ResponseArray containing a status code and all the data
  */
-async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray> {
+export async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray> {
     // Try to find a course matching the ID supplied
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
     if(!foundCourseID) {

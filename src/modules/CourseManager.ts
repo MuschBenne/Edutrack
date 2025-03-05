@@ -20,20 +20,35 @@ export async function HandleCourseManager(req: Request, res: Response) {
     // If the user is an admin, proceed with the switch
     switch (req.query.action) {
         case "addCourse":
-            result = await addCourse(req.query.name as string, req.query.courseId as string);
+            result = await addCourse(
+                req.query.name as string, 
+                req.query.courseId as string
+            );
             break;
+
         case "removeCourse":
             result = await removeCourse(req.query.courseId as string);
             break;
+
         case "deleteUser":
             result = await deleteUser(req.query.username as string);
             break;
+
         case "removeStudentFromCourse":
-            result = await removeStudentFromCourse(req.query.courseID as string, req.query.username as string);
+            result = await removeStudentFromCourse(
+                req.query.courseID as string, 
+                req.query.username as string
+            );
             break;
+
         case "fetchRegisteredCourses":
             result = [200, "Success", await fetchRegisteredCourses(req.query.username as string)];
             break;
+
+        case "fetchAllCourseSessionData":
+            result = await fetchAllCourseSessionData(req.query.courseID as string);
+            break;
+
         default:
             result = [404, "CourseManager: Action [" + req.query.action + "] not found."];
     }
@@ -200,37 +215,48 @@ export async function deleteUser(username:string): Promise<ResponseArray> {
  * @param courseId Course identifier
  * @returns A promise, resolving into a ResponseArray containing a status code and all the data
  */
-async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray>{
+async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray> {
+    // Try to find a course matching the ID supplied
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
-    if(!foundCourseID){
+    if(!foundCourseID) {
         return [400, "No course with ID " + courseId + " found."];
     }
-    let students= foundCourseID.students;
-    if(students.length==0){
+
+    // Ensure any students are registered to the course
+    let students: Array<string> = foundCourseID.students;
+    if(students.length==0) {
         return [400, "No students registered on" + courseId + " found."];
     }
 
+    // If there are registered students...
+    // Establish a returnable session data object
     let allSessions: { [date: string]: any[] } = {};
-    for(let i=0;i<students.length;i++){
-        const foundUser = await User.findOne({ username: students[i] }).exec(); // Use findOne() and await
+    
+    // For every registered student's name
+    for(let i = 0; i < students.length; i++) {
+        // Find a user matching the username supplied
+        let student = students[i];
+        const foundUser = await User.findOne(
+            { username: student }
+        ).exec(); 
         
-        
-        if (!foundUser) { //måste returna array 
-            console.log("User " + students[i] + "not found");
+        // If user wasn't found, skip to the next registered user's name
+        if (!foundUser) {
+            console.log("Registered user " + student + "not found. Has user been removed from DB?");
             continue;
         }
-        const sessions = foundUser.activeCourses[courseId] || [];
-        for (const session of sessions) {
-            const sessionDate = session.date;
-            if (!allSessions[sessionDate]) {
-                allSessions[sessionDate] = [];
-            }
-            allSessions[sessionDate].push(session);
+
+        // If the user was found, append all it's registered sessions for a date
+        // to the allSessions object's corresponding date's array of sessions.
+        const sessions = foundUser.activeCourses[courseId]["sessions"] ?? {};
+        for (let sessionDate in sessions) {
+            allSessions[sessionDate] ??= [];
+            allSessions[sessionDate].push(...sessions[sessionDate]);
         }
-        }
+    };
     
-        return [200,courseId, allSessions];
-    }
+    return [200,courseId, allSessions];
+}
 
 
 // TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger

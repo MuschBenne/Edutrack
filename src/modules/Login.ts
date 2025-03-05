@@ -5,7 +5,9 @@ import { fetchRegisteredCourses } from "./Application";
 import bcrypt from "bcryptjs";
 
 /**
- * Router function for GET-requests for the route /app/*
+ * Router function for GET-requests for the route /login
+ * If a user is already logged in, this redirects the user to the app page.
+ * Otherwise, the login page is rendered.
  * @param req The Express request object.
  * @param res The Express reponse object.
  */
@@ -16,7 +18,10 @@ export async function RenderLogin(req: Request, res: Response){
         res.render("Login");
 }
 /**
- * Router function for POST-requests for the route /app/*
+ * Handles the POST request that can be made on the login page.
+ * Attempts to log a user in by comparing credentials with the database records.
+ * Success: Creates a user session and redirects the client to the app page
+ * Fail: 400 status code with error message.
  * @param req The Express request object.
  * @param res The Express reponse object.
  */

@@ -65,3 +65,15 @@ function totalHoursSpentDivided(sessionData) {
     }
     return totalHours;
 }
+
+function totalHoursSpentWeekly(sessionData){
+    return [
+        { week: 10, lecture: 5, selfstudy: 3, homework: 2, labs:2, lesson:2, project:3 },
+        { week: 11, lecture: 10, selfstudy: 5, homework: 5 },
+        { week: 12, lecture: 7, selfstudy: 6, homework: 2 },
+        { week: 13, lecture: 12, selfstudy: 8, homework: 5 },
+        { week: 14, lecture: 10, selfstudy: 9, homework: 3 },
+        { week: 15, lecture: 15, selfstudy: 10, homework: 5 },
+        { week: 16, tentaP:20},
+    ];
+}

@@ -151,7 +151,7 @@ async function fetchUserCourseData(username: string, courseId:string): Promise<O
         return;
     }
     if(!foundUser.activeCourses[courseId]){
-        return
+        return;
     }
     return foundUser.activeCourses[courseId];
 }

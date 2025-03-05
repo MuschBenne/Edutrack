@@ -4,13 +4,22 @@ import mongoose from "mongoose";
 import { fetchRegisteredCourses } from "./Application";
 import bcrypt from "bcryptjs";
 
+/**
+ * Router function for GET-requests for the route /app/*
+ * @param req The Express request object.
+ * @param res The Express reponse object.
+ */
 export async function RenderLogin(req: Request, res: Response){
     if(req.session["user"])
         res.redirect(307, "/app")
     else
         res.render("Login");
 }
-
+/**
+ * Router function for POST-requests for the route /app/*
+ * @param req The Express request object.
+ * @param res The Express reponse object.
+ */
 export async function HandleLogin(req:Request, res:Response){
     const reqData = req.body;
     try {
@@ -24,13 +33,10 @@ export async function HandleLogin(req:Request, res:Response){
             if(!(await bcrypt.compare(reqData.pass, foundUser.password))) {
                 res.status(400).json({ message: "Incorrect password"});
             }
-            else {
-                // Här sätter vi användarens session
-                // TOCHECK: Assigna Admin roll på session till berättigade användare. 
-                const adminUsers = ['Benji', "Jakob123","Berra"];
+            else { 
+                const adminUsers = ['Benji', "Jakob","Berra"];
 
                 const isAdmin = adminUsers.includes(foundUser.username);
-                // Tänk på: Vart ska admin namn sparas? I databasen? Någonstans i koden? Lös som ni vill
                 req.session["user"] = foundUser.username;
 
                 if (isAdmin) {

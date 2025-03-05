@@ -46,13 +46,13 @@ window.addEventListener("DOMContentLoaded", (e) => {
     //           }
     //       }
     //   });
-    
-    const totaltime = totalHoursSpentDivided(COURSEDATA)
+    console.log(COURSEDATA.sessions)
+    const totaltime = totalHoursSpentDivided(COURSEDATA.sessions)
     const totalGrafData = {
-    labels: Object.keysArray(totaltime),
+    labels: Object.keys(totaltime),
         datasets: [{
         label: 'Total hours spent',
-        data: Object.valuesArray(totaltime),
+        data: Object.values(totaltime),
         hoverOffset: 4
         }]
     };

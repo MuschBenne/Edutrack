@@ -229,10 +229,8 @@ export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
         
         if(!foundUser) {
             if (!foundEmail) {
-                await newUser.save().then(() => {
-                    return [200, "User created"];
-                    
-                });
+                await newUser.save();
+                return [200, "User created"];
             }
             else {  
                 return [400, "Email already taken"];

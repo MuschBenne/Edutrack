@@ -1,6 +1,7 @@
 module.exports = {
     transform: {
-        '^.+\\.ts?$': 'ts-jest'
-        },
-    //collectCoverage: true,
-};
+      "^.+\\.ts?$": "ts-jest",
+    },
+    collectCoverage: true
+  };
+  

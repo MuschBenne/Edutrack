@@ -11,42 +11,42 @@ window.addEventListener("DOMContentLoaded", (e) => {
               datasets: [
                   {
                       label: 'Lecture',
-                      data: data.map(row => row.lecture),
+                      data: data.map(row => row.Lecture),
                       backgroundColor: 'rgba(255, 99, 132, 0.7)'
                   },
                   {
                       label: 'Selfstudy',
-                      data: data.map(row => row.selfstudy),
+                      data: data.map(row => row.Selfstudy),
                       backgroundColor: 'rgba(54, 162, 235, 0.7)'
                   },
                   {
                     label: 'Lesson',
-                    data: data.map(row => row.lesson),
+                    data: data.map(row => row.Lesson),
                     backgroundColor: 'rgba(108, 255, 86, 0.7)'
                   },
                   {
                     label: 'Homework',
-                    data: data.map(row => row.homework),
+                    data: data.map(row => row.Homework),
                     backgroundColor: 'rgba(221, 221, 58, 0.7)'
                   },
                   {
                     label: 'Labs',
-                    data: data.map(row => row.labs),
+                    data: data.map(row => row.Labs),
                     backgroundColor: 'rgba(86, 255, 255, 0.7)'
                 },
                   {
                       label: 'Project',
-                      data: data.map(row => row.project),
+                      data: data.map(row => row.Project),
                       backgroundColor: 'rgba(93, 7, 93, 0.7)'
                   },
                   {
                     label: 'TentaP',
-                    data: data.map(row => row.tentaP),
+                    data: data.map(row => row.TentaP),
                     backgroundColor: 'rgba(8, 9, 8, 0.7)'
                 },
                 {
                   label: 'Other',
-                  data: data.map(row => row.other),
+                  data: data.map(row => row.Other),
                   backgroundColor: 'rgba(242, 246, 245, 0.7)'
               },
 

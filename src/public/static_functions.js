@@ -67,13 +67,82 @@ function totalHoursSpentDivided(sessionData) {
 }
 
 function totalHoursSpentWeekly(sessionData){
-    return [
-        { week: 10, lecture: 5, selfstudy: 3, homework: 2, labs:2, lesson:2, project:3 },
-        { week: 11, lecture: 10, selfstudy: 5, homework: 5 },
-        { week: 12, lecture: 7, selfstudy: 6, homework: 2 },
-        { week: 13, lecture: 12, selfstudy: 8, homework: 5 },
-        { week: 14, lecture: 10, selfstudy: 9, homework: 3 },
-        { week: 15, lecture: 15, selfstudy: 10, homework: 5 },
-        { week: 16, tentaP:20},
-    ];
+    const labels = ['Lecture', 'SelfStudies', 'Lesson', 'Homework', 'Labs', 'Project', 'TentaP', 'Other'];
+    let weeks = [];
+    let weekTracker = []
+    let count = 0;
+    for(date in sessionData){
+        let weekNumber = getWeekNumber(date);
+        console.log(weekNumber)
+        if(!weekTracker.includes(weekNumber)){
+            let weekObj = {}
+            weekObj['week'] = weekNumber;
+            labels.forEach(label => {
+                weekObj[label] = 0;
+            });
+            weeks.push(weekObj);
+            weekTracker.push(weekNumber);
+            count++;
+        }
+            sessionData[date].forEach(session => {
+                if (labels.includes(session.typeOfStudy)) {
+                    weeks[count-1  ][session.typeOfStudy] += session.time;
+                }
+            });
+
+            
+        
+    }
+    console.log(weeks)
+    return weeks;
+        
 }
+
+
+    function getWeekNumber(date) {
+        // Create a new Date object from the input date
+        const parsedDate = parseCustomDate(date)
+        const d = new Date(parsedDate);
+        if (isNaN(d.getTime())) {
+            throw new Error("Invalid date format.");
+        }
+    
+        // Set to the nearest Thursday: current date + 4 - current day number
+        // This ensures the calculation aligns with ISO 8601 (weeks start on Monday)
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    
+        // Get the first day of the year
+        const yearStart = new Date(d.getFullYear(), 0, 1);
+    
+        // Calculate the full weeks to the nearest Thursday
+        const weekNumber = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return weekNumber;
+    }
+    
+    function parseCustomDate(dateString) {
+        // Split the input string into parts
+        const parts = dateString.split('_');
+        if (parts.length !== 4) {
+            throw new Error("Invalid date format. Expected format: Wed_Mar_05_2025");
+        }
+    
+        // Extract day, month, and year
+        const day = parseInt(parts[2], 10);
+        const month = parts[1];
+        const year = parseInt(parts[3], 10);
+    
+        // Convert month name to numeric value (0-indexed)
+        const monthNames = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+        const monthIndex = monthNames.indexOf(month);
+        if (monthIndex === -1) {
+            throw new Error("Invalid month name.");
+        }
+    
+        // Create a Date object
+        return new Date(year, monthIndex, day);
+    }
+    
+    

@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import User from "../db_models/User";
 import { fetchRegisteredCourses } from "./Application";
 import { ResponseArray } from "../App";
+import mongoose from "mongoose";
 
 /**
  * Router function for POST-requests to the path /courseManager
@@ -62,7 +63,7 @@ export async function HandleCourseManager(req: Request, res: Response) {
  * @param courseId Course identifier
  * @returns A promise, resolving into a ResponseArray.
  */
-async function addCourse(name: string, courseId: string): Promise<ResponseArray>{
+export async function addCourse(name: string, courseId: string): Promise<ResponseArray>{
     const newCourse = new Course({
         courseId:courseId,
         name:name,
@@ -88,7 +89,7 @@ async function addCourse(name: string, courseId: string): Promise<ResponseArray>
  * @param courseId Course identifier
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
-async function removeCourse(courseId: string): Promise<ResponseArray> {
+export async function removeCourse(courseId: string): Promise<ResponseArray> {
     const foundCourse = await Course.findOne({ courseId: courseId }).exec();
 
     if (!foundCourse) {
@@ -100,13 +101,14 @@ async function removeCourse(courseId: string): Promise<ResponseArray> {
     console.log("Course with ID " + courseId + " removed.");
     return [200, "Course with ID " + courseId + " removed."]
 }
+
 /**
  * Removes a student from a course
  * @param courseId Course identifier
  * @param username User identifier
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
-async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray>{
+export async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray>{
     try {
         const foundCourse = await Course.find({courseId:courseId}).exec();
         if (!foundCourse)
@@ -135,7 +137,7 @@ async function removeStudentFromCourse(courseId: string, username: string): Prom
  * @param courseId Course identifier
  * @returns the given course name
  */
-async function getCourseNameFromId(courseId: string): Promise<string> {
+export async function getCourseNameFromId(courseId: string): Promise<string> {
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
     if(!foundCourse)
         return "";
@@ -188,7 +190,7 @@ export async function deleteUser(username:string): Promise<ResponseArray> {
         console.log("Action deleteUser failed: User not found");
         return [400, "Action deleteUser failed: User not found"];
     }
-    else{
+    else {
         const activeCourses = await fetchRegisteredCourses(username)
 
         for(let i=0; i > activeCourses.length; i++){
@@ -204,11 +206,52 @@ export async function deleteUser(username:string): Promise<ResponseArray> {
     }
 }
 
-// TODO: Statistik: Skriv en funktion fetchAllCourseSessionData som hämtar ett objekt
-//                  med alla användares sparade sessioner vid alla datum för denna kurs. Se til att datumen överlappar.
-//                  Alltså, om user1 har en array med två sessioner sparade för Feb_10_2024, 
-//                  och user2 har en array med två sessioner sparade för samma datum, kommer
-//                  det resulterande objektet ha fyra sessioner sparade för det datumet.
+type UserBody = {
+    username: string,
+    password: string, // Use the hashed password
+    mail: string,
+    class: string,
+    activeCourses: Array<Object> | null
+}
+
+export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
+    try {
+        // Skapa det nya User dokumentet
+        let newUser = new User(userBody);
+        // Validera den nyskapade användaren mot hur User's Schema ser ut 
+        // (blir fel som catchas om något inte stämmer)
+        await User.validate(newUser);
+        
+        // Försök hitta en användare med det angivna namnet
+        const foundUser = await User.findOne({username: userBody.username}).exec();
+        // Om foundUser är null...
+        const foundEmail = await User.findOne({mail: userBody.mail}).exec();
+        
+        if(!foundUser) {
+            if (!foundEmail) {
+                await newUser.save().then(() => {
+                    return [200, "User created"];
+                    
+                });
+            }
+            else {  
+                return [400, "Email already taken"];
+            }
+        }
+        else {
+            return [400, "Username already taken"];
+        }
+    }
+    catch (err) {
+        if (err instanceof mongoose.Error.ValidationError) {
+            console.log("Error adding user due to following schema mismatches: ", Object.keys(err.errors));
+            return [400, "Error adding user due to following schema mismatches:", err.errors];
+        }
+        else {
+            return [500, "Something went really wrong", err];
+        } 
+    }
+}
 
 /**
  * Fetches all session data from all courses and users
@@ -270,9 +313,11 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
  * @param responeArray with all the data from all the sessions
  * @returns A promise, that gives back a number
  */
-async function averageTimeSpentOnCourse(responseArray:ResponseArray): Promise<number> {
+async function averageTimeSpentOnCourse(responseArray: ResponseArray): Promise<number> {
     const sessions = responseArray[2];
-    const foundCourseID = await Course.findOne({courseId: responseArray[1]}).exec();
+    const foundCourseID = await Course.findOne(
+        {courseId: responseArray[1]}
+    ).exec();
     const numStudents = foundCourseID.students.length
     let timeTotal = 0;
     for(let date in sessions){

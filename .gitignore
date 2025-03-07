@@ -3,3 +3,5 @@ node_modules/
 eslint.config.mjs
 Project_Diary.md
 coverage/
+build/
+build/*

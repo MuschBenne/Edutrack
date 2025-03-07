@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import session from "express-session";
-import User, { SessionEntry } from "../db_models/User";
+import User, { CourseEntry, SessionEntry } from "../db_models/User";
 import Course from "../db_models/Course";
 import { addStudentToCourse, fetchAllCourseSessionData } from "./CourseManager";
 import { ResponseArray } from "../App";
@@ -11,7 +11,7 @@ import { ResponseArray } from "../App";
  * @param res The Express reponse object.
  */
 export async function RenderApp(req: Request, res: Response) {
-    if (!req.session["user"]){
+    if (!req.session.user){
         res.status(403).redirect("/login");
         return;
     }
@@ -19,13 +19,14 @@ export async function RenderApp(req: Request, res: Response) {
     interface DataObject {
         [propName: string]: unknown;
     }
+
     let data: DataObject = {}; // Data to pass to the EJS renderer
 
     switch(req.path){
         case "/app/course_registration":
-            const pickcourses = await fetchAvailableCourses(req.session["user"]); 
+            const pickcourses = await fetchAvailableCourses(req.session.user); 
             data = {
-                name: req.session["user"] ?? "unknown",
+                name: req.session.user ?? "unknown",
                 availableCourses: pickcourses
             };
             res.render("Application/CourseRegister", data);
@@ -34,22 +35,22 @@ export async function RenderApp(req: Request, res: Response) {
         case "/app/course_page":
             data = {
                 courseData: await fetchUserCourseData(
-                    req.session["user"], 
+                    req.session.user, 
                     req.query.course as string
                 ),
                 courseDataAsString: JSON.stringify(
                     await fetchUserCourseData(
-                        req.session["user"], 
+                        req.session.user, 
                         req.query.course as string
                     )
                 ),
-                courses: await fetchRegisteredCourses(req.session["user"]),
-                name: req.session["user"] ?? "unknown",
+                courses: await fetchRegisteredCourses(req.session.user),
+                name: req.session.user ?? "unknown",
                 isAdmin: false
             }
 
             // If session is admin, allow graph rendering for all users' data
-            if(req.session["isAdmin"]) {
+            if(req.session.isAdmin) {
                 data.isAdmin = true;
                 let allCourseData = await fetchAllCourseSessionData(
                     req.query.course as string
@@ -64,9 +65,9 @@ export async function RenderApp(req: Request, res: Response) {
        
 
         default:
-            const userCourses = await fetchRegisteredCourses(req.session["user"]);
+            const userCourses = await fetchRegisteredCourses(req.session.user);
             data = {
-                name: req.session["user"] ?? "unknown",
+                name: req.session.user ?? "unknown",
                 courses: userCourses
             };
             res.render("Application/Main", data);
@@ -80,7 +81,7 @@ export async function RenderApp(req: Request, res: Response) {
  */
 export async function HandleApp(req: Request, res: Response): Promise<void> {
     // Se till att en användare är inloggad, annars skicka till login-skärmen
-    if (!req.session["user"])
+    if (!req.session.user)
         res.status(403).redirect("/login");
 
     let result = [];
@@ -93,13 +94,13 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
                 health: Number.parseInt(req.body.health),
                 mentalHealth: Number.parseInt(req.body.mentalHealth)
             }
-			result = await addStudySession(req.session["user"], req.body.courseId, studySession);
+			result = await addStudySession(req.session.user as string, req.body.courseId, studySession);
 			break;
         case "addStudentToCourse":
-            result = await addStudentToCourse(req.body.courseId, req.session["user"]);
+            result = await addStudentToCourse(req.body.courseId, req.session.user!);
             break;
         case "fetchCourses":
-            result = await fetchAvailableCourses(req.session["user"]);
+            result = await fetchAvailableCourses(req.session.user!);
             break;
         
 		default:
@@ -115,7 +116,7 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
  * @param sessionData The data to save to the User document
  * @returns Promise that resolves into a ResponseArray
  */
-async function addStudySession(userName: string, courseID: string, sessionData: SessionEntry): Promise<ResponseArray> {
+export async function addStudySession(userName: string, courseID: string, sessionData: SessionEntry): Promise<ResponseArray> {
     let course = await Course.findOne({courseId: courseID}).exec();
     if(!course)
         return [400, "Course with id [" + courseID + "] was not found in the database."];
@@ -129,18 +130,26 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
     // Define the path to get to the course's saved dates for saved sessions
     let pathString = "activeCourses." + courseID + ".sessions." + date;
 
+    // Ensure user has the active courses object initialized
+    if(!user.activeCourses || !user.activeCourses[courseID]){
+        return [400, "Error: User's activeCourses property is not initialized. Has the user been registered to the course properly?"];
+    }
+
+    if(!user.activeCourses[courseID]["sessions"]){
+        user.activeCourses[courseID]["sessions"] = {};
+    }
+
     // Get the sessions at the current date
-    if(!user.get(pathString)) // If no sessions have been saved for this date, create the first one
-        user.set(pathString, [sessionData]);
+    if(!user.activeCourses[courseID]["sessions"][date]) // If no sessions have been saved for this date, create the first one
+        user.activeCourses[courseID]["sessions"][date] = [sessionData];
     else
         user.activeCourses[courseID]["sessions"][date].push(sessionData); // Add additional session for the date
 
     // Mark the document as modified and then save it
     user.markModified("activeCourses"); // EXTREMT viktig tydligen omg, många timmar...
-    await user.save().then((savedDoc) => {
-        console.log(savedDoc.activeCourses[courseID][date]);
-    })
-    return [200, "User study session added successfully"];
+    return await user.save().then(() => {
+        return [200, "User study session added successfully"];
+    }); 
         
 }
 
@@ -149,7 +158,7 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
  * @param username: string - the user to fetch this data for
  * @returns Promise resolving to an array of objects containing a User's saved coursedata
  */
-export async function fetchRegisteredCourses(username: string): Promise<Array<Object>> {
+export async function fetchRegisteredCourses(username: string): Promise<Array<CourseEntry>> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
 
     if (!foundUser) { //måste returna array 
@@ -157,7 +166,7 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
         return []; // Return a proper response
     }
     const courseList = foundUser.activeCourses ?? {};
-    let outList = Object.values(courseList);
+    let outList: Array<CourseEntry> = Object.values(courseList);
     console.log(outList);
     return outList;
 }
@@ -168,13 +177,13 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
  * @param courseId: string - the course ID to fetch the course data for
  * @returns: UserCourseData for this course
  */
-async function fetchUserCourseData(username: string, courseId:string): Promise<Object> {
+export async function fetchUserCourseData(username: string, courseId:string): Promise<Object> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
-    if(!foundUser){
-        return;
+    if(!foundUser || !foundUser.activeCourses){
+        return {};
     }
     if(!foundUser.activeCourses[courseId]){
-        return;
+        return {};
     }
     return foundUser.activeCourses[courseId];
 }
@@ -190,10 +199,16 @@ export async function fetchAvailableCourses(username: string): Promise<Array<obj
     const registeredCourses = await fetchRegisteredCourses(username);
     
     // Behåll bara IDs för registered courses så dessa kan jämföras i nedanstående filter
-    const registeredCourseIds = registeredCourses.map(course => (course as { courseId: string }).courseId);
-
+    const registeredCourseIds = registeredCourses.map(
+        course => (course as { courseId: string }).courseId
+    );
+    
     // Filter för att ta bort registerade kurser
-    const availableCourses = allCourses.filter(course => !registeredCourseIds.includes(course.courseId));
+    const availableCourses = allCourses.filter(
+        course => !registeredCourseIds.includes(
+            (course as Course).courseId
+        )
+    );
 
     return availableCourses;
 }

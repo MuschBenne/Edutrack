@@ -1,10 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+import { type } from 'os';
 const {Schema, model} = mongoose;
 
-const course = new Schema ({
-    courseId: String,
-    name: String,
-    students: Array<string>
+type Course = {
+    courseId: string;
+    name: string;
+    students: Array<string>;
+}
+
+interface ICourse {
+    courseId: string;
+    name: string;
+    students: Array<string>;
+}
+
+const course = new Schema<ICourse>({
+    courseId: { type: String, required: true },
+    name: { type: String, required: true },
+    students: Array<string>,
 })
 
 const Course = model("Course", course);

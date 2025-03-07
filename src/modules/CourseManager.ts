@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import User from "../db_models/User";
 import { fetchRegisteredCourses } from "./Application";
 import { ResponseArray } from "../App";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 /**
  * Router function for POST-requests to the path /courseManager
@@ -11,11 +11,11 @@ import mongoose from "mongoose";
  * @param res The Express response object
  */
 export async function HandleCourseManager(req: Request, res: Response) {
-    let result = [];
+    let result: ResponseArray;
 
     // Check if the user is an admin only once before the switch
-    if (!req.session["isAdmin"]) {
-        return res.status(400).json({ message: `Access denied, admins only! (${req.session["user"]} is not an admin)` });
+    if (!req.session.isAdmin) {
+        return res.status(400).json({ message: `Access denied, admins only! (${req.session.user} is not an admin)` });
     }
 
     // If the user is an admin, proceed with the switch
@@ -122,7 +122,13 @@ export async function removeStudentFromCourse(courseId: string, username: string
             return [400, `No course found with ID: ${courseId}`];
         }
 
-        if(!foundCourse.students.includes(username)) {
+        const foundCourseStudents: Array<String> | undefined | null = foundCourse.students;
+
+        if(!foundCourseStudents){
+            throw new Error("Course's .student property was null or undefined");
+        }
+
+        if(!foundCourseStudents.includes(username)) {
             console.log("Student " + username + " not found in course " + courseId);
             return [400, "Student " + username + " not found in course " + courseId];
         }
@@ -214,7 +220,11 @@ export async function deleteUser(username:string): Promise<ResponseArray> {
         if (deletedUser.deletedCount > 0) {
             console.log(`Student ${username} removed from Users`);
             return [200, `Student ${username} removed from Users`];
-        }   
+        }
+        else {
+            console.log(`Student ${username} was not removed from Users (Deleted usercount < 1)`);
+            return [200, `Student ${username} was not removed from Users (Deleted usercount < 1)`];
+        }
 
     }
 }
@@ -272,7 +282,7 @@ export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
             return [400, "Error adding user due to following schema mismatches:", err.errors];
         }
         else {
-            return [500, "Something went really wrong", err];
+            return [500, "Something went really wrong"];
         } 
     }
 }
@@ -309,7 +319,12 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
         
         // If user wasn't found, skip to the next registered user's name
         if (!foundUser) {
-            console.log("Registered user " + student + "not found. Has user been removed from DB?");
+            console.log("Registered user " + student + " not found. Has user been removed from DB?");
+            continue;
+        }
+
+        if (!foundUser.activeCourses) {
+            console.log("Registered user " + student + " has an uninitialized activeCourses property.");
             continue;
         }
 
@@ -325,82 +340,84 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
     return [200,courseId, allSessions];
 }
 
-
-// TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
-//                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
-
-//ex på functioner
-//time spent over the whole period
-
-/**
- * Gives the average time spent on a course for all students
- * @param responeArray with all the data from all the sessions
- * @returns A promise, that gives back a number
- */
-async function averageTimeSpentOnCourse(responseArray: ResponseArray): Promise<number> {
-    const sessions = responseArray[2];
-    const foundCourseID = await Course.findOne(
-        {courseId: responseArray[1]}
-    ).exec();
-    const numStudents = foundCourseID.students.length
-    let timeTotal = 0;
-    for(let date in sessions){
-        sessions[date].forEach(session => {
-            timeTotal += session.time;
-        })
-    }
-
-    return numStudents > 0 ? timeTotal/numStudents: 0 ; 
-    
-}
-
-/**
- * Gives the average health for all students.
- * @param responeArray with all the data from all the sessions
- * @returns A promise, that gives back a number
- * //TOCHECK
- */
-function averageHealth(responseArray:ResponseArray){
-    const sessions = responseArray[2];
-    let acc = 0;
-    let healthTotal = 0;
-    for(let date in sessions){
-        sessions[date].forEach(session => {
-            healthTotal += session.health;
-            acc++;
-        })
-    }return acc > 0 ? healthTotal / acc : 0;
-}
-
-/**
- * Gives the average rating for all students.
- * @param responeArray with all the data from all the sessions
- * @returns A promise, that gives back a number
- * //TOCHECK
- */
-function averageRating(responseArray:ResponseArray){
-    const sessions = responseArray[2];
-    let acc = 0;
-    let ratingTotal = 0;
-    for(let date in sessions){
-        sessions[date].forEach(session => {
-            ratingTotal += session.gradeSess;
-            acc++;
-        })
-    }return acc > 0 ? ratingTotal / acc : 0;
-}
-
-//average rating for lecture over the whole period, if lectures are integrated better, maybe possible to access rating for each lecture
-function averageLectureRating(responseArray:ResponseArray){
-    const sessions = responseArray[2];
-    let acc = 0;
-    let ratingTotal = 0
-    for(let date in sessions){
-        sessions[date].forEach(session =>{
-            if(session.typeOfStudy =="Lecture"){
-            ratingTotal+=session.gradeSess;
-            acc++;
-            }
-        })
-    }return acc > 0 ? ratingTotal / acc : 0;
-}
+//
+//// TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
+////                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
+//
+////ex på functioner
+////time spent over the whole period
+//
+///**
+// * Gives the average time spent on a course for all students
+// * @param responeArray with all the data from all the sessions
+// * @returns A promise, that gives back a number
+// */
+//async function averageTimeSpentOnCourse(responseArray: ResponseArray): Promise<number> {
+//    const sessions = responseArray[2];
+//    const foundCourseID = await Course.findOne(
+//        {courseId: responseArray[1]}
+//    ).exec();
+//    const numStudents = foundCourseID.students.length
+//    let timeTotal = 0;
+//    for(let date in sessions){
+//        sessions[date].forEach(session => {
+//            timeTotal += session.time;
+//        })
+//    }
+//
+//    return numStudents > 0 ? timeTotal/numStudents: 0 ; 
+//    
+//}
+//
+///**
+// * Gives the average health for all students.
+// * @param responeArray with all the data from all the sessions
+// * @returns A promise, that gives back a number
+// * //TOCHECK
+// */
+//function averageHealth(responseArray:ResponseArray){
+//    const sessions = responseArray[2];
+//    let acc = 0;
+//    let healthTotal = 0;
+//    for(let date in sessions){
+//        sessions[date].forEach(session => {
+//            healthTotal += session.health;
+//            acc++;
+//        })
+//    }return acc > 0 ? healthTotal / acc : 0;
+//}
+//
+///**
+// * Gives the average rating for all students.
+// * @param responeArray with all the data from all the sessions
+// * @returns A promise, that gives back a number
+// * //TOCHECK
+// */
+//function averageRating(responseArray:ResponseArray){
+//    const sessions = responseArray[2];
+//    let acc = 0;
+//    let ratingTotal = 0;
+//    for(let date in sessions){
+//        sessions[date].forEach(session => {
+//            ratingTotal += session.gradeSess;
+//            acc++;
+//        })
+//    }return acc > 0 ? ratingTotal / acc : 0;
+//}
+//
+////average rating for lecture over the whole period, if lectures are integrated better, maybe possible to access rating for each lecture
+//function averageLectureRating(responseArray:ResponseArray){
+//    const sessions = responseArray[2];
+//    let acc = 0;
+//    let ratingTotal = 0
+//    for(let date in sessions){
+//        sessions[date].forEach(session =>{
+//            if(session.typeOfStudy =="Lecture"){
+//            ratingTotal+=session.gradeSess;
+//            acc++;
+//            }
+//        })
+//    }return acc > 0 ? ratingTotal / acc : 0;
+//}
+//
+//

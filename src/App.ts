@@ -15,6 +15,13 @@ import User from './db_models/User';
  */
 export type ResponseArray = [number, string, object?]
 
+declare module 'express-session' {
+	export interface SessionData {
+		user: string;
+		isAdmin: boolean;
+	}
+}
+
 const port = 3000;
 const app = express();
 
@@ -51,7 +58,7 @@ app.use(express.static(__dirname + '/public'));
  */
 app.get('/', (req: Request, res: Response) => {
 	let data = {
-		activeSession: req.session["user"] ? true : false
+		activeSession: req.session.user ? true : false
 	}
 	res.render("Landing", data);
 });
@@ -115,7 +122,7 @@ app.post("/courseManager", async (req, res) => {
  */
 app.get("/admin", async (req, res) => {
 	//TOCHECK: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
-	if (req.session["isAdmin"]) {
+	if (req.session.isAdmin) {
 		const allCourses = await Course.find({}, "-_id -__v").exec();
 		const allUsers = await User.find({}, "-__v").exec();
 		let data = {

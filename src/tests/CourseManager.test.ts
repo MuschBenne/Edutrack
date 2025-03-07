@@ -1,5 +1,5 @@
 import Course from "../db_models/Course";
-import User from "../db_models/User";
+import User, { CourseList } from "../db_models/User";
 import {addCourse, addStudentToCourse, deleteUser, registerUser, removeCourse, UserBody} from "../modules/CourseManager";
 import mongoose from 'mongoose';
 
@@ -9,8 +9,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    Course.collection.drop();
-    User.collection.drop();
+    //Course.collection.drop();
+    //User.collection.drop();
     await mongoose.disconnect();
 });
 
@@ -27,8 +27,8 @@ test("[addCourse] - Try adding new course, try adding duplicate course. Ensure c
     expect(response2[0]).toStrictEqual(400);
 
     const foundCourseID = await Course.findOne({courseId: courseId}).exec();
-
-    expect(foundCourseID.courseId).toStrictEqual(courseId);
+    expect(foundCourseID).not.toBeNull();
+    expect(foundCourseID!.courseId).toStrictEqual(courseId);
     
 });
 
@@ -41,7 +41,7 @@ test("[registerStudent] - Try registering new user. Try registering duplicate us
         password: "testPass",
         mail: "test@test.com",
         class: "DV",
-        activeCourses: null
+        activeCourses: {}
     }
     const response1 = await registerUser(userBody);
     // Duplicate username
@@ -56,8 +56,8 @@ test("[registerStudent] - Try registering new user. Try registering duplicate us
 
     userBody.username = "TestTest1234";
     const foundUser = await User.findOne({username: userBody.username}).exec();
-
-    expect(foundUser.username).toStrictEqual(userBody.username);
+    expect(foundUser).not.toBeNull();
+    expect(foundUser!.username).toStrictEqual(userBody.username);
 });
 
 /**
@@ -82,11 +82,15 @@ test("[addStudentToCourse] - Try adding new student to course. Try registering w
 
     // Ensure user is in course, and course is in user
     const foundUser = await User.findOne({username: username}).exec();
-    const userCourses = Object.keys(foundUser.activeCourses);
-    const foundCourse = await Course.findOne({courseId: course}).exec();
-
+    expect(foundUser).not.toBeNull();
+    const userCourses = Object.keys(foundUser!.activeCourses as CourseList);
     expect(userCourses.includes(course)).toStrictEqual(true);
-    expect(foundCourse.students.includes(username)).toStrictEqual(true);
+
+    const foundCourse = await Course.findOne({courseId: course}).exec();
+    expect(foundCourse).not.toBeNull();
+    const foundCourseStudents = foundCourse?.students;
+    expect(foundCourseStudents).toBeDefined();
+    expect(foundCourseStudents?.includes(username)).toStrictEqual(true);
 });
 
 /**
@@ -103,9 +107,10 @@ test("[deleteUser] - Try removing user, try removing non-existent user, ensure u
     expect(response2[0]).toStrictEqual(400);
 
     const foundCourse = await Course.findOne({courseId: knownCourse}).exec();
-    const foundCourseStudents = foundCourse.students;
+    expect(foundCourse).not.toBeNull();
+    const foundCourseStudents = foundCourse!.students;
     console.log(foundCourseStudents);
-    expect(foundCourse.students.includes(username)).toStrictEqual(false);
+    expect(foundCourse!.students.includes(username)).toStrictEqual(false);
 });
 
 /**

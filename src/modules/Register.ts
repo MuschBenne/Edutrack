@@ -11,7 +11,7 @@ import { registerUser } from "./CourseManager";
  * @param next A callback function used to pass control to the next middleware function in the Express pipeline.
  */
 export async function RenderRegister(req: Request, res: Response, next: NextFunction){
-    if(req.session["user"])
+    if(req.session.user)
         res.redirect(307, "/app")
     else
         res.render("Register");
@@ -33,11 +33,11 @@ export async function HandleRegister(req: Request, res: Response){
         password: hash, // Use the hashed password
         mail: reqData.email,
         class: reqData.class,
-        activeCourses: null,
+        activeCourses: {},
     });
 
     if(result[0] === 200) {
-        req.session["user"] = reqData.user;
+        req.session.user = reqData.user;
     }
 
     res.status(result[0]).json({message: result[1]});

@@ -12,7 +12,7 @@ import bcrypt from "bcryptjs";
  * @param res The Express reponse object.
  */
 export async function RenderLogin(req: Request, res: Response){
-    if(req.session["user"])
+    if(req.session.user)
         res.redirect(307, "/app")
     else
         res.render("Login");
@@ -42,12 +42,12 @@ export async function HandleLogin(req:Request, res:Response){
                 const adminUsers = ['Benji', "Jakob123", "Bernhard"];
 
                 const isAdmin = adminUsers.includes(foundUser.username);
-                req.session["user"] = foundUser.username;
+                req.session.user = foundUser.username;
 
                 if (isAdmin) {
-                    req.session["isAdmin"] = true;
+                    req.session.isAdmin = true;
                 } else {
-                    req.session["isAdmin"] = false; 
+                    req.session.isAdmin = false; 
                 }
                 
                 res.status(200).json({ message: "Login successful", user:reqData.user });

@@ -9,6 +9,8 @@ import mongoose from "mongoose";
  * Router function for POST-requests to the path /courseManager
  * @param req The Express request object
  * @param res The Express response object
+ * @precondtion parameters are of appropriate type
+ * 
  */
 export async function HandleCourseManager(req: Request, res: Response) {
     let result = [];
@@ -61,6 +63,7 @@ export async function HandleCourseManager(req: Request, res: Response) {
  * Add a course to the list of public courses, of which eligible users can elect to register to.
  * @param name Student username
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray.
  */
 export async function addCourse(name: string, courseId: string): Promise<ResponseArray>{
@@ -87,6 +90,7 @@ export async function addCourse(name: string, courseId: string): Promise<Respons
 /**
  * Remove a course from the list of public courses.
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function removeCourse(courseId: string): Promise<ResponseArray> {
@@ -106,6 +110,7 @@ export async function removeCourse(courseId: string): Promise<ResponseArray> {
  * Removes a student from a course
  * @param courseId Course identifier
  * @param username User identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray>{
@@ -135,6 +140,7 @@ export async function removeStudentFromCourse(courseId: string, username: string
 /**
  * Gets the coursename from the same course ID
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns the given course name
  */
 export async function getCourseNameFromId(courseId: string): Promise<string> {
@@ -150,6 +156,7 @@ export async function getCourseNameFromId(courseId: string): Promise<string> {
  * Adds a existing student to a course
  * @param courseId Course identifier
  * @param username User identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function addStudentToCourse(courseId:string, username: string): Promise<ResponseArray>{
@@ -182,6 +189,7 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
 /**
  * Deletes a user from all courses and database
  * @param username User identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function deleteUser(username:string): Promise<ResponseArray> {
@@ -254,6 +262,7 @@ export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
 /**
  * Fetches all session data from all courses and users
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and all the data
  */
 export async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray> {
@@ -308,6 +317,7 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
 
 /**
  * Gives the average time spent on a course for all students
+ * @precondtion parameters are of appropriate type
  * @param responeArray with all the data from all the sessions
  * @returns A promise, that gives back a number
  */
@@ -330,6 +340,7 @@ async function averageTimeSpentOnCourse(responseArray: ResponseArray): Promise<n
 
 /**
  * Gives the average health for all students.
+ * @precondtion parameters are of appropriate type
  * @param responeArray with all the data from all the sessions
  * @returns A promise, that gives back a number
  * //TOCHECK
@@ -348,6 +359,7 @@ function averageHealth(responseArray:ResponseArray){
 
 /**
  * Gives the average rating for all students.
+ * @precondtion parameters are of appropriate type
  * @param responeArray with all the data from all the sessions
  * @returns A promise, that gives back a number
  * //TOCHECK

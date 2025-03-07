@@ -8,7 +8,9 @@ import { registerUser } from "./CourseManager";
  * Router function for GET-requests for the route /app/*
  * @param req The Express request object.
  * @param res The Express reponse object.
- * @param next A callback function used to pass control to the next middleware function in the Express pipeline.
+ * @param next A callback function used to pass control to the next middleware 
+ * @precondtion parameters are of appropriate type
+ * function in the Express pipeline.
  */
 export async function RenderRegister(req: Request, res: Response, next: NextFunction){
     if(req.session["user"])
@@ -20,6 +22,7 @@ export async function RenderRegister(req: Request, res: Response, next: NextFunc
  * Router function for POST-requests for the route /app/*
  * @param req The Express request object.
  * @param res The Express reponse object.
+ * @precondtion parameters are of appropriate type
  */
 export async function HandleRegister(req: Request, res: Response){
     const reqData = req.body;

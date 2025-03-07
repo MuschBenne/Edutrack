@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
  * Router function for GET-requests for the route /login
  * If a user is already logged in, this redirects the user to the app page.
  * Otherwise, the login page is rendered.
+ * @precondtion parameters are of appropriate type
  * @param req The Express request object.
  * @param res The Express reponse object.
  */
@@ -22,6 +23,7 @@ export async function RenderLogin(req: Request, res: Response){
  * Attempts to log a user in by comparing credentials with the database records.
  * Success: Creates a user session and redirects the client to the app page
  * Fail: 400 status code with error message.
+ * @precondtion parameters are of appropriate type
  * @param req The Express request object.
  * @param res The Express reponse object.
  */

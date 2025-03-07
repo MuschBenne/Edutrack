@@ -9,6 +9,7 @@ import { ResponseArray } from "../App";
  * Router function for GET-requests for the route /app/*
  * @param req The Express request object.
  * @param res The Express reponse object.
+ * @precondtion parameters are of appropriate type
  */
 export async function RenderApp(req: Request, res: Response) {
     if (!req.session["user"]){
@@ -77,6 +78,7 @@ export async function RenderApp(req: Request, res: Response) {
  * Router function for POST-requests for the route /app
  * @param req The Express request object.
  * @param res The Express reponse object.
+ * @precondtion parameters are of appropriate type
  */
 export async function HandleApp(req: Request, res: Response): Promise<void> {
     // Se till att en användare är inloggad, annars skicka till login-skärmen
@@ -113,6 +115,7 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
  * @param userName The user to add the session for
  * @param courseID The course to add the session for
  * @param sessionData The data to save to the User document
+ * @precondtion parameters are of appropriate type
  * @returns Promise that resolves into a ResponseArray
  */
 async function addStudySession(userName: string, courseID: string, sessionData: SessionEntry): Promise<ResponseArray> {
@@ -147,6 +150,7 @@ async function addStudySession(userName: string, courseID: string, sessionData: 
 /**
  * Fetches an array of CourseData objects for all courses that a user is registered to.
  * @param username: string - the user to fetch this data for
+ * @precondtion parameters are of appropriate type
  * @returns Promise resolving to an array of objects containing a User's saved coursedata
  */
 export async function fetchRegisteredCourses(username: string): Promise<Array<Object>> {
@@ -166,6 +170,7 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Ob
  * Fetches a CourseData object containing name, id, and course sessions for this user.
  * @param username: string - the user to fetch this data for
  * @param courseId: string - the course ID to fetch the course data for
+ * @precondtion parameters are of appropriate type
  * @returns: UserCourseData for this course
  */
 async function fetchUserCourseData(username: string, courseId:string): Promise<Object> {
@@ -183,6 +188,7 @@ async function fetchUserCourseData(username: string, courseId:string): Promise<O
  * Fetches an array of Course documents that a user is eligible to register for.
  * A user is not eligible for a course of it has already registered for it.
  * @param username: string - the user to fetch this data for
+ * @precondtion parameters are of appropriate type
  * @returns: A promise that resolves to an array of Course documents not already registered for.
  */
 export async function fetchAvailableCourses(username: string): Promise<Array<object>> {

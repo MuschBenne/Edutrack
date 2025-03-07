@@ -9,6 +9,8 @@ import mongoose, { Types } from "mongoose";
  * Router function for POST-requests to the path /courseManager
  * @param req The Express request object
  * @param res The Express response object
+ * @precondtion parameters are of appropriate type
+ * 
  */
 export async function HandleCourseManager(req: Request, res: Response) {
     let result: ResponseArray;
@@ -67,6 +69,7 @@ export async function HandleCourseManager(req: Request, res: Response) {
  * Add a course to the list of public courses, of which eligible users can elect to register to.
  * @param name Student username
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray.
  */
 export async function addCourse(name: string, courseId: string): Promise<ResponseArray> {
@@ -93,6 +96,7 @@ export async function addCourse(name: string, courseId: string): Promise<Respons
 /**
  * Remove a course from the list of public courses.
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function removeCourse(courseId: string): Promise<ResponseArray> {
@@ -112,6 +116,7 @@ export async function removeCourse(courseId: string): Promise<ResponseArray> {
  * Removes a student from a course
  * @param courseId Course identifier
  * @param username User identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray> {
@@ -150,6 +155,7 @@ export async function removeStudentFromCourse(courseId: string, username: string
 
 /**
  * Returns the course name for a course with a supplied course ID
+ * @precondtion parameters are of appropriate type
  * @param courseId (String) Course identifier
  * @returns Either the name of the matching course, or an empty string.
  */
@@ -165,6 +171,7 @@ export async function getCourseNameFromId(courseId: string): Promise<string> {
  * Adds a existing student to a course
  * @param courseId Course identifier
  * @param username User identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function addStudentToCourse(courseId:string, username: string): Promise<ResponseArray>{
@@ -203,6 +210,7 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
 /**
  * Deletes a user from all courses and database
  * @param username User identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
 export async function deleteUser(username:string): Promise<ResponseArray> {
@@ -244,6 +252,7 @@ export type UserBody = {
 /**
  * Register a student to the User database table.
  * If a student with the supplied username or email exists, reject the request.
+ * @precondtion parameters are of appropriate type
  * @param userBody (UserBody): The data for the student to be registered.
  * @returns A promise, resolving into a ResponseArray containing a status code and response message.
  */
@@ -290,6 +299,7 @@ export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
 /**
  * Fetches all session data from all courses and users
  * @param courseId Course identifier
+ * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and all the data
  */
 export async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray> {
@@ -340,15 +350,9 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
     return [200,courseId, allSessions];
 }
 
-//
-//// TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
-////                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
-//
-////ex på functioner
-////time spent over the whole period
-//
 ///**
 // * Gives the average time spent on a course for all students
+// * @precondtion parameters are of appropriate type
 // * @param responeArray with all the data from all the sessions
 // * @returns A promise, that gives back a number
 // */
@@ -371,6 +375,7 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
 //
 ///**
 // * Gives the average health for all students.
+// * @precondtion parameters are of appropriate type
 // * @param responeArray with all the data from all the sessions
 // * @returns A promise, that gives back a number
 // * //TOCHECK
@@ -389,6 +394,7 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
 //
 ///**
 // * Gives the average rating for all students.
+// * @precondtion parameters are of appropriate type
 // * @param responeArray with all the data from all the sessions
 // * @returns A promise, that gives back a number
 // * //TOCHECK
@@ -419,5 +425,3 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
 //        })
 //    }return acc > 0 ? ratingTotal / acc : 0;
 //}
-//
-//

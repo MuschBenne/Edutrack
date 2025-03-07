@@ -149,6 +149,7 @@ export async function removeStudentFromCourse(courseId: string, username: string
 
 /**
  * Returns the course name for a course with a supplied course ID
+ * @precondtion parameters are of appropriate type
  * @param courseId (String) Course identifier
  * @returns Either the name of the matching course, or an empty string.
  */
@@ -241,6 +242,7 @@ export type UserBody = {
 /**
  * Register a student to the User database table.
  * If a student with the supplied username or email exists, reject the request.
+ * @precondtion parameters are of appropriate type
  * @param userBody (UserBody): The data for the student to be registered.
  * @returns A promise, resolving into a ResponseArray containing a status code and response message.
  */
@@ -332,13 +334,6 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
     
     return [200,courseId, allSessions];
 }
-
-
-// TODO: Statistik: Skriv olika funktioner som tar emot datan som fetchAllCourseSessionData ger
-//                  och räknar ut lite olika medelvärden osv. Fundera själva på vad ni vill ha för värden.
-
-//ex på functioner
-//time spent over the whole period
 
 /**
  * Gives the average time spent on a course for all students

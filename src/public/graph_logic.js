@@ -2,7 +2,7 @@
 window.addEventListener("DOMContentLoaded", (e) => {
     const colors = {
         Lecture: 'rgba(255, 99, 132, 0.7)',    // Red
-        Selfstudy: 'rgba(54, 162, 235, 0.7)', // Blue
+        Selfstudies: 'rgba(54, 162, 235, 0.7)', // Blue
         Lesson: 'rgba(108, 255, 86, 0.7)',    // Green
         Homework: 'rgba(221, 221, 58, 0.7)',  // Yellow
         Labs: 'rgba(86, 255, 255, 0.7)',      // Cyan

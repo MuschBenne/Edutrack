@@ -47,7 +47,7 @@ function hoursSpent(sessionData){
 
 
 function totalHoursSpentDivided(sessionData) {
-    const labels = ['Lecture', 'SelfStudies', 'Lesson', 'Homework', 'Labs', 'Project', 'TentaP', 'Other'];
+    const labels = ['Lecture', 'Selfstudies', 'Lesson', 'Homework', 'Labs', 'Project', 'TentaP', 'Other'];
     const totalHours = {}; 
 
     // Initialize totals with 0 for each label
@@ -67,7 +67,7 @@ function totalHoursSpentDivided(sessionData) {
 }
 
 function totalHoursSpentWeekly(sessionData){
-    const labels = ['Lecture', 'SelfStudies', 'Lesson', 'Homework', 'Labs', 'Project', 'TentaP', 'Other'];
+    const labels = ['Lecture', 'Selfstudies', 'Lesson', 'Homework', 'Labs', 'Project', 'TentaP', 'Other'];
     let weeks = [];
     let weekTracker = []
     let count = 0;
@@ -86,7 +86,7 @@ function totalHoursSpentWeekly(sessionData){
         }
             sessionData[date].forEach(session => {
                 if (labels.includes(session.typeOfStudy)) {
-                    weeks[count-1  ][session.typeOfStudy] += session.time;
+                    weeks[count-1][session.typeOfStudy] += session.time;
                 }
             });
 

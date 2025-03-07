@@ -46,25 +46,30 @@
     <!-- Graph.js grafen: Alltid en canvas-tag i en div-tag. Sätt ett id på canvasen.-->
     <div style="width: 800px;"><canvas id="weeklyGraf"></canvas></div>
     <div style="width: 400px;"><canvas id="totalGraf"></canvas></div>
-    <% if (courseData.sessions) { %>
-        <ul>
-            
-            <% for(let date in courseData.sessions) { %> 
-                <% courseData.sessions[date].forEach((entry) => {%>
-                   <li>
-                    <%- date %>
-                    <%- entry.time %>,
-                    <%- entry.typeOfStudy %>,
-                    <%- entry.gradeSess %>,
-                    <%- entry.health %> 
-                   </li> 
-                <% }); %>
+    <p>Previous Sessions</p>
 
-            <% } %>
-        </ul>
-    <% } else { %>
-        <p>No sessions registered.</p>
-    <% } %>
+    <button class="course-box" onclick="toggleDropdown()">
+        Show/Hide Sessions</button>
+    <div id="sessionDropdown" style="display: none;">
+        <% if (courseData.sessions) { %>
+            <ul>
+                <% for(let date in courseData.sessions) { %> 
+                    <% courseData.sessions[date].forEach((entry) => { %>
+                    <li>
+                        <strong><%- date %></strong><br>
+                        Duration: <%- entry.time %>,  
+                        Session Type: <%- entry.typeOfStudy %>,  
+                        Rating: <%- entry.gradeSess %>,  
+                        Physical Health: <%- entry.health %>
+                        Mental Health: <%- entry.mentalHealth %>
+                    </li> 
+                    <% }); %>
+                <% } %>
+            </ul>
+        <% } else { %>
+            <p>No sessions registered.</p>
+        <% } %>
+    </div>
     
     <% if (isAdmin) { %>
         <h2>All users' session overview:</h2>
@@ -88,6 +93,11 @@
 
         function togglePopup(){
             container.classList.toggle("hidden");
+        }
+
+        function toggleDropdown() {
+            var dropdown = document.getElementById("sessionDropdown");
+            dropdown.style.display = (dropdown.style.display === "none") ? "block" : "none";
         }
     </script>
     <footer class="footer">

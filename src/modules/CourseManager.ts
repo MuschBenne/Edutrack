@@ -43,15 +43,21 @@ export async function HandleCourseManager(req: Request, res: Response) {
             break;
 
         case "fetchRegisteredCourses":
-            result = [200, "Success", await fetchRegisteredCourses(req.query.username as string)];
+            result = [200, "Success", 
+                await fetchRegisteredCourses(req.query.username as string)
+            ];
             break;
 
         case "fetchAllCourseSessionData":
-            result = await fetchAllCourseSessionData(req.query.courseID as string);
+            result = await fetchAllCourseSessionData(
+                req.query.courseID as string
+            );
             break;
 
         default:
-            result = [404, "CourseManager: Action [" + req.query.action + "] not found."];
+            result = [404, 
+                "CourseManager: Action [" + req.query.action + "] not found."
+            ];
     }
 
     res.status(result[0]).json({ message: result[1], data: result[2] });
@@ -63,7 +69,7 @@ export async function HandleCourseManager(req: Request, res: Response) {
  * @param courseId Course identifier
  * @returns A promise, resolving into a ResponseArray.
  */
-export async function addCourse(name: string, courseId: string): Promise<ResponseArray>{
+export async function addCourse(name: string, courseId: string): Promise<ResponseArray> {
     const newCourse = new Course({
         courseId:courseId,
         name:name,
@@ -75,7 +81,7 @@ export async function addCourse(name: string, courseId: string): Promise<Respons
 
     if (!foundCourseID) {
             return await newCourse.save().then(() => {
-                console.log("course added");
+                console.log("Course added");
                 return [200, "Course added"];
             });
     }
@@ -108,24 +114,28 @@ export async function removeCourse(courseId: string): Promise<ResponseArray> {
  * @param username User identifier
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
  */
-export async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray>{
+export async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray> {
     try {
-        const foundCourse = await Course.find({courseId:courseId}).exec();
-        if (!foundCourse)
+        const foundCourse = await Course.findOne({courseId:courseId}).exec();
+        if (!foundCourse) {
             console.log(`No course found with ID: ${courseId}`);
+            return [400, `No course found with ID: ${courseId}`];
+        }
 
-        const updatedCourse = await Course.updateOne(
-            { courseId },
-            { $pull: { students: username } } 
-        );
-
-        if (updatedCourse.modifiedCount > 0) {
-            console.log("Student " + username + " removed from course " + courseId);
-            return [200, "Student " + username + " removed from course " + courseId];
-        } else {
+        if(!foundCourse.students.includes(username)) {
             console.log("Student " + username + " not found in course " + courseId);
             return [400, "Student " + username + " not found in course " + courseId];
         }
+
+        // New array with supplied username filtered out
+        foundCourse.students = foundCourse.students.filter((e) => {e != username});
+
+        foundCourse.markModified("students");
+        return await foundCourse.save().then(() => {
+            console.log("Student " + username + " removed from course " + courseId);
+            return [200, "Student " + username + " removed from course " + courseId];
+        });
+
     } catch (error) {
         console.error("Error removing student:", error);
         return [500, "Error removing student: " + error];
@@ -133,9 +143,9 @@ export async function removeStudentFromCourse(courseId: string, username: string
 }
 
 /**
- * Gets the coursename from the same course ID
- * @param courseId Course identifier
- * @returns the given course name
+ * Returns the course name for a course with a supplied course ID
+ * @param courseId (String) Course identifier
+ * @returns Either the name of the matching course, or an empty string.
  */
 export async function getCourseNameFromId(courseId: string): Promise<string> {
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
@@ -144,7 +154,6 @@ export async function getCourseNameFromId(courseId: string): Promise<string> {
     else
         return foundCourse.name;
 }
-
 
 /**
  * Adds a existing student to a course
@@ -157,6 +166,10 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
     const foundUser = await User.findOne({username:username}).exec();
 
+    if(foundCourse && foundCourse.students.includes(username)){
+        return [400, "Action 'addStudentToCourse' failed: Student is already registered to this course"];
+    }
+
     if(foundCourse && foundUser) {
         //lägg till i course arrayen
         Course.updateOne(
@@ -167,13 +180,15 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
         //uppdatera students active course
         if(!foundUser.activeCourses)
             foundUser.activeCourses = {};
-            foundUser.activeCourses[courseId] = {courseId: courseId, name: await getCourseNameFromId(courseId), sessions: null};
-            foundUser.markModified("activeCourses");
-            foundUser.save();
+        foundUser.activeCourses[courseId] = {courseId: courseId, name: await getCourseNameFromId(courseId), sessions: null};
+        foundUser.markModified("activeCourses");
+        return await foundUser.save().then(() => {
+            console.log("Student added to course " + courseId);
             return [200, "Student added to course " + courseId];
+        });
     }
     else {
-        console.log("student eller course finns inte");
+        console.log("Action 'addStudentToCourse' failed: Invalid student " + username + " or course " + courseId);
         return [400, "Action 'addStudentToCourse' failed: Invalid student " + username + " or course " + courseId];
     }
 }
@@ -187,33 +202,41 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
 export async function deleteUser(username:string): Promise<ResponseArray> {
     const foundUser = await User.findOne({username:username}).exec();
     if(!foundUser) {
-        console.log("Action deleteUser failed: User not found");
+        console.log(`Action deleteUser failed: User ${username} not found`);
         return [400, "Action deleteUser failed: User not found"];
     }
     else {
         const activeCourses = await fetchRegisteredCourses(username)
-
-        for(let i=0; i > activeCourses.length; i++){
-            await removeStudentFromCourse(activeCourses[i]["courseId"],username);
+        for(let i = 0; i < activeCourses.length; i++){
+            console.log((await removeStudentFromCourse(activeCourses[i]["courseId"],username))[1]);
         }
-
         const deletedUser = await User.deleteOne({ username });
-            if (deletedUser.deletedCount > 0) {
-                console.log(`Student ${username} removed from Users`);
-                return [200, `Student ${username} removed from Users`];
-            }   
+        if (deletedUser.deletedCount > 0) {
+            console.log(`Student ${username} removed from Users`);
+            return [200, `Student ${username} removed from Users`];
+        }   
 
     }
 }
 
-type UserBody = {
+/**
+ * UserBody type for the registerUser function parameter.
+ * Ensures valid datatypes for registerUser.
+ */
+export type UserBody = {
     username: string,
-    password: string, // Use the hashed password
+    password: string,
     mail: string,
     class: string,
-    activeCourses: Array<Object> | null
+    activeCourses: Object | null
 }
 
+/**
+ * Register a student to the User database table.
+ * If a student with the supplied username or email exists, reject the request.
+ * @param userBody (UserBody): The data for the student to be registered.
+ * @returns A promise, resolving into a ResponseArray containing a status code and response message.
+ */
 export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
     try {
         // Skapa det nya User dokumentet
@@ -223,14 +246,17 @@ export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
         await User.validate(newUser);
         
         // Försök hitta en användare med det angivna namnet
-        const foundUser = await User.findOne({username: userBody.username}).exec();
+        const foundUser = await User.findOne(
+            {username: userBody.username}
+        ).exec();
         // Om foundUser är null...
         const foundEmail = await User.findOne({mail: userBody.mail}).exec();
         
         if(!foundUser) {
             if (!foundEmail) {
-                await newUser.save();
-                return [200, "User created"];
+                return await newUser.save().then(() => {
+                    return [200, "User created"];
+                });
             }
             else {  
                 return [400, "Email already taken"];
@@ -377,23 +403,4 @@ function averageLectureRating(responseArray:ResponseArray){
             }
         })
     }return acc > 0 ? ratingTotal / acc : 0;
-
-
-}
-//
-function lectureAttendence(){
-
-}
-
-function lastWeeksAttendenceAndAverage(){
-
-}
-
-function averageTimeSpentWeekly(){
-
-}
-
-//returns stats for last week
-function lastWeeksAverages(){
-
 }

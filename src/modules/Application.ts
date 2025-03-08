@@ -69,7 +69,8 @@ export async function RenderApp(req: Request, res: Response) {
             const userCourses = await fetchRegisteredCourses(req.session.user);
             data = {
                 name: req.session.user ?? "unknown",
-                courses: userCourses
+                courses: userCourses,
+                isAdmin: req.session.isAdmin ?? false
             };
             res.render("Application/Main", data);
     }

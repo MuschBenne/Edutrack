@@ -14,7 +14,9 @@
           <li><a href="/">Home</a></li>
           <li><a href="/app/course_registration">Register to course</a></li>
           <li><a href="/logout">Log out</a></li>
-          <li><a href="/admin">Admin Only</a></li>
+          <% if (isAdmin){ %>
+            <li><a href="/admin">Admin Only</a></li>
+          <%}%>
           
       </ul>
   </nav>

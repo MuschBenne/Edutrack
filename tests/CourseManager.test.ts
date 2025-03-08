@@ -1,6 +1,6 @@
-import Course from "../db_models/Course";
-import User, { CourseList } from "../db_models/User";
-import {addCourse, addStudentToCourse, deleteUser, registerUser, removeCourse, UserBody} from "../modules/CourseManager";
+import Course from "../src/db_models/Course";
+import User, { CourseList } from "../src/db_models/User";
+import {addCourse, addStudentToCourse, deleteUser, registerUser, removeCourse, removeStudentFromCourse, UserBody} from "../src/modules/CourseManager";
 import mongoose from 'mongoose';
 
 
@@ -91,6 +91,16 @@ test("[addStudentToCourse] - Try adding new student to course. Try registering w
     const foundCourseStudents = foundCourse?.students;
     expect(foundCourseStudents).toBeDefined();
     expect(foundCourseStudents?.includes(username)).toStrictEqual(true);
+});
+
+/**
+ * Testing addStudentToCourse function
+*/
+test("[removeStudentFromCourse] - Try removing student from nonexisting course.", async () => {
+    const username = "TestTest1234";
+    const nonCourseID = "test12345";
+    const response1 = await removeStudentFromCourse(nonCourseID, username);
+    expect(response1[0]).toStrictEqual(400);
 });
 
 /**

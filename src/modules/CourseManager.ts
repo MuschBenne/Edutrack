@@ -130,7 +130,7 @@ export async function removeStudentFromCourse(courseId: string, username: string
         const foundCourseStudents: Array<String> | undefined | null = foundCourse.students;
 
         if(!foundCourseStudents){
-            throw new Error("Course's .student property was null or undefined");
+            throw new Error("Course's .students property was null or undefined");
         }
 
         if(!foundCourseStudents.includes(username)) {
@@ -347,7 +347,7 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
         }
     };
     
-    return [200,courseId, allSessions];
+    return [200, `Successfully fetched all session data for ${courseId}.`, allSessions];
 }
 
 ///**

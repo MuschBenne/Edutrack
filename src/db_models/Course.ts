@@ -8,13 +8,7 @@ type Course = {
     students: Array<string>;
 }
 
-interface ICourse {
-    courseId: string;
-    name: string;
-    students: Array<string>;
-}
-
-const course = new Schema<ICourse>({
+const course = new Schema<Course>({
     courseId: { type: String, required: true },
     name: { type: String, required: true },
     students: Array<string>,

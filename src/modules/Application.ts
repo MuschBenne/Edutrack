@@ -120,24 +120,30 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
  * @returns Promise that resolves into a ResponseArray
  */
 export async function addStudySession(userName: string, courseID: string, sessionData: SessionEntry): Promise<ResponseArray> {
+    // Try to find course
     let course = await Course.findOne({courseId: courseID}).exec();
     if(!course)
         return [400, "Course with id [" + courseID + "] was not found in the database."];
+
     // Try to find user
     let user = await User.findOne({username: userName}).exec();
     if(!user)
         return [400, "Username [" + userName + "] was not found in the database."];
+
     // This will be the key for the sessions map for a course
     const date = new Date().toDateString().replaceAll(" ", "_");
     
-    // Define the path to get to the course's saved dates for saved sessions
-    let pathString = "activeCourses." + courseID + ".sessions." + date;
-
     // Ensure user has the active courses object initialized
-    if(!user.activeCourses || !user.activeCourses[courseID]){
-        return [400, "Error: User's activeCourses property is not initialized. Has the user been registered to the course properly?"];
+    if(!user.activeCourses) {
+        return [400, "Error: User's activeCourses property is not initialized. Has the user been registered to the database properly?"];
     }
 
+    // Ensure user has an entry for this course in its activeCourses property
+    if(!user.activeCourses[courseID]) {
+        return [400, "Error: User's course property is not initialized. Has the user been registered to the course properly?"];
+    }
+
+    // If the sessions property for this CourseEntry object has not been initialized, initialize the empty object
     if(!user.activeCourses[courseID]["sessions"]){
         user.activeCourses[courseID]["sessions"] = {};
     }
@@ -195,18 +201,18 @@ export async function fetchUserCourseData(username: string, courseId:string): Pr
 
 /**
  * Fetches an array of Course documents that a user is eligible to register for.
- * A user is not eligible for a course of it has already registered for it.
+ * A user is not eligible for a course if it has already registered for it.
  * @param username: string - the user to fetch this data for
  * @precondtion parameters are of appropriate type
  * @returns: A promise that resolves to an array of Course documents not already registered for.
  */
-export async function fetchAvailableCourses(username: string): Promise<Array<object>> {
+export async function fetchAvailableCourses(username: string): Promise<Array<Course>> {
     const allCourses = await Course.find({}, "-_id -__v").exec(); 
     const registeredCourses = await fetchRegisteredCourses(username);
     
     // Behåll bara IDs för registered courses så dessa kan jämföras i nedanstående filter
     const registeredCourseIds = registeredCourses.map(
-        course => (course as { courseId: string }).courseId
+        course => (course as CourseEntry).courseId
     );
     
     // Filter för att ta bort registerade kurser

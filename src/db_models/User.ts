@@ -9,7 +9,7 @@ export type SessionEntry = {
     mentalHealth: Number
 }
 
-type SessionList = {
+export type SessionList = {
     [sessionDate: string]: Array<SessionEntry>;
 }
 

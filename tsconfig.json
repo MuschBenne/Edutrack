@@ -9,6 +9,6 @@
       "outDir": "build",
     },
     "lib": ["es2015"],
-    "exclude": ["src/tests"]
+    "exclude": ["tests"]
   }
   

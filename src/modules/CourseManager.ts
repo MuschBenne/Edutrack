@@ -107,6 +107,15 @@ export async function removeCourse(courseId: string): Promise<ResponseArray> {
         return [404, "Course not found."];
     }
 
+    foundCourse.students.forEach(async (username) => {
+        let foundUser = await User.findOne({username: username}).exec();
+        if(!foundUser || !foundUser.activeCourses || !foundUser.activeCourses[courseId])
+            return;
+        delete foundUser.activeCourses[courseId];
+        foundUser.markModified("activeCourses");
+        await foundUser.save();
+    });
+
     await Course.deleteOne({ courseId: courseId });
     console.log("Course with ID " + courseId + " removed.");
     return [200, "Course with ID " + courseId + " removed."]

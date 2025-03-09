@@ -203,7 +203,7 @@ nav ul li a:hover {
 }
 
 #SessionPopupContainer.hidden{
-    display: none;
+    top: 100vh;
 }
 
 #SessionPopup.hidden {

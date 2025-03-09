@@ -7,7 +7,7 @@
     <title>EduTrack: <%= name %></title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <script src="/static_functions.js"></script>
-    <script type="module" src="/graph_logic.js"></script>
+    <script src="/graph_logic.js"></script>
 </head>
 <body class="centeredItems">
     <nav>
@@ -21,7 +21,7 @@
     <% if (courseData){ %>
         <script>
             // *OBS* Detta är viktigt för graferna.
-            const COURSEDATA = JSON.parse('<%- courseDataAsString %>');
+            var COURSEDATA = JSON.parse('<%- courseDataAsString %>');
         </script>
     <%}%>
 

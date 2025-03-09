@@ -105,6 +105,9 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
         case "fetchCourses":
             result = await fetchAvailableCourses(req.session.user!);
             break;
+        case "fetchUserCourseData":
+            result = [200, "Fetched data successfully", await fetchUserCourseData(req.session.user, req.body.courseId)];
+            break;
         
 		default:
 			result = [400, "Invalid action: " + req.query.action];

@@ -214,7 +214,14 @@ export async function fetchUserCourseData(username: string, courseId:string): Pr
  * @param username: string - the user to fetch this data for
  * @precondtion parameters are of appropriate type
  * @returns: A promise that resolves to an array of Course documents not already registered for.
+* @example * fetchAvailableCourses("Jakob");
+ * // Returns:
+ * // [
+ * //   { courseId: "007", name: "Basmatte", students: ["Benjamin","Bernhard"] }
+ * // ]
  */
+ 
+
 export async function fetchAvailableCourses(username: string): Promise<Array<Course>> {
     const allCourses = await Course.find({}, "-_id -__v").exec(); 
     const registeredCourses = await fetchRegisteredCourses(username);

@@ -4,7 +4,7 @@
   "description": "Project Repository for Program Design &amp; Data Structures",
   "main": "jest.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
     "dev": "npx nodemon ./src/App.ts",
     "ts": "npx ts-node src/App.ts",
     "build": "tsc --strict",

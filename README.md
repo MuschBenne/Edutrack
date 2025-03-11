@@ -1,33 +1,39 @@
-# BJB-AB
+# BJB-AB 
 Project Repository for Program Design &amp; Data Structures
 
-# Tjena boys
-## För att börja:
+# Setup
 
-1. Första gången ni ska sätta upp repot, eller skriver kod från en ny maskin, kör ni:
-```bash
-git clone "https://github.com/FrickTown/BJB-AB.git" &&
-cd BJB-AB &&
-git checkout dev &&
-npm install;
-```
-
-2. Installera MongoDB på er dator.   
-Länk hittar ni här:
+## Requirements
+- NodeJS
+- Jest (if running testcases)
+- This application requires MongoDB to be installed locally on your machine.
+Visit this link for instructions:
 https://www.mongodb.com/docs/manual/administration/install-community/#std-label-install-mdb-community-edition  
 
-Installera Mongo Shell så ni kan kommunicera med databasen (Välj MacOS eller Windows under plattform):
-https://www.mongodb.com/try/download/shell
+## Clone the repo
+```bash
+git clone "https://github.com/FrickTown/BJB-AB.git" && cd BJB-AB
+```
 
-(Om ni vill kan ni även MongoDB-Compass, en GUI till Mongo databaser. Kanske kan vara till hjälp.):
-https://www.mongodb.com/try/download/compass
+## Install 
+In the root folder:  `BJB-AB/` run:
+```bash
+npm install
+```
 
-3. För att köra koden:
-    
-    1. Alternativ 1 (Bäst): 
-    `npm run dev`
-    2. Alternativ 2:
+# Running
+To run the code, you have two alternatives.
+One relies on ts-node, and runs the TypeScript code without building and compiling it into JavaScript.
+```bash
+# Run the TypeScript code directly
+npm run ts
+# or build the code using tsc --strict and run it using node
+npm build;
+npm start;
+```
 
-        3. Kompilera er kod till js: `npm build`
-
-        4. För att starta webbservern: `npm start`
+# Testing
+To run all Jest test cases, simply run
+```bash
+npm test;
+```

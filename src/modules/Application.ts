@@ -122,6 +122,18 @@ export async function HandleApp(req: Request, res: Response): Promise<void> {
  * @param sessionData The data to save to the User document
  * @precondtion parameters are of appropriate type
  * @returns Promise that resolves into a ResponseArray
+ * @example
+ * // returns Promise<ResponseArray> => [200, "User study session added successfully."]
+ * // iff a User with username "JK" and Course with id "PKD_25" exists
+ * // and SE is an object of type SessionEntry.
+ * let SE: SessionEntry = {
+ *  time: 5,
+ *  typeOfStudy: "Lecture",
+ *  gradeSess: 5,
+ *  health: 5,
+ *  mentalHealth: 5
+ * }
+ * addStudySession("JK", "PKD_25", SE)
  */
 export async function addStudySession(userName: string, courseID: string, sessionData: SessionEntry): Promise<ResponseArray> {
     // Try to find course

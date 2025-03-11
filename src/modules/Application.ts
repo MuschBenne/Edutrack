@@ -159,7 +159,7 @@ export async function addStudySession(userName: string, courseID: string, sessio
         user.activeCourses[courseID]["sessions"][date].push(sessionData); // Add additional session for the date
 
     // Mark the document as modified and then save it
-    user.markModified("activeCourses"); // EXTREMT viktig tydligen omg, många timmar...
+    user.markModified("activeCourses"); 
     return await user.save().then(() => {
         return [200, "User study session added successfully"];
     }); 

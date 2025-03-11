@@ -1,0 +1,86 @@
+<div class="centeredItems sessionInputContent">
+  <h1>Add your session below here</h1>
+  <p>Please put in amount of minutes of your session (ex. 85)</p>
+  Session duration: <input id="duration" type="number" placeholder="Session duration"><br>
+  <p>Please pick the right session for your studies</p>
+  Session type: <select name="sessiontype" id="sessiontype">
+    <option value="Lecture">Lecture</option>
+    <option value="Selfstudies">Self Studies</option>
+    <option value="Lesson">Lesson</option>
+    <option value="Homework">Homework</option>
+    <option value="Labs">Labs</option>
+    <option value="Project">Project</option>
+    <option value="TentaP">TentaP</option>
+    <option value="Other">Other</option>
+  </select><br>
+  <p>Pick the grade for the session where 5 is best and 1 is worst</p>
+  Session Rating: <select name="rating" id="rating">
+    <option value="5">5</option>
+    <option value="4">4</option>
+    <option value="3">3</option>
+    <option value="2">2</option>
+    <option value="1">1</option>
+  </select><br>
+  <p>Pick the grade for how you feel physical wellbeing, if you are sick it's a 1, and 5 is you are feeling good.</p>
+  Physical wellbeing: <select name="health" id="health">
+    <option value="5">5</option>
+    <option value="4">4</option>
+    <option value="3">3</option>
+    <option value="2">2</option>
+    <option value="1">1</option>
+  </select><br>
+  <p>Pick the grade for your mental wellbeing, if you feel stressed and down it's a 1, if you feel energized and forward it's a 5</p>
+  Mental wellbeing: <select name="mentalHealth" id="mentalHealth">
+    <option value="5">5</option>
+    <option value="4">4</option>
+    <option value="3">3</option>
+    <option value="2">2</option>
+    <option value="1">1</option>
+  </select><br>
+  <button onclick="addSession()">Add session</button>
+  
+  <script>
+	// Function to add a new study session by sending data to the server
+	async function addSession() {
+
+		// Get the duration of the study session from the input field
+		let duration = document.getElementById("duration").value;
+
+		// Convert the duration value to a number for validation and submission
+		let durationNum = Number(duration);
+
+		// Check if the duration is a valid positive whole number
+		if (durationNum <= 0 || !Number.isInteger(durationNum)) {
+		    alert("Please enter a whole number greater than 0 for duration.");
+		    return; // Stop function execution if the duration is invalid
+		}
+	  
+		// Make an asynchronous POST request to the server with the study session data
+      let response = await fetch("http://localhost:3000/app?action=addStudySession", {
+          method: "POST",
+          body: JSON.stringify({
+		        // Send the collected session data as JSON
+		        time: durationNum,
+		        type: document.getElementById("sessiontype").value,
+              	rating: document.getElementById("rating").value,
+              	health: document.getElementById("health").value,
+              	mentalHealth: document.getElementById("mentalHealth").value, 
+		        courseId: "<%- courseData.courseId %>" 
+          }),
+		    headers: {
+		        "Content-type": "application/json; charset=UTF-8" // Set content type to JSON
+		    }
+		});
+	
+		// Parse the JSON response from the server
+		let responseJSON = await response.json();
+	
+		// Display a message from the server (e.g., success or error)
+		alert(responseJSON.message);
+		if(response.ok) {
+			let newSessionEvent = new Event("newSession");
+			document.dispatchEvent(newSessionEvent);
+		}
+	}
+  </script>
+</div>

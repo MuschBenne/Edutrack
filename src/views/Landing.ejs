@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTrack</title>
+    <link rel="stylesheet" href="/master.css">
+</head>
+<body>
+    <div class="header-container">
+        <!-- Heading Section (Top-left aligned) -->
+        <div class="heading-section">
+            <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
+            
+        </div>
+        <!-- Navigation (Horizonally aligned beside the heading) -->
+        <% if (activeSession === true) { %>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/app">My Pages</a></li>
+                    <li><a href="/logout">Log out</a></li>
+                </ul>
+            </nav>
+        <% } else { %>
+            <%- include("CommonModules/Nav") %>
+        <% } %>
+    </div>
+
+    <div class="main-content">
+        <!-- Section for "What is EduTracker?" -->
+        <div class="section">
+            <span>📚</span>
+            <div>
+                <h2>What is EduTracker?</h2>
+                <p>EduTracker is a powerful tool designed to help students monitor their study time and gain valuable insights into their learning patterns. By logging your study sessions, you get a clear overview of how and when you have studied, as well as the grades those study habits have resulted in.</p>
+            </div>
+        </div>
+
+        <!-- Section for "For Students" -->
+        <div class="section">
+            <span>🎓</span>
+            <div>
+                <h2>For Students</h2>
+                <p>With EduTracker, you can keep track of your study routines, adjust your strategies, and improve your academic performance. Whether preparing for exams, working on assignments, or reviewing past study sessions, EduTracker helps you stay organized and maximize your learning efficiency.</p>
+            </div>
+        </div>
+
+        <!-- Section for "For Universities" -->
+        <div class="section">
+            <span>🏫</span>
+            <div>
+                <h2>For Universities</h2>
+                <p>EduTracker also provides valuable insights for universities and educators. By analyzing student study behavior, institutions can understand why some students succeed while others struggle. This data helps universities improve course design, provide better student support, and conduct deeper reviews of teaching methods.</p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>Ideas on improvements? Email us at 
+            <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
+    </footer>    
+</body>
+</html>

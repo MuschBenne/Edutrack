@@ -1,0 +1,212 @@
+.centeredItemsH {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto
+}
+
+.centeredItems {
+    justify-content: center;
+    align-items: center;
+    color: #DBBB68;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+#inputContainer {
+    width: 20vw;
+    max-width: 400px;  /* To prevent it from becoming too narrow on large screens */
+    height: 40vh;
+    margin-top: -5%;
+    display: flex;
+    flex-flow: column;
+    gap: 1%;
+}
+
+
+#inputContainer > input {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+}
+
+
+#inputContainer > select {
+    width: 100%;  /* Make sure the select box doesn't overflow */
+    font-size: 30px;
+    margin: 1%;  /* Optional: adjust if needed */
+    text-align: center;
+    color: black;
+}
+
+section {
+    color: #DBBB68;
+    width: 50%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #152242; /* Background color for the page */
+    overflow-x: hidden; /* To prevent horizontal scroll */
+    padding-bottom: 15%;
+}
+
+/* Header Container for Navigation and Heading */
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Space between navigation and heading */
+    align-items: center; /* Vertically center the items */
+    padding: 5px;
+}
+
+/* Heading Section (Top-left aligned) */
+.heading-section {
+    color:#DBBB68;
+    text-align: left;
+}
+
+
+/* Navigation Styling */
+nav {
+    display: flex;
+    justify-content: flex-end;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color:#DBBB68;
+    padding: 8px 12px;
+}
+
+nav ul li a:hover {
+    background-color: #555;
+    border-radius: 5px;
+}
+
+/* Footer Styling */
+.footer {
+    background-color: #DBBB68;
+    color: #152242;
+    text-align: center;
+    padding: 5px 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+.main-content {
+    display: flex;           /* Align the sections horizontally (side by side) */
+    justify-content: space-around; /* Distribute sections evenly */
+    align-items: flex-start; /* Align items to the top */
+    padding: 20px;
+    margin-top: 180px;
+    color: #DBBB68;
+}
+
+/* Flexbox for each section (icon on top, h2 and p below) */
+.section {
+    display: flex;
+    flex-direction: column; /* Stack icon, heading, and paragraph vertically */
+    align-items: center;    /* Center content horizontally */
+    gap: 10px;              /* Space between icon, heading, and paragraph */
+    width: 30%;             /* Adjust the width of each section */
+    text-align: center;     /* Center align text in each section */
+}
+
+/* Style for each heading */
+.section h2 {
+    color: #DBBB68;
+    margin: 5;              /* Remove any default margin from heading */
+}
+
+/* Make sure the text is aligned properly below the heading */
+.section p {
+    flex: 1; /* Makes sure the text takes up remaining space */
+    margin: 0; /* Remove default margin from paragraphs */
+}
+
+/* Optional: Styling for each icon */
+.section span {
+    font-size: 5rem;  /* Adjust the size of the icon */
+}
+
+.course-box {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    cursor: pointer;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+    background-color: #152242;
+    color: #DBBB68;
+}
+
+.course-box:hover {
+    transform: scale(1.05);
+}
+
+.courses-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.courses-container a:visited {
+    color: #DBBB68
+    
+}
+
+.sessionInputContent {
+    padding-bottom: 10%;
+}
+
+#SessionPopup {
+    margin-inline: auto; 
+    width: fit-content;
+    height: fit-content;
+    background-color: #152242;
+    border: 3px solid #DBBB68;
+    border-radius: 8%;
+    margin: 5%;
+    padding: 1em;
+    transform: translateY(0vh);
+    opacity: 1;
+    transition: transform 0.5s, opacity 0.5s;
+}
+
+#SessionPopupContainer {
+    position: fixed;
+    top:0;
+    left: 0;
+    z-index: 99;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#SessionPopupContainer.hidden{
+    top: 100vh;
+}
+
+#SessionPopup.hidden {
+    transform: translateY(100vh);
+    opacity: 0;
+}

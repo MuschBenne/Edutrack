@@ -4,10 +4,10 @@
   "description": "Project Repository for Program Design &amp; Data Structures",
   "main": "jest.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
     "dev": "npx nodemon ./src/App.ts",
     "ts": "npx ts-node src/App.ts",
-    "build": "tsc --strict",
+    "build": "tsc --strict && cp -r src/views build/views && cp -r src/public build/public",
     "start": "node ./build/App.js"
   },
   "repository": {
@@ -24,15 +24,20 @@
   "homepage": "https://github.com/FrickTown/BJB-AB#readme",
   "devDependencies": {
     "@types/express": "^4.17.1",
+    "@types/jest": "^29.5.14",
     "nodemon": "^3.1.9",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@types/express-session": "^1.18.1",
+    "bcryptjs": "^3.0.2",
+    "connect-mongo": "^5.1.0",
+    "ejs": "^3.1.10",
     "express": "^4.17.1",
+    "express-session": "^1.18.1",
     "mongodb": "^6.13.0",
-    "mongoose": "^8.10.1",
-    "passport": "^0.7.0"
+    "mongoose": "^8.10.1"
   }
 }

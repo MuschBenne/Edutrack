@@ -2,5 +2,6 @@
     "spellright.language": [],
     "spellright.documentTypes": [
         "latex"
-    ]
+    ],
+    "editor.wordWrap": "wordWrapColumn"
 }

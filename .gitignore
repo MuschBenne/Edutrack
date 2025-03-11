@@ -1,1 +1,7 @@
 node_modules/
+.DS_Store
+eslint.config.mjs
+Project_Diary.md
+coverage/
+build/
+build/*

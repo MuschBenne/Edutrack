@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="master.css">
+</head>
+<body>
+    <div class="header-container">
+        <!-- Heading Section (Top-left aligned) -->
+        <div class="heading-section">
+            <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
+            
+        </div>
+
+        <!-- Navigation (Horizonally aligned beside the heading) -->
+        <%- include("CommonModules/Nav") %>
+    </div>
+</body>
+<body>
+    <div class="centeredItems">
+      <h1>Ahh, have you studied? Welcome back!</h1>
+
+    <div id="inputContainer" class="centeredItems">
+        <input type="text" value="" id="user" placeholder="Username">
+        <input type="password" value="" id="pass" placeholder="Password">
+        <input type="button" onclick="tryLogin()" value="Log in">
+    </div>
+    </div> 
+
+    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+
+    <script>
+
+        let userElement = document.getElementById("user");
+        let passElement = document.getElementById("pass");
+
+        let errorMessage = document.getElementById("errorMessage");
+    
+    // Function to handle user login by sending login credentials to the server
+    async function tryLogin() {
+        
+        // Send a POST request to the server with the username and password in the request body
+        let response = await fetch("http://localhost:3000/login", {
+            method: "POST", // Set method to POST for submitting login data
+            body: JSON.stringify({
+                // Pass the user and pass values from the input fields
+                user: userElement.value,
+                pass: passElement.value
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8" 
+                // Set content type to JSON
+            }
+        });
+
+        // Await the response from the server
+        const res = await response;
+
+        // If the response status is 200 (success), redirect the user to the app homepage
+        if (res && res.status === 200) {
+            window.location.href = "/app";
+        }
+        else {
+            // If the response indicates an error, parse the response and show the error message
+            const responseJSON = await res.json();
+            errorMessage.innerText = responseJSON.message; 
+            // Display the error message to the user
+        }
+    }
+    </script>
+
+    <footer class="footer">
+        <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
+    </footer>    
+</body>
+</html>

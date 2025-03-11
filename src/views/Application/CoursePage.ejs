@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/master.css">
+    <title>EduTrack: <%= name %></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="/static_functions.js"></script>
+    <script src="/graph_logic.js"></script>
+</head>
+<body class="centeredItems">
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/app">My Pages</a></li>
+            <li><a href="/logout">Log out</a></li>
+        </ul>
+    </nav>
+
+    <% if (courseData){ %>
+        <script>
+            // *OBS* Detta är viktigt för graferna.
+            var COURSEDATA = JSON.parse('<%- courseDataAsString %>');
+        </script>
+    <%}%>
+
+    <% if (isAdmin){ %>
+        <script>
+            // *OBS* Detta är viktigt för graferna.
+            const ALLCOURSEDATA = JSON.parse('<%- allCourseDataAsString %>');
+        </script>
+    <%}%>
+    <h1>Course: <%-courseData.name %></h1>
+    <div class="centeredItems">
+      <p>Have you studied today?</p>
+      <button class="course-box" onclick="togglePopup()">Add study session</button>
+    </div>
+    <h1>All Registered Sessions</h1> 
+    <div style="width: 800px;"><canvas id="weeklyGraf"></canvas></div>
+    <div style="width: 400px;"><canvas id="totalGraf"></canvas></div>
+    <p>Previous Sessions</p>
+
+    <button class="course-box" onclick="toggleDropdown()">
+        Show/Hide Sessions</button>
+    <div id="sessionDropdown" style="display: none;">
+        <% if (courseData.sessions) { %>
+            <ul>
+                <% for(let date in courseData.sessions) { %> 
+                    <% courseData.sessions[date].forEach((entry) => { %>
+                    <li>
+                        <strong><%- date %></strong><br>
+                        Duration: <%- entry.time %>,  
+                        Session Type: <%- entry.typeOfStudy %>,  
+                        Rating: <%- entry.gradeSess %>,  
+                        Physical Health: <%- entry.health %>
+                        Mental Health: <%- entry.mentalHealth %>
+                    </li> 
+                    <% }); %>
+                <% } %>
+            </ul>
+        <% } else { %>
+            <p>No sessions registered.</p>
+        <% } %>
+    </div>
+    
+    <% if (isAdmin) { %>
+        <h2>All users' session overview:</h2>
+        <div style="width: 400px;"><canvas id="allCourseGraf"></canvas></div>
+    <% } %>
+    
+    <div id="SessionPopupContainer" class="hidden">
+        <div id="SessionPopup" class="hidden">
+            <%- include("AppModules/Session"); %>
+        </div>
+    </div>
+
+    <script>
+        let container = document.querySelector("#SessionPopupContainer");
+        let popup = document.querySelector("#SessionPopup");
+        container.addEventListener("click", (e) => {
+            // Prevent click-through of popup
+            if(e.target !== container)
+                return false;
+            togglePopup();
+        });
+
+        function togglePopup(){
+            container.classList.toggle("hidden");
+            setTimeout(() => {
+                popup.classList.toggle("hidden");
+            }, 1);
+        }
+
+        function toggleDropdown() {
+            var dropdown = document.getElementById("sessionDropdown");
+            dropdown.style.display = (dropdown.style.display === "none") ? "block" : "none";
+        }
+    </script>
+    <footer class="footer">
+        <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
+    </footer> 
+</body>
+</html>

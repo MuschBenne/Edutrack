@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTrack - Course Registration</title>
+    <link rel="stylesheet" href="/master.css">
+</head>
+
+<body class="centeredItems">
+
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/app">My Pages</a></li>
+            <li><a href="/logout">Log out</a></li>
+        </ul>
+    </nav>
+
+
+    <h2>Welcome, <%= name %>! Select a course to register:</h2>
+
+    
+    <% if (availableCourses.length > 0) { %>
+        <label for="courseSelect">Choose a course:</label>
+        <div class="courses-container">
+            <% availableCourses.forEach(function(course) { %>
+              <div class="course-box" onclick="addStudentToNewCourse(
+                '<%= course.courseId %>')">
+                <h3><%= course.name %></h3>
+                <p><%= course.description %></p> <!-- Optional description -->
+              </div>
+            <% }); %>
+          </div>
+    <% } else { %>
+        <p>No available courses at the moment.</p>
+    <% } %>
+    
+    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+
+    <script>
+        // Function to add a student to a new course by sending data to the server
+        async function addStudentToNewCourse(courseId){
+            
+            // Retrieve the username of the student (server-side rendered)
+            const username = "<%= name %>";
+            
+            // Log the courseId for debugging purposes
+            console.log("Clicked courseId:", courseId);
+    
+            // If no courseId is provided, show an error message and stop execution
+            if (!courseId) {
+                document.getElementById("errorMessage").innerText = 
+                "Please select a course to register.";
+                return; // Exit the function if no course is selected
+            }
+            
+            // Make an asynchronous POST request to add the student to the course
+            let response = await fetch(
+                "http://localhost:3000/app?action=addStudentToCourse", {
+                method: "POST", // Set method to POST
+                body: JSON.stringify({ 
+                    courseId: courseId, username: username }), 
+                    // Send the courseId and username as JSON
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8" 
+                    // Set content type to JSON
+                }
+            });
+    
+            // If the response status is 200 (success), redirect to the course registration page
+            if (response && response.status === 200) {
+                window.location.href = "/app/course_registration";
+            }
+            else {
+                // If the response is an error, parse the response and display the error message
+                const responseJSON = await response.json();
+                document.getElementById("errorMessage").innerText = responseJSON.message || "An error occurred.";
+            }
+        }
+    </script>
+    
+    <footer class="footer">
+        <p>Ideas on improvements? Email us at 
+            <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
+    </footer> 
+</body>
+</html>

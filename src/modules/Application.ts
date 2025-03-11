@@ -159,7 +159,7 @@ export async function addStudySession(userName: string, courseID: string, sessio
         user.activeCourses[courseID]["sessions"][date].push(sessionData); // Add additional session for the date
 
     // Mark the document as modified and then save it
-    user.markModified("activeCourses"); // EXTREMT viktig tydligen omg, många timmar...
+    user.markModified("activeCourses"); 
     return await user.save().then(() => {
         return [200, "User study session added successfully"];
     }); 
@@ -171,9 +171,12 @@ export async function addStudySession(userName: string, courseID: string, sessio
  * @param username: string - the user to fetch this data for
  * @precondtion parameters are of appropriate type
  * @returns Promise resolving to an array of objects containing a User's saved coursedata
+ * @example fetchRegisteredCourses("Benjamin")
+ * returns the collection of courses that user Benjamin has
  */
 export async function fetchRegisteredCourses(username: string): Promise<Array<CourseEntry>> {
-    const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
+    const foundUser = await User.findOne({ username: username }).exec(); 
+    // Use findOne() and await
 
     if (!foundUser) { //måste returna array 
         console.log("User " + username + "not found");
@@ -191,6 +194,8 @@ export async function fetchRegisteredCourses(username: string): Promise<Array<Co
  * @param courseId: string - the course ID to fetch the course data for
  * @precondtion parameters are of appropriate type
  * @returns: UserCourseData for this course
+ * @example const coursedata = await fetchUserCourseData("Benjamin", "007");
+ * returns the coursedata of the selected user in the selected course
  */
 export async function fetchUserCourseData(username: string, courseId:string): Promise<Object> {
     const foundUser = await User.findOne({ username: username }).exec(); // Use findOne() and await
@@ -209,7 +214,12 @@ export async function fetchUserCourseData(username: string, courseId:string): Pr
  * @param username: string - the user to fetch this data for
  * @precondtion parameters are of appropriate type
  * @returns: A promise that resolves to an array of Course documents not already registered for.
+* @example * fetchAvailableCourses("Jakob");
+ * // Returns:
+ * // ["001","003"]
  */
+ 
+
 export async function fetchAvailableCourses(username: string): Promise<Array<Course>> {
     const allCourses = await Course.find({}, "-_id -__v").exec(); 
     const registeredCourses = await fetchRegisteredCourses(username);

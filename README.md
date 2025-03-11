@@ -28,7 +28,7 @@ One relies on ts-node, and runs the TypeScript code without building and compili
 # Run the TypeScript code directly
 npm run ts
 # or build the code using tsc --strict and run it using node
-npm build;
+npm run build;
 npm start;
 ```
 
@@ -36,4 +36,6 @@ npm start;
 To run all Jest test cases, simply run
 ```bash
 npm test;
+# or
+jest --runInBand
 ```

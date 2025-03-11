@@ -7,7 +7,7 @@
     "test": "jest --runInBand",
     "dev": "npx nodemon ./src/App.ts",
     "ts": "npx ts-node src/App.ts",
-    "build": "tsc --strict",
+    "build": "tsc --strict && cp -r src/views build/views && cp -r src/public build/public",
     "start": "node ./build/App.js"
   },
   "repository": {

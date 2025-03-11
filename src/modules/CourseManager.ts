@@ -6,11 +6,22 @@ import { ResponseArray } from "../App";
 import mongoose, { Types } from "mongoose";
 
 /**
+ * UserBody type for the registerUser function parameter.
+ * Ensures valid datatypes for registerUser.
+ */
+export type UserBody = {
+    username: string,
+    password: string,
+    mail: string,
+    class: string,
+    activeCourses: Object | null
+}
+
+/**
  * Router function for POST-requests to the path /courseManager
  * @param req The Express request object
  * @param res The Express response object
  * @precondtion parameters are of appropriate type
- * 
  */
 export async function HandleCourseManager(req: Request, res: Response) {
     let result: ResponseArray;
@@ -71,6 +82,10 @@ export async function HandleCourseManager(req: Request, res: Response) {
  * @param courseId Course identifier
  * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray.
+ * @example
+ * // returns Promise<ResponseArray> => [200, "Course added"] 
+ * // iff the courseId is not already registered.
+ * addCourse("PKD", "PKD_VT25")
  */
 export async function addCourse(name: string, courseId: string): Promise<ResponseArray> {
     const newCourse = new Course({
@@ -98,6 +113,10 @@ export async function addCourse(name: string, courseId: string): Promise<Respons
  * @param courseId Course identifier
  * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
+ * @example
+ * // returns Promise<ResponseArray> => [200, "Course PKD_VT25 removed."] 
+ * // iff a course with courseID PKDVT25 exists in the database.
+ * removeCourse("PKDVT25")
  */
 export async function removeCourse(courseId: string): Promise<ResponseArray> {
     const foundCourse = await Course.findOne({ courseId: courseId }).exec();
@@ -117,8 +136,8 @@ export async function removeCourse(courseId: string): Promise<ResponseArray> {
     });
 
     await Course.deleteOne({ courseId: courseId });
-    console.log("Course with ID " + courseId + " removed.");
-    return [200, "Course with ID " + courseId + " removed."]
+    console.log("Course " + courseId + " removed.");
+    return [200, "Course " + courseId + " removed."]
 }
 
 /**
@@ -127,6 +146,10 @@ export async function removeCourse(courseId: string): Promise<ResponseArray> {
  * @param username User identifier
  * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
+ * @example
+ * // returns Promise<ResponseArray> => [200, "Student JK removed from course."]
+ * // iff a User with username "JK" and a course with ID "PKD_VT25" exists
+ * removeStudentFromCourse("PKD_VT25", "JK");
  */
 export async function removeStudentFromCourse(courseId: string, username: string): Promise<ResponseArray> {
     try {
@@ -167,6 +190,10 @@ export async function removeStudentFromCourse(courseId: string, username: string
  * @precondtion parameters are of appropriate type
  * @param courseId (String) Course identifier
  * @returns Either the name of the matching course, or an empty string.
+ * @example
+ * // returns Promise<string> => "PKD"
+ * // iff a course with ID "PKD_VT25" exists and that course's name is "PKD"
+ * getCourseNameFromId("PKD_VT25");
  */
 export async function getCourseNameFromId(courseId: string): Promise<string> {
     const foundCourse = await Course.findOne({courseId:courseId}).exec();
@@ -182,6 +209,10 @@ export async function getCourseNameFromId(courseId: string): Promise<string> {
  * @param username User identifier
  * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
+ * @example 
+ * // returns Promise<ResponseArray> => [200, "Student added to course PKD25"]
+ * // iff a User with username "JK" and a Course with ID "PKD25" exists.
+ * addStudentToCourse("PKD25", "JK");
  */
 export async function addStudentToCourse(courseId:string, username: string): Promise<ResponseArray>{
 
@@ -221,6 +252,10 @@ export async function addStudentToCourse(courseId:string, username: string): Pro
  * @param username User identifier
  * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and a message
+ * @example
+ * // returns Promise<ResponseArray> => [200, "Student JK removed from Users"]
+ * // iff a User with username "JK" exists
+ * deleteUser("JK");
  */
 export async function deleteUser(username:string): Promise<ResponseArray> {
     const foundUser = await User.findOne({username:username}).exec();
@@ -247,23 +282,22 @@ export async function deleteUser(username:string): Promise<ResponseArray> {
 }
 
 /**
- * UserBody type for the registerUser function parameter.
- * Ensures valid datatypes for registerUser.
- */
-export type UserBody = {
-    username: string,
-    password: string,
-    mail: string,
-    class: string,
-    activeCourses: Object | null
-}
-
-/**
  * Register a student to the User database table.
  * If a student with the supplied username or email exists, reject the request.
  * @precondtion parameters are of appropriate type
  * @param userBody (UserBody): The data for the student to be registered.
  * @returns A promise, resolving into a ResponseArray containing a status code and response message.
+ * @example 
+ * // returns Promise<ResponseArray> => [200, "User created"]
+ * // iff User with UB.username or UB.mail does not exist in the database
+ * let UB: UserBody = {
+ *  username: "JK",
+ *  password: "MFSDKFG2342345",
+ *  mail: "JK@test.com",
+ *  class: "DV",
+ *  "activeCourses: {}"
+ * }
+ * registerUser(UB);
  */
 export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
     try {
@@ -310,6 +344,10 @@ export async function registerUser(userBody: UserBody): Promise<ResponseArray> {
  * @param courseId Course identifier
  * @precondtion parameters are of appropriate type
  * @returns A promise, resolving into a ResponseArray containing a status code and all the data
+ * @example
+ * // returns Promise<ResponseArray> => [200, "Successfully fetched all session data for PKD_VT25.", {}];
+ * // iff a Course with ID "PKD_VT25" exists and has no registered sessions.
+ * fetchAllCourseSessionData("PKD_VT25");
  */
 export async function fetchAllCourseSessionData(courseId: string): Promise<ResponseArray> {
     // Try to find a course matching the ID supplied
@@ -358,79 +396,3 @@ export async function fetchAllCourseSessionData(courseId: string): Promise<Respo
     
     return [200, `Successfully fetched all session data for ${courseId}.`, allSessions];
 }
-
-///**
-// * Gives the average time spent on a course for all students
-// * @precondtion parameters are of appropriate type
-// * @param responeArray with all the data from all the sessions
-// * @returns A promise, that gives back a number
-// */
-//async function averageTimeSpentOnCourse(responseArray: ResponseArray): Promise<number> {
-//    const sessions = responseArray[2];
-//    const foundCourseID = await Course.findOne(
-//        {courseId: responseArray[1]}
-//    ).exec();
-//    const numStudents = foundCourseID.students.length
-//    let timeTotal = 0;
-//    for(let date in sessions){
-//        sessions[date].forEach(session => {
-//            timeTotal += session.time;
-//        })
-//    }
-//
-//    return numStudents > 0 ? timeTotal/numStudents: 0 ; 
-//    
-//}
-//
-///**
-// * Gives the average health for all students.
-// * @precondtion parameters are of appropriate type
-// * @param responeArray with all the data from all the sessions
-// * @returns A promise, that gives back a number
-// * //TOCHECK
-// */
-//function averageHealth(responseArray:ResponseArray){
-//    const sessions = responseArray[2];
-//    let acc = 0;
-//    let healthTotal = 0;
-//    for(let date in sessions){
-//        sessions[date].forEach(session => {
-//            healthTotal += session.health;
-//            acc++;
-//        })
-//    }return acc > 0 ? healthTotal / acc : 0;
-//}
-//
-///**
-// * Gives the average rating for all students.
-// * @precondtion parameters are of appropriate type
-// * @param responeArray with all the data from all the sessions
-// * @returns A promise, that gives back a number
-// * //TOCHECK
-// */
-//function averageRating(responseArray:ResponseArray){
-//    const sessions = responseArray[2];
-//    let acc = 0;
-//    let ratingTotal = 0;
-//    for(let date in sessions){
-//        sessions[date].forEach(session => {
-//            ratingTotal += session.gradeSess;
-//            acc++;
-//        })
-//    }return acc > 0 ? ratingTotal / acc : 0;
-//}
-//
-////average rating for lecture over the whole period, if lectures are integrated better, maybe possible to access rating for each lecture
-//function averageLectureRating(responseArray:ResponseArray){
-//    const sessions = responseArray[2];
-//    let acc = 0;
-//    let ratingTotal = 0
-//    for(let date in sessions){
-//        sessions[date].forEach(session =>{
-//            if(session.typeOfStudy =="Lecture"){
-//            ratingTotal+=session.gradeSess;
-//            acc++;
-//            }
-//        })
-//    }return acc > 0 ? ratingTotal / acc : 0;
-//}

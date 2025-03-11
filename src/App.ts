@@ -121,7 +121,6 @@ app.post("/courseManager", async (req, res) => {
  * Admin panel
  */
 app.get("/admin", async (req, res) => {
-	//TOCHECK: Se till att endast sessions med propertyn isAdmin får nå res.render("Admin")
 	if (req.session.isAdmin) {
 		const allCourses = await Course.find({}, "-_id -__v").exec();
 		const allUsers = await User.find({}, "-__v").exec();

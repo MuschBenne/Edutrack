@@ -216,9 +216,7 @@ export async function fetchUserCourseData(username: string, courseId:string): Pr
  * @returns: A promise that resolves to an array of Course documents not already registered for.
 * @example * fetchAvailableCourses("Jakob");
  * // Returns:
- * // [
- * //   { courseId: "007", name: "Basmatte", students: ["Benjamin","Bernhard"] }
- * // ]
+ * // ["001","003"]
  */
  
 

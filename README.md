@@ -1,5 +1,5 @@
 # BJB-AB 
-Project Repository for Program Design &amp; Data Structures
+Project Repository for EduTrack
 
 # Setup
 

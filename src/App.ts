@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import session from "express-session";
 import mongoose from 'mongoose';
@@ -9,6 +10,7 @@ import { HandleApp, RenderApp } from './modules/Application';
 import path from "path";
 import { HandleCourseManager } from './modules/CourseManager';
 import User from './db_models/User';
+
 
 /**
  * Type ResponseArray: [statusCode: number, message: string, data (optional): object]
@@ -28,9 +30,12 @@ const app = express();
 const options = {
     root: path.join(__dirname)
 };
+console.log(process.env.MONGO_URL);
 
 // Connecta till databasen
-mongoose.connect("mongodb://127.0.0.1:27017")
+mongoose.connect(process.env.MONGO_URL)
+
+
 
 // Express middleware:
 // Parsea JSON kroppen av requests direkt
@@ -44,7 +49,7 @@ app.use(session({
 	saveUninitialized: false,
 	unset: 'destroy',
 	store: MongoStore.create({
-		mongoUrl: "mongodb://127.0.0.1:27017/session-store"
+		mongoUrl: process.env.MONGO_URL
 	}),
 	cookie: {httpOnly: true}
 }));

@@ -33,7 +33,7 @@ const options = {
 console.log(process.env.MONGO_URL);
 
 // Connecta till databasen
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(process.env.MONGO_URL!)
 
 
 

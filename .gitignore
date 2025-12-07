@@ -5,3 +5,4 @@ Project_Diary.md
 coverage/
 build/
 build/*
+.env.prod

@@ -72,7 +72,7 @@ function renderGraphs() {
 
 // Refetch the course session data and replace the COURSEDATA global variable's value with this new data.
 async function fetchGraphData() {
-    let response = await fetch("http://localhost:3000/app/?action=fetchUserCourseData",
+    let response = await fetch("/app/?action=fetchUserCourseData",
         {
 		    method: "POST",
 		    body: JSON.stringify({courseId: COURSEDATA.courseId}),

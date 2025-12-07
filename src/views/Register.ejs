@@ -83,7 +83,7 @@
     // Function to send registration data to the server
     async function sendTheData() {
         // Make a POST request to the server with the registration data
-        let response = await fetch("http://localhost:3000/register", {
+        let response = await fetch("/register", {
             method: "POST", 
 			// Set method to POST for submitting registration data
             body: JSON.stringify({

@@ -120,7 +120,7 @@
             let courseId = document.getElementById("courseId2").value.trim();
     
             // Construct the URL with the courseId parameter for the delete request
-            let url = `http://localhost:3000/courseManager?action=removeCourse&courseId=${courseId}`;
+            let url = `/courseManager?action=removeCourse&courseId=${courseId}`;
             
             // Check if the course ID is empty, show an error message and stop execution
             if (!courseId) {
@@ -154,7 +154,7 @@
             let username = document.getElementById("user").value;
     
             // Construct the URL with the username parameter for the delete request
-            let url = `http://localhost:3000/courseManager?action=deleteUser&username=${username}`;
+            let url = `/courseManager?action=deleteUser&username=${username}`;
             
             // Make the POST request to delete the user
             let response = await fetch(url, {
@@ -182,7 +182,7 @@
             let courseId = encodeURIComponent(document.getElementById("courseId").value);
     
             // Construct the URL with the course name and course ID parameters
-            let url = `http://localhost:3000/courseManager?action=addCourse&name=${courseName}&courseId=${courseId}`;
+            let url = `/courseManager?action=addCourse&name=${courseName}&courseId=${courseId}`;
     
             // Make the POST request to add the new course
             let response = await fetch(url, {

@@ -56,7 +56,7 @@
 		}
 	  
 		// Make an asynchronous POST request to the server with the study session data
-      let response = await fetch("http://localhost:3000/app?action=addStudySession", {
+      let response = await fetch("/app?action=addStudySession", {
           method: "POST",
           body: JSON.stringify({
 		        // Send the collected session data as JSON

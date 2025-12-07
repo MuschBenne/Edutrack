@@ -42,7 +42,7 @@
     async function tryLogin() {
         
         // Send a POST request to the server with the username and password in the request body
-        let response = await fetch("http://localhost:3000/login", {
+        let response = await fetch("/login", {
             method: "POST", // Set method to POST for submitting login data
             body: JSON.stringify({
                 // Pass the user and pass values from the input fields

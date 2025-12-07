@@ -57,7 +57,7 @@
             
             // Make an asynchronous POST request to add the student to the course
             let response = await fetch(
-                "http://localhost:3000/app?action=addStudentToCourse", {
+                "/app?action=addStudentToCourse", {
                 method: "POST", // Set method to POST
                 body: JSON.stringify({ 
                     courseId: courseId, username: username }), 

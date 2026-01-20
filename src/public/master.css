@@ -1,82 +1,77 @@
+/* ========================================
+   CSS VARIABLES
+   ======================================== */
+
+:root {
+    --primary-color: #DBBB68;
+    --secondary-color: #152242;
+    --hover-bg: #555;
+    --shadow-light: rgba(219, 187, 104, 0.5);
+    --shadow-dark: rgba(0, 0, 0, 0.1);
+    --overlay-bg: rgba(0, 0, 0, 0.25);
+}
+
+/* ========================================
+   GENERAL STYLES
+   ======================================== */
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--secondary-color);
+    overflow-x: hidden;
+    padding-bottom: 15%;
+    font-family: 'Times New Roman', Times, serif;
+}
+
 .centeredItemsH {
     display: flex;
     justify-content: center;
-    margin: 0 auto
+    margin: 0 auto;
 }
 
 .centeredItems {
     justify-content: center;
     align-items: center;
-    color: #DBBB68;
+    color: var(--primary-color);
     display: flex;
     flex-direction: column;
     margin: 0 auto;
 }
 
-#inputContainer {
-    width: 20vw;
-    max-width: 400px;  /* To prevent it from becoming too narrow on large screens */
-    height: 40vh;
-    margin-top: -5%;
-    display: flex;
-    flex-flow: column;
-    gap: 1%;
-}
-
-
-#inputContainer > input {
-    width: 100%;
-    height: 30px;
-    text-align: center;
-}
-
-
-#inputContainer > select {
-    width: 100%;  /* Make sure the select box doesn't overflow */
-    font-size: 30px;
-    margin: 1%;  /* Optional: adjust if needed */
-    text-align: center;
-    color: black;
-}
-
 section {
-    color: #DBBB68;
+    color: var(--primary-color);
     width: 50%;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #152242; /* Background color for the page */
-    overflow-x: hidden; /* To prevent horizontal scroll */
-    padding-bottom: 15%;
-}
+/* ========================================
+   HEADER & NAVIGATION
+   ======================================== */
 
-/* Header Container for Navigation and Heading */
 .header-container {
     display: flex;
-    justify-content: space-between; /* Space between navigation and heading */
-    align-items: center; /* Vertically center the items */
-    padding: 5px;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
 }
 
-/* Heading Section (Top-left aligned) */
 .heading-section {
-    color:#DBBB68;
+    color: var(--primary-color);
     text-align: left;
 }
 
-
-/* Navigation Styling */
 nav {
     display: flex;
     justify-content: flex-end;
+    padding-top: 15px;
 }
 
 nav ul {
     list-style: none;
     display: flex;
     gap: 20px;
+    margin: 0;
+    padding: 0;
 }
 
 nav ul li {
@@ -85,19 +80,27 @@ nav ul li {
 
 nav ul li a {
     text-decoration: none;
-    color:#DBBB68;
-    padding: 8px 12px;
+    color: var(--primary-color);
+    padding: 6px 12px 2px 12px;
+    min-height: 44px;
+    display: inline-block;
+    transition: background-color 0.3s ease, border-radius 0.3s ease;
+    line-height: 1.2;
+    border: 2px solid transparent;
 }
 
 nav ul li a:hover {
-    background-color: #555;
+    background-color: var(--hover-bg);
     border-radius: 5px;
 }
 
-/* Footer Styling */
+/* ========================================
+   FOOTER
+   ======================================== */
+
 .footer {
-    background-color: #DBBB68;
-    color: #152242;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
     text-align: center;
     padding: 5px 0;
     position: fixed;
@@ -105,40 +108,143 @@ nav ul li a:hover {
     bottom: 0;
 }
 
+.footer a {
+    color: blue;
+    text-decoration: underline;
+}
+
+.footer a:hover {
+    text-decoration: none;
+}
+
+/* ========================================
+   FORMS & INPUTS
+   ======================================== */
+
+#inputContainer {
+    width: 20vw;
+    max-width: 400px;
+    min-width: 300px;
+    height: auto;
+    margin-top: 1%;
+    display: flex;
+    flex-flow: column;
+    gap: 10px;
+}
+
+#inputContainer h1 {
+    margin: 0;
+    padding: 0;
+}
+
+#inputContainer > input {
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    padding: 8px 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+#inputContainer > input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px var(--shadow-light);
+    transform: scale(1.02);
+}
+
+#inputContainer > select {
+    width: 100%;
+    height: 40px;
+    font-size: 18px;
+    text-align: center;
+    color: black;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    padding: 8px 12px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+#inputContainer > select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px var(--shadow-light);
+}
+
+#inputContainer > input[type="button"],
+#inputContainer > input[type="submit"] {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#inputContainer > input[type="button"]:hover,
+#inputContainer > input[type="submit"]:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    transform: scale(1.02);
+}
+
+/* ========================================
+   MAIN CONTENT & SECTIONS
+   ======================================== */
+
 .main-content {
-    display: flex;           /* Align the sections horizontally (side by side) */
-    justify-content: space-around; /* Distribute sections evenly */
-    align-items: flex-start; /* Align items to the top */
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
     padding: 20px;
     margin-top: 180px;
-    color: #DBBB68;
+    color: var(--primary-color);
 }
 
-/* Flexbox for each section (icon on top, h2 and p below) */
 .section {
     display: flex;
-    flex-direction: column; /* Stack icon, heading, and paragraph vertically */
-    align-items: center;    /* Center content horizontally */
-    gap: 10px;              /* Space between icon, heading, and paragraph */
-    width: 30%;             /* Adjust the width of each section */
-    text-align: center;     /* Center align text in each section */
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 30%;
+    text-align: center;
 }
 
-/* Style for each heading */
 .section h2 {
-    color: #DBBB68;
-    margin: 5;              /* Remove any default margin from heading */
+    color: var(--primary-color);
+    margin: 5px 0;
 }
 
-/* Make sure the text is aligned properly below the heading */
 .section p {
-    flex: 1; /* Makes sure the text takes up remaining space */
-    margin: 0; /* Remove default margin from paragraphs */
+    flex: 1;
+    margin: 0;
 }
 
-/* Optional: Styling for each icon */
 .section span {
-    font-size: 5rem;  /* Adjust the size of the icon */
+    font-size: 8rem;
+}
+
+/* ========================================
+   COURSES
+   ======================================== */
+
+.courses-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.courses-container a {
+    text-decoration: none;
+}
+
+.courses-container a:visited {
+    color: var(--primary-color);
 }
 
 .course-box {
@@ -149,27 +255,26 @@ nav ul li a:hover {
     text-align: center;
     cursor: pointer;
     width: 200px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--shadow-dark);
     transition: transform 0.2s ease;
-    background-color: #152242;
-    color: #DBBB68;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .course-box:hover {
     transform: scale(1.05);
 }
 
-.courses-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
+.course-box h3 {
+    margin: 0;
+    padding: 0;
 }
 
-.courses-container a:visited {
-    color: #DBBB68
-    
-}
+/* ========================================
+   SESSION POPUP
+   ======================================== */
 
 .sessionInputContent {
     padding-bottom: 10%;
@@ -179,8 +284,8 @@ nav ul li a:hover {
     margin-inline: auto; 
     width: fit-content;
     height: fit-content;
-    background-color: #152242;
-    border: 3px solid #DBBB68;
+    background-color: var(--secondary-color);
+    border: 3px solid var(--primary-color);
     border-radius: 8%;
     margin: 5%;
     padding: 1em;
@@ -191,22 +296,193 @@ nav ul li a:hover {
 
 #SessionPopupContainer {
     position: fixed;
-    top:0;
+    top: 0;
     left: 0;
     z-index: 99;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: var(--overlay-bg);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#SessionPopupContainer.hidden{
+#SessionPopupContainer.hidden {
     top: 100vh;
 }
 
 #SessionPopup.hidden {
     transform: translateY(100vh);
     opacity: 0;
+}
+
+/* ========================================
+   MOBILE RESPONSIVE STYLES
+   ======================================== */
+
+/* Tablet and smaller (768px and below) */
+@media (max-width: 768px) {
+    
+    /* Input Container */
+    #inputContainer {
+        width: 80vw;
+        max-width: 100%;
+        min-width: auto;
+        margin-top: 0;
+    }
+    
+    #inputContainer > select {
+        font-size: 16px;
+    }
+    
+    /* Header & Navigation */
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+    
+    .heading-section h2 {
+        font-size: 1.2rem;
+    }
+    
+    nav {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+    
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0;
+        width: 100%;
+    }
+    
+    nav ul li {
+        width: 100%;
+    }
+    
+    nav ul li a {
+        display: block;
+        width: 100%;
+        padding: 12px;
+    }
+    
+    /* Main Content */
+    .main-content {
+        flex-direction: column;
+        margin-top: 20px;
+        padding: 10px;
+    }
+    
+    .section {
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    
+    .section span {
+        font-size: 3rem;
+    }
+    
+    /* Courses */
+    .courses-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .course-box {
+        width: 100%;
+        max-width: 400px;
+        margin: 5px auto;
+    }
+    
+    /* Typography */
+    h1 {
+        font-size: 1.5rem;
+        padding: 0 10px;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    /* Body padding for footer */
+    body {
+        padding-bottom: 80px;
+    }
+    
+    /* Footer */
+    .footer {
+        padding: 10px 5px;
+        font-size: 0.9rem;
+    }
+    
+    /* Session Popup */
+    #SessionPopup {
+        width: 90%;
+        max-width: 400px;
+        margin: 10px;
+        padding: 15px;
+    }
+}
+
+/* Small mobile devices (480px and below) */
+@media (max-width: 480px) {
+    
+    .heading-section h2 {
+        font-size: 1rem;
+    }
+    
+    .section span {
+        font-size: 2.5rem;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+    }
+    
+    h2 {
+        font-size: 1.1rem;
+    }
+    
+    nav ul li a {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+    
+    .course-box {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+    
+    #inputContainer > input {
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    #inputContainer > select {
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .footer {
+        font-size: 0.8rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+    .main-content {
+        margin-top: 10px;
+    }
+    
+    .section span {
+        font-size: 2rem;
+    }
+    
+    #inputContainer {
+        height: auto;
+        margin-top: 10px;
+    }
 }

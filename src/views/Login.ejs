@@ -19,17 +19,15 @@
     </div>
 </body>
 <body>
-    <div class="centeredItems">
-      <h1>Ahh, have you studied? Welcome back!</h1>
-
     <div id="inputContainer" class="centeredItems">
-        <input type="text" value="" id="user" placeholder="Username">
-        <input type="password" value="" id="pass" placeholder="Password">
-        <input type="button" onclick="tryLogin()" value="Log in">
-    </div>
-    </div> 
+    <h1>Welcome back!</h1>
+    <p style="font-size: 25px;">Have you studied?</p>
+    <input type="text" value="" id="user" placeholder="Username">
+    <input type="password" value="" id="pass" placeholder="Password" onkeypress="if(event.key === 'Enter') tryLogin()">
+    <input type="button" onclick="tryLogin()" value="Log in">
+</div>
 
-    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+    <div id="errorMessage" style="color: red; margin-top: 10px; text-align: center;"></div>
 
     <script>
 
@@ -71,8 +69,6 @@
     }
     </script>
 
-    <footer class="footer">
-        <p>Ideas on improvements? Email us at <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
-    </footer>    
+    <%- include("CommonModules/Footer") %>   
 </body>
 </html>

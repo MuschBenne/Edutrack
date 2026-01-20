@@ -57,7 +57,7 @@ function renderGraphs() {
         	const totalGrafData = {
         	labels: Object.keys(totaltime),
         	    datasets: [{
-        	    label: 'Total hours spent',
+        	    label: 'Total minutes spent',
         	    data: Object.values(totaltime),
         	    hoverOffset: 4,
                 backgroundColor: Object.keys(totaltime).map(key => colors[key])

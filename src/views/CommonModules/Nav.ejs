@@ -1,8 +1,15 @@
 <nav>
     <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/app">My Pages</a></li>
-        <li><a href="/login">Log in</a></li>
-        <li><a href="/register">Register</a></li>
+        
+        <% if (typeof activeSession !== 'undefined' && activeSession === true) { %>
+            <!-- Om användaren är inloggad -->
+            <li><a href="/app">My Pages</a></li>
+            <li><a href="/logout">Log out</a></li>
+        <% } else { %>
+            <!-- Om användaren INTE är inloggad -->
+            <li><a href="/login">Log in</a></li>
+            <li><a href="/register">Register</a></li>
+        <% } %>
     </ul>
 </nav>

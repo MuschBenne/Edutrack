@@ -15,8 +15,12 @@ import { registerUser } from "./CourseManager";
 export async function RenderRegister(req: Request, res: Response, next: NextFunction){
     if(req.session.user)
         res.redirect(307, "/app")
-    else
-        res.render("Register");
+    else {
+        let data = {
+            activeSession: req.session.user ? true : false
+        }
+        res.render("Register", data);
+    }
 }
 /**
  * Router function for POST-requests for the route /app/*

@@ -15,8 +15,12 @@ import bcrypt from "bcryptjs";
 export async function RenderLogin(req: Request, res: Response){
     if(req.session.user)
         res.redirect(307, "/app")
-    else
-        res.render("Login");
+    else {
+        let data = {
+            activeSession: req.session.user ? true : false
+        }
+        res.render("Login", data);
+    }
 }
 /**
  * Handles the POST request that can be made on the login page.

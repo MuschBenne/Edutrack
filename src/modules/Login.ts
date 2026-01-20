@@ -41,7 +41,7 @@ export async function HandleLogin(req:Request, res:Response){
                 res.status(400).json({ message: "Incorrect password"});
             }
             else { 
-                const adminUsers = ['Benji', "Jakob123", "Bernhard"];
+                const adminUsers = ['Benji', 'Benke'];
 
                 const isAdmin = adminUsers.includes(foundUser.username);
                 req.session.user = foundUser.username;

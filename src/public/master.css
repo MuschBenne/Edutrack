@@ -343,22 +343,27 @@ nav ul li a:hover {
         flex-wrap: wrap;
     }
     
+    .header-section {
+        text-align: center;  /* ← Ändra från left till center */
+        width: 100%;
+    }
+    
     .heading-section h2 {
         font-size: 1rem;
         margin: 0;
     }
     
     nav {
-        width: auto;  /* ← Ändra från 100% */
-        justify-content: flex-end;
-        margin-top: 0;  /* ← Ta bort margin */
+        width: 100%;  /* ← Ändra från 100% */
+        justify-content: center;
+        margin-top: 0;
     }
     
     nav ul {
-        flex-direction: row;  /* ← Ändra från column till row */
+        justify-content: center;  /* ← Ändra från column till row */
         gap: 5px;  /* ← Mindre gap */
         padding: 0;
-        width: auto;
+        margin: 0;
     }
     
     nav ul li {
@@ -398,6 +403,7 @@ nav ul li a:hover {
         width: 100%;
         max-width: 400px;
         margin: 5px auto;
+        align-items: center;
     }
     
     /* Typography */

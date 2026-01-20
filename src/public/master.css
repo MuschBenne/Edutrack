@@ -336,37 +336,40 @@ nav ul li a:hover {
     }
     
     /* Header & Navigation */
-    .header-container {
-        flex-direction: column;
-        align-items: flex-start;
+   .header-container {
+        flex-direction: row;  /* ← Ändra från column till row */
+        align-items: center;
         padding: 10px;
+        flex-wrap: wrap;
     }
     
     .heading-section h2 {
-        font-size: 1.2rem;
+        font-size: 1rem;
+        margin: 0;
     }
     
     nav {
-        width: 100%;
-        justify-content: flex-start;
-        margin-top: 10px;
+        width: auto;  /* ← Ändra från 100% */
+        justify-content: flex-end;
+        margin-top: 0;  /* ← Ta bort margin */
     }
     
     nav ul {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;  /* ← Ändra från column till row */
+        gap: 5px;  /* ← Mindre gap */
         padding: 0;
-        width: 100%;
+        width: auto;
     }
     
     nav ul li {
-        width: 100%;
+        width: auto;
     }
     
     nav ul li a {
-        display: block;
-        width: 100%;
-        padding: 12px;
+        display: inline-block;
+        width: auto;
+        padding: 6px 8px;  /* ← Mindre padding */
+        font-size: 0.8rem;  /* ← Mindre text */
     }
     
     /* Main Content */
@@ -414,7 +417,7 @@ nav ul li a:hover {
     
     /* Footer */
     .footer {
-        padding: 10px 5px;
+        padding: 5px;
         font-size: 0.9rem;
     }
     
@@ -468,6 +471,7 @@ nav ul li a:hover {
     
     .footer {
         font-size: 0.8rem;
+        padding: 3px;
     }
 }
 

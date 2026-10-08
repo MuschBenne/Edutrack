@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTrack - Course Registration</title>
-    <link rel="stylesheet" href="/master.css">
+    <%- include("../CommonModules/Head", { title: "Register to course" }) %>
 </head>
 
-<body class="centeredItems">
+<body>
+    <%- include("../CommonModules/Nav", { active: "register-course", loggedIn: true }) %>
 
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/app">My Pages</a></li>
-            <li><a href="/logout">Log out</a></li>
-        </ul>
-    </nav>
+    <main class="container page">
+        <div class="page-head">
+            <div>
+                <a class="back-link" href="/app">← My courses</a>
+                <h1>Register to course</h1>
+            </div>
+        </div>
 
+        <p id="errorMessage" class="form-message" role="alert"></p>
 
-    <h2>Welcome, <%= name %>! Select a course to register:</h2>
-
-    
-    <% if (availableCourses.length > 0) { %>
-        <label for="courseSelect">Choose a course:</label>
-        <div class="courses-container">
-            <% availableCourses.forEach(function(course) { %>
-              <div class="course-box" onclick="addStudentToNewCourse(
-                '<%= course.courseId %>')">
-                <h3><%= course.name %></h3>
-                <p><%= course.description %></p> <!-- Optional description -->
-              </div>
-            <% }); %>
-          </div>
-    <% } else { %>
-        <p>No available courses at the moment.</p>
-    <% } %>
-    
-    <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+        <% if (availableCourses.length > 0) { %>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Course ID</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% availableCourses.forEach(function(course) { %>
+                            <tr>
+                                <td class="title-cell"><strong><%= course.name %></strong></td>
+                                <td class="muted"><%= course.courseId %></td>
+                                <td class="right">
+                                    <button type="button" class="btn" onclick="addStudentToNewCourse('<%= course.courseId %>')">Register</button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="card empty">There are no more courses to register to right now.</div>
+        <% } %>
+    </main>
 
     <script>
         // Function to add a student to a new course by sending data to the server
@@ -80,9 +87,6 @@
         }
     </script>
     
-    <footer class="footer">
-        <p>Ideas on improvements? Email us at 
-            <a href="mailto:edutrack@gmail.com">edutrack@gmail.com</a></p>
-    </footer> 
+    <%- include("../CommonModules/Footer") %> 
 </body>
 </html>

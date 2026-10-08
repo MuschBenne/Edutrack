@@ -1,15 +1,25 @@
-<nav>
-    <ul>
-        <li><a href="/">Home</a></li>
-        
-        <% if (typeof activeSession !== 'undefined' && activeSession === true) { %>
-            <!-- Om användaren är inloggad -->
-            <li><a href="/app">My Pages</a></li>
-            <li><a href="/logout">Log out</a></li>
-        <% } else { %>
-            <!-- Om användaren INTE är inloggad -->
-            <li><a href="/login">Log in</a></li>
-            <li><a href="/register">Register</a></li>
-        <% } %>
-    </ul>
-</nav>
+<%
+    // Visa inloggade länkar om sidan skickar loggedIn eller activeSession
+    const isLoggedIn = locals.loggedIn === true || locals.activeSession === true;
+    const current = locals.active ?? "";
+    const aria = (name) => current === name ? 'aria-current="page"' : "";
+%>
+<header class="site-header">
+    <div class="container header-inner">
+        <a class="brand" href="/">EduTrack</a>
+        <nav class="site-nav" aria-label="Main">
+            <a href="/" <%- aria("home") %>>Home</a>
+            <% if (isLoggedIn) { %>
+                <a href="/app" <%- aria("courses") %>>My courses</a>
+                <a href="/app/course_registration" <%- aria("register-course") %>>Register to course</a>
+                <% if (locals.isAdmin === true) { %>
+                    <a href="/admin" <%- aria("admin") %>>Admin</a>
+                <% } %>
+                <a href="/logout">Log out</a>
+            <% } else { %>
+                <a href="/login" <%- aria("login") %>>Log in</a>
+                <a href="/register" class="btn btn-primary">Create account</a>
+            <% } %>
+        </nav>
+    </div>
+</header>

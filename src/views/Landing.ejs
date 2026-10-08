@@ -1,49 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTrack</title>
-    <link rel="stylesheet" href="/master.css">
+    <%- include("CommonModules/Head", { title: null }) %>
 </head>
-<body>
-    <div class="header-container">
-    <!-- Heading Section (Top-left aligned) -->
-    <div class="heading-section">
-        <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
-    </div>
-    <!-- Navigation (Horizonally aligned beside the heading) -->
-    <%- include("CommonModules/Nav") %>
-</div>
+<body class="landing">
+    <%- include("CommonModules/Nav", { active: "home" }) %>
 
-    <div class="main-content">
-        <!-- Section for "What is EduTracker?" -->
-        <div class="section">
-            <span>📚</span>
-            <div>
-                <h2>What is EduTracker?</h2>
-                <p style="font-size: 20px;">EduTracker is a powerful tool designed to help students monitor their study time and gain valuable insights into their learning patterns. By logging your study sessions, you get a clear overview of how and when you have studied, as well as the grades those study habits have resulted in.</p>
+    <main>
+        <section class="container hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Study log for university students</p>
+                <h1>See how your study habits shape your grades.</h1>
+                <p class="lead">Log each study session per course, then look back at when you studied, how long, and how it went.</p>
+                <div class="hero-actions">
+                    <% if (activeSession) { %>
+                        <a class="btn btn-primary btn-lg" href="/app">Go to my courses</a>
+                    <% } else { %>
+                        <a class="btn btn-primary btn-lg" href="/register">Create account</a>
+                        <a class="btn btn-lg" href="/login">Log in</a>
+                    <% } %>
+                </div>
             </div>
-        </div>
 
-        <!-- Section for "For Students" -->
-        <div class="section">
-            <span>🎓</span>
-            <div>
-                <h2>For Students</h2>
-                <p style="font-size: 20px;">With EduTracker, you can keep track of your study routines, adjust your strategies, and improve your academic performance. Whether preparing for exams, working on assignments, or reviewing past study sessions, EduTracker helps you stay organized and maximize your learning efficiency.</p>
-            </div>
-        </div>
+            <figure class="card hero-figure" aria-label="Example chart of study hours per week">
+                <div class="card-head">
+                    <strong>Linear Algebra</strong>
+                    <span class="subtle">Hours per week</span>
+                </div>
+                <div class="mini-bars" aria-hidden="true">
+                    <div style="height: 30%"></div>
+                    <div style="height: 45%"></div>
+                    <div style="height: 38%"></div>
+                    <div style="height: 62%"></div>
+                    <div style="height: 55%"></div>
+                    <div style="height: 80%"></div>
+                    <div style="height: 92%"></div>
+                </div>
+                <div class="mini-labels" aria-hidden="true">
+                    <span>w36</span><span>w37</span><span>w38</span><span>w39</span><span>w40</span><span>w41</span><span>w42</span>
+                </div>
+                <figcaption class="subtle">Example data</figcaption>
+            </figure>
+        </section>
 
-        <!-- Section for "For Universities" -->
-        <div class="section">
-            <span>🏫</span>
-            <div>
-                <h2>For Universities</h2>
-                <p style="font-size: 20px;">EduTracker also provides valuable insights for universities and educators. By analyzing student study behavior, institutions can understand why some students succeed while others struggle. This data helps universities improve course design, provide better student support, and conduct deeper reviews of teaching methods.</p>
+        <section class="features">
+            <div class="container features-grid">
+                <div class="feature">
+                    <span class="feature-index">01</span>
+                    <h2>What it is</h2>
+                    <p>A simple log of your study sessions. Add the time, type of study and how it felt, and EduTrack builds the overview for you.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-index">02</span>
+                    <h2>For students</h2>
+                    <p>Spot which routines work before the exam, not after. Compare weeks, study types and how rested you were.</p>
+                </div>
+                <div class="feature">
+                    <span class="feature-index">03</span>
+                    <h2>For universities</h2>
+                    <p>Course-level patterns help teachers see where students struggle and improve course design and student support.</p>
+                </div>
             </div>
-        </div>
-    </div>
-    <%- include("CommonModules/Footer") %>  
+        </section>
+    </main>
+
+    <%- include("CommonModules/Footer") %>
 </body>
 </html>

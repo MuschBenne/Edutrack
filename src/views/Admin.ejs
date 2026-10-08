@@ -1,124 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/master.css">
-    <title>Admin page</title>
-    <style>
-        #ActiveCoursesPopup {
-            display: flex;
-            flex-flow:column;
-            margin-inline: auto; 
-            width: fit-content;
-            height: fit-content;
-            background-color: rgb(21, 34, 66, 1);
-            color: #DBBB68;
-            margin-bottom: 25%;
-            font-size: 1.5em;
-            padding: 5%;
-        }
-
-        #ActiveCoursesContainer {
-            position: fixed;
-            z-index: 99;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.25);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #ActiveCoursesPopup.hidden, #ActiveCoursesContainer.hidden{
-            display: none;
-        }
-
-        .getActivesLink {
-            font-weight: bold;
-            color: #DBBB68;
-        }
-
-        @media (max-width: 768px) {
-        #ActiveCoursesPopup {
-        width: 90%;
-        font-size: 1rem;
-        padding: 15px;
-        }
-}
-        
-    </style>
+    <%- include("CommonModules/Head", { title: "Admin" }) %>
 </head>
 
 <body>
-    <div>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/app">My Pages</a></li>
-            <li><a href="/logout">Log out</a></li>
-        </ul>
-    </nav>
-    </div>
+    <%- include("CommonModules/Nav", { active: "admin", loggedIn: true, isAdmin: true }) %>
 
-    <div class="centeredItems" id="errorMessage" style="color: red; margin-top: 10px;"></div>
-    
-    <div class="centeredItems">
-        <h2>Create a new course</h2>
-        <input type="text" value="" id="courseName" placeholder="Course Name"></input>
-        <input type="text" value="" id="courseId" placeholder="Course ID"></input>
-        <input type="button" onclick="addCourse()" value="Submit" ></input>
-    </div>
+    <main class="container page">
+        <div class="page-head">
+            <div>
+                <h1>Admin</h1>
+            </div>
+        </div>
 
-    <div class="centeredItems">
-    <% if (users.length > 0) { %>
-        <h2>All Users and Their Active Courses</h2>
-        <ul>
-            <% users.forEach(function(user) { %>
-                <li>
-                    <strong>Username:</strong> <span class="username"><%= user.username %></span> | 
-                    <a href="#" data-username="<%= user.username %>"class="getActivesLink">View Active Courses</a>
-                </li>
-            <% }); %>
-        </ul>
-    <% } else { %>
-        <p>No users available.</p>
-    <% } %>
-</div>
-<div id="ActiveCoursesContainer" class="hidden">
-    <div id="ActiveCoursesPopup"></div>
-</div>
+        <p id="errorMessage" class="form-message" role="alert"></p>
 
-    <div class="centeredItems">
-        <h2>Delete a user</h2>
-        <input type="text" value="" id="user" placeholder="Existing user"></input>
-        <input type="button" onclick="deleteUser()" value="Submit" ></input>
-        
-    </div>
+        <div class="admin-grid">
+            <section class="card">
+                <h2>Create a new course</h2>
+                <form class="form" onsubmit="event.preventDefault(); addCourse();">
+                    <label class="field">
+                        Course name
+                        <input type="text" id="courseName">
+                    </label>
+                    <label class="field">
+                        Course ID
+                        <input type="text" id="courseId">
+                    </label>
+                    <button type="submit" class="btn btn-primary">Create course</button>
+                </form>
+            </section>
 
-    <div class="centeredItems">
-        <% if (courses.length > 0) { %>
-            <h2>All available courses</h2>
-            <ul>
-                <% courses.forEach(function(course) { %>
-                    <li>
-                        <strong>Course Name:</strong> <%= course.name %> | 
-                        <strong>Course ID:</strong> <%= course.courseId %>
-                    </li>
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>No courses available.</p>
-        <% } %>
-    </div>
+            <section class="card">
+                <h2>Delete a user</h2>
+                <form class="form" onsubmit="event.preventDefault(); deleteUser();">
+                    <label class="field">
+                        Username
+                        <input type="text" id="user">
+                    </label>
+                    <button type="submit" class="btn btn-danger">Delete user</button>
+                </form>
+            </section>
 
-    <div class="centeredItems">
-        <h2>Delete a Course</h2>
-        <input type="text" value="" id="courseId2" placeholder="Course ID">
-        <input type="button" onclick="deleteCourse()" value="Submit">
-        
+            <section class="card">
+                <h2>Delete a course</h2>
+                <form class="form" onsubmit="event.preventDefault(); deleteCourse();">
+                    <label class="field">
+                        Course ID
+                        <input type="text" id="courseId2">
+                    </label>
+                    <button type="submit" class="btn btn-danger">Delete course</button>
+                </form>
+            </section>
+        </div>
+
+        <section class="section">
+            <h2>Users</h2>
+            <% if (users.length > 0) { %>
+                <div class="table-wrap">
+                    <table class="table table-compact">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th class="right">Active courses</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(function(user) { %>
+                                <tr>
+                                    <td class="username"><%= user.username %></td>
+                                    <td class="right">
+                                        <button type="button" class="link-button getActivesLink" data-username="<%= user.username %>">View</button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="card empty">No users available.</div>
+            <% } %>
+        </section>
+
+        <section class="section">
+            <h2>Courses</h2>
+            <% if (courses.length > 0) { %>
+                <div class="table-wrap">
+                    <table class="table table-compact">
+                        <thead>
+                            <tr>
+                                <th>Course name</th>
+                                <th>Course ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% courses.forEach(function(course) { %>
+                                <tr>
+                                    <td><%= course.name %></td>
+                                    <td class="muted"><%= course.courseId %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="card empty">No courses available.</div>
+            <% } %>
+        </section>
+    </main>
+
+    <div id="ActiveCoursesContainer" class="modal hidden">
+        <div class="card modal-panel" role="dialog" aria-modal="true" aria-labelledby="activeCoursesTitle">
+            <h2 id="activeCoursesTitle">Active courses</h2>
+            <div id="ActiveCoursesPopup"></div>
+        </div>
     </div>
 
     <script>
@@ -133,7 +129,6 @@
             // Check if the course ID is empty, show an error message and stop execution
             if (!courseId) {
                 errorMessage.innerText = "Course ID cannot be empty!";
-                errorMessage.style.color = "red";
                 return;
             }
     
@@ -152,7 +147,6 @@
                 // If there's an error, display the error message from the server
                 let responseJSON = await response.json();
                 errorMessage.innerText = responseJSON.message || "Error deleting course";
-                errorMessage.style.color = "red";
             }
         }
     
@@ -179,7 +173,6 @@
                 // If there's an error, display the error message from the server
                 let responseJSON = await response.json();
                 errorMessage.innerText = responseJSON.message || "Error deleting user";
-                errorMessage.style.color = "red";
             }
         }
     
@@ -207,7 +200,6 @@
                 // If there's an error, display the error message from the server
                 let responseJSON = await response.json();
                 errorMessage.innerText = responseJSON.message || "Error adding course";
-                errorMessage.style.color = "red";
             }
         }
     
@@ -218,6 +210,7 @@
     
         // Event listener for the ActiveCoursesContainer, to hide it when clicking outside
         let ActiveCoursesContainer = document.querySelector("#ActiveCoursesContainer");
+        let errorMessage = document.getElementById("errorMessage");
         ActiveCoursesContainer.addEventListener("click", (e) => {
             if (e.target !== ActiveCoursesContainer)
                 return false;
@@ -254,14 +247,22 @@
             let list = document.createElement("ul");
             responseData.data.forEach((element) => {
                 let entry = document.createElement("li");
-                entry.innerHTML = `Name: ${element.name}, ID: ${element.courseId}`;
+                entry.textContent = `${element.name} (${element.courseId})`;
                 list.appendChild(entry);
             });
-            popup.appendChild(list);
+            if (responseData.data.length === 0) {
+                let empty = document.createElement("p");
+                empty.className = "muted";
+                empty.textContent = "No active courses.";
+                popup.appendChild(empty);
+            } else {
+                popup.appendChild(list);
+            }
 
         }
     }
     </script>
-    
+
+    <%- include("CommonModules/Footer") %>
 </body>
 </html>

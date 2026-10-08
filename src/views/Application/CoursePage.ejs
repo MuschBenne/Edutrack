@@ -1,22 +1,42 @@
+<%
+    // Sessionsnycklar sparas som "Wed_Oct_08_2026"
+    const toDate = (key) => new Date(key.replaceAll("_", " "));
+    const formatMinutes = (min) => Math.floor(min / 60) + " h " + String(min % 60).padStart(2, "0") + " min";
+    const formatDate = (date) => date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+    const typeLabels = { Selfstudies: "Self studies", TentaP: "Exam prep" };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const weekAgo = new Date(today);
+    weekAgo.setDate(today.getDate() - 6);
+
+    const sessionRows = [];
+    let totalMinutes = 0;
+    let lastSevenDays = 0;
+    let ratingSum = 0;
+    for (const key in (courseData.sessions ?? {})) {
+        const date = toDate(key);
+        courseData.sessions[key].forEach((entry) => {
+            const minutes = Number(entry.time);
+            totalMinutes += minutes;
+            ratingSum += Number(entry.gradeSess);
+            if (date >= weekAgo) lastSevenDays += minutes;
+            sessionRows.push({ date, entry });
+        });
+    }
+    sessionRows.sort((a, b) => b.date - a.date);
+    const averageRating = sessionRows.length > 0 ? (ratingSum / sessionRows.length).toFixed(1) : "–";
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/master.css">
-    <title>EduTrack: <%= name %></title>
+    <%- include("../CommonModules/Head", { title: courseData.name }) %>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <script src="/static_functions.js"></script>
     <script src="/graph_logic.js"></script>
 </head>
-<body class="centeredItems">
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/app">My Pages</a></li>
-            <li><a href="/logout">Log out</a></li>
-        </ul>
-    </nav>
+<body>
+    <%- include("../CommonModules/Nav", { active: "courses", loggedIn: true }) %>
 
     <% if (courseData){ %>
         <script>
@@ -31,72 +51,105 @@
             const ALLCOURSEDATA = JSON.parse('<%- allCourseDataAsString %>');
         </script>
     <%}%>
-    <h1>Course: <%-courseData.name %></h1>
-    <div class="centeredItems">
-      <p>Have you studied today?</p>
-      <button class="course-box" onclick="togglePopup()">Add study session</button>
-    </div>
-    <h1>All Registered Sessions</h1> 
-    <div class="chart-container-large"><canvas id="weeklyGraf"></canvas></div>
-    <div class="chart-container-small"><canvas id="totalGraf"></canvas></div>
-    <p>Previous Sessions</p>
 
-    <button class="course-box" onclick="toggleDropdown()">
-        Show/Hide Sessions</button>
-    <div id="sessionDropdown" style="display: none;">
-        <% if (courseData.sessions) { %>
-            <ul>
-                <% for(let date in courseData.sessions) { %> 
-                    <% courseData.sessions[date].forEach((entry) => { %>
-                    <li>
-                        <strong><%- date %></strong><br>
-                        Duration: <%- entry.time %>,  
-                        Session Type: <%- entry.typeOfStudy %>,  
-                        Rating: <%- entry.gradeSess %>,  
-                        Physical Health: <%- entry.health %>
-                        Mental Health: <%- entry.mentalHealth %>
-                    </li> 
-                    <% }); %>
-                <% } %>
-            </ul>
-        <% } else { %>
-            <p>No sessions registered.</p>
-        <% } %>
-    </div>
-    
-    <% if (isAdmin) { %>
-        <h2>All users' session overview:</h2>
-        <div style="width: 400px;"><canvas id="allCourseGraf"></canvas></div>
-    <% } %>
-    
-    <div id="SessionPopupContainer" class="hidden">
-        <div id="SessionPopup" class="hidden">
-            <%- include("AppModules/Session"); %>
+    <main class="container page">
+        <div class="page-head">
+            <div>
+                <a class="back-link" href="/app">← My courses</a>
+                <h1><%= courseData.name %></h1>
+            </div>
+            <a class="btn btn-primary" href="#add-session">Add study session</a>
         </div>
-    </div>
 
-    <script>
-        let container = document.querySelector("#SessionPopupContainer");
-        let popup = document.querySelector("#SessionPopup");
-        container.addEventListener("click", (e) => {
-            // Prevent click-through of popup
-            if(e.target !== container)
-                return false;
-            togglePopup();
-        });
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-label">Last 7 days</span>
+                <span class="stat-value"><%= formatMinutes(lastSevenDays) %></span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Total</span>
+                <span class="stat-value"><%= formatMinutes(totalMinutes) %></span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Sessions</span>
+                <span class="stat-value"><%= sessionRows.length %></span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Avg. session rating</span>
+                <span class="stat-value"><%= averageRating %> <small>/ 5</small></span>
+            </div>
+        </div>
 
-        function togglePopup(){
-            container.classList.toggle("hidden");
-            setTimeout(() => {
-                popup.classList.toggle("hidden");
-            }, 1);
-        }
+        <div class="course-layout">
+            <div class="course-main">
+                <section class="card">
+                    <div class="card-head">
+                        <h2>Study time per week</h2>
+                        <span class="subtle">Minutes, by type</span>
+                    </div>
+                    <div class="chart-box"><canvas id="weeklyGraf"></canvas></div>
+                </section>
 
-        function toggleDropdown() {
-            var dropdown = document.getElementById("sessionDropdown");
-            dropdown.style.display = (dropdown.style.display === "none") ? "block" : "none";
-        }
-    </script>
-    <%- include("../CommonModules/Footer") %>  
+                <section class="card">
+                    <div class="card-head">
+                        <h2>Time by type</h2>
+                        <span class="subtle">All sessions</span>
+                    </div>
+                    <div class="chart-box-small"><canvas id="totalGraf"></canvas></div>
+                </section>
+
+                <section class="section">
+                    <h2>Sessions</h2>
+                    <% if (sessionRows.length > 0) { %>
+                        <div class="table-wrap">
+                            <table class="table table-compact">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th class="right">Duration</th>
+                                        <th class="right">Rating</th>
+                                        <th class="right">Physical</th>
+                                        <th class="right">Mental</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% sessionRows.forEach(function(row) { %>
+                                        <tr>
+                                            <td><%= formatDate(row.date) %></td>
+                                            <td><%= typeLabels[row.entry.typeOfStudy] ?? row.entry.typeOfStudy %></td>
+                                            <td class="right"><%= formatMinutes(Number(row.entry.time)) %></td>
+                                            <td class="right"><%= row.entry.gradeSess %></td>
+                                            <td class="right"><%= row.entry.health %></td>
+                                            <td class="right"><%= row.entry.mentalHealth %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="card empty">No sessions registered yet.</div>
+                    <% } %>
+                </section>
+
+                <% if (isAdmin) { %>
+                    <section class="card">
+                        <div class="card-head">
+                            <h2>All users' sessions</h2>
+                            <span class="subtle">Admin only</span>
+                        </div>
+                        <div class="chart-box-small"><canvas id="allCourseGraf"></canvas></div>
+                    </section>
+                <% } %>
+            </div>
+
+            <aside class="card course-aside" id="add-session">
+                <h2>Add study session</h2>
+                <%- include("AppModules/Session"); %>
+            </aside>
+        </div>
+    </main>
+
+    <%- include("../CommonModules/Footer") %>
 </body>
 </html>

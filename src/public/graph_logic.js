@@ -3,17 +3,38 @@ var totalGrafData;
 var weeklyGraf;
 var weeklyGrafData;
 
-// Define shared colors
+// Define shared colors (matches the palette in master.css)
 const colors = {
-    Lecture: 'rgba(255, 99, 132, 0.7)',    // Red
-    Selfstudies: 'rgba(54, 162, 235, 0.7)', // Blue
-    Lesson: 'rgba(108, 255, 86, 0.7)',    // Green
-    Homework: 'rgba(221, 221, 58, 0.7)',  // Yellow
-    Labs: 'rgba(86, 255, 255, 0.7)',      // Cyan
-    Project: 'rgba(93, 7, 93, 0.7)',      // Purple
-    TentaP: 'rgba(8, 9, 8, 0.7)',         // Dark Grey
-    Other: 'rgba(242, 246, 245, 0.7)'     // Light Grey
+    Lecture: '#152242',     // Navy
+    Selfstudies: '#B8953F', // Gold
+    Lesson: '#5B7BB2',      // Steel blue
+    Homework: '#9AAFD3',    // Light blue
+    Labs: '#2F6B48',        // Green
+    Project: '#D9C08A',     // Pale gold
+    TentaP: '#6B7389',      // Slate
+    Other: '#C9C2B2'        // Warm grey
 };
+
+// Display names for the stored study types
+const typeLabels = {
+    Selfstudies: 'Self studies',
+    TentaP: 'Exam prep'
+};
+const labelFor = (key) => typeLabels[key] ?? key;
+
+// Shared Chart.js look
+if (typeof Chart !== "undefined") {
+    Chart.defaults.font.family = "'IBM Plex Sans', system-ui, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#4A5672';
+    Chart.defaults.borderColor = '#EEEAE1';
+    Chart.defaults.maintainAspectRatio = false;
+    Chart.defaults.plugins.legend.position = 'bottom';
+    Chart.defaults.plugins.legend.labels.boxWidth = 10;
+    Chart.defaults.plugins.legend.labels.boxHeight = 10;
+    Chart.defaults.plugins.tooltip.backgroundColor = '#152242';
+    Chart.defaults.plugins.tooltip.cornerRadius = 4;
+}
 
 // Vänta till allt på sidan har laddat klart
 window.addEventListener("DOMContentLoaded", (e) => {
@@ -36,16 +57,17 @@ function renderGraphs() {
             options: {
                 responsive: true,
                 scales: {
-                    x: { stacked: true }, // Enables stacking on X-axis
-                    y: { stacked: true }  // Enables stacking on Y-axis
+                    x: { stacked: true, grid: { display: false } }, // Enables stacking on X-axis
+                    y: { stacked: true, beginAtZero: true }  // Enables stacking on Y-axis
                 }
             }
         });
         
         // Create the pie chart
         totalGraf = new Chart(document.getElementById('totalGraf'), {
-            type: 'pie',
-            data: totalGrafData
+            type: 'doughnut',
+            data: totalGrafData,
+            options: { cutout: '60%', plugins: { legend: { position: window.innerWidth < 600 ? 'bottom' : 'right' } } }
         });
   
     })();
@@ -55,7 +77,7 @@ function renderGraphs() {
   	    (async function() {
         	const totaltime = totalHoursSpentDivided(ALLCOURSEDATA)
         	const totalGrafData = {
-        	labels: Object.keys(totaltime),
+        	labels: Object.keys(totaltime).map(labelFor),
         	    datasets: [{
         	    label: 'Total minutes spent',
         	    data: Object.values(totaltime),
@@ -64,8 +86,9 @@ function renderGraphs() {
         	    }]
         	};
         	new Chart(document.getElementById('allCourseGraf'), {
-        		type: 'pie',
-        		data: totalGrafData
+        		type: 'doughnut',
+        		data: totalGrafData,
+        		options: { cutout: '60%', plugins: { legend: { position: window.innerWidth < 600 ? 'bottom' : 'right' } } }
         	});
   	    })();
 }
@@ -91,21 +114,27 @@ async function parseGraphData() {
 
     const data = totalHoursSpentWeekly(COURSEDATA.sessions);
     weeklyGrafData = {
-        labels: data.map(row => row.week),
-        datasets: Object.keys(colors).map(key => ({
-            label: key,
-            data: data.map(row => row[key]),
-            backgroundColor: colors[key]
-        }))
+        labels: data.map(row => 'w' + row.week),
+        // Only show study types that have any time logged
+        datasets: Object.keys(colors)
+            .filter(key => data.some(row => row[key] > 0))
+            .map(key => ({
+                label: labelFor(key),
+                data: data.map(row => row[key]),
+                backgroundColor: colors[key]
+            }))
     }
 
-    const totaltime = totalHoursSpentDivided(COURSEDATA.sessions);
+    const totaltime = Object.fromEntries(
+        Object.entries(totalHoursSpentDivided(COURSEDATA.sessions)).filter(([, minutes]) => minutes > 0)
+    );
     totalGrafData = {
-        labels: Object.keys(totaltime),
+        labels: Object.keys(totaltime).map(labelFor),
         datasets: [{
             label: 'Total minutes spent',
             data: Object.values(totaltime),
             backgroundColor: Object.keys(totaltime).map(key => colors[key]), // Match colors
+            borderColor: '#FFFFFF',
             hoverOffset: 4
         }]
     };

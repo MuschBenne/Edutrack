@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="master.css">
+    <%- include("CommonModules/Head", { title: "Log in" }) %>
 </head>
 <body>
-    <div class="header-container">
-        <!-- Heading Section (Top-left aligned) -->
-        <div class="heading-section">
-            <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
-            
+    <%- include("CommonModules/Nav", { active: "login" }) %>
+
+    <main class="container auth">
+        <div class="card auth-card">
+            <h1>Welcome back</h1>
+            <p class="lead">Log in to add today's study sessions.</p>
+
+            <form class="form" onsubmit="event.preventDefault(); tryLogin();">
+                <label class="field">
+                    Username
+                    <input type="text" id="user" autocomplete="username" required>
+                </label>
+                <label class="field">
+                    Password
+                    <input type="password" id="pass" autocomplete="current-password" required>
+                </label>
+                <p id="errorMessage" class="form-message" role="alert"></p>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Log in</button>
+            </form>
+
+            <p class="auth-switch">No account yet? <a href="/register">Create one</a></p>
         </div>
-
-        <!-- Navigation (Horizonally aligned beside the heading) -->
-        <%- include("CommonModules/Nav") %>
-    </div>
-</body>
-<body>
-    <div id="inputContainer" class="centeredItems">
-    <h1>Welcome back!</h1>
-    <p style="font-size: 25px;">Have you studied?</p>
-    <input type="text" value="" id="user" placeholder="Username">
-    <input type="password" value="" id="pass" placeholder="Password" onkeypress="if(event.key === 'Enter') tryLogin()">
-    <input type="button" onclick="tryLogin()" value="Log in">
-</div>
-
-    <div id="errorMessage" style="color: red; margin-top: 10px; text-align: center;"></div>
+    </main>
 
     <script>
 
@@ -35,10 +34,10 @@
         let passElement = document.getElementById("pass");
 
         let errorMessage = document.getElementById("errorMessage");
-    
+
     // Function to handle user login by sending login credentials to the server
     async function tryLogin() {
-        
+
         // Send a POST request to the server with the username and password in the request body
         let response = await fetch("/login", {
             method: "POST", // Set method to POST for submitting login data
@@ -48,7 +47,7 @@
                 pass: passElement.value
             }),
             headers: {
-                "Content-type": "application/json; charset=UTF-8" 
+                "Content-type": "application/json; charset=UTF-8"
                 // Set content type to JSON
             }
         });
@@ -63,12 +62,12 @@
         else {
             // If the response indicates an error, parse the response and show the error message
             const responseJSON = await res.json();
-            errorMessage.innerText = responseJSON.message; 
+            errorMessage.innerText = responseJSON.message;
             // Display the error message to the user
         }
     }
     </script>
 
-    <%- include("CommonModules/Footer") %>   
+    <%- include("CommonModules/Footer") %>
 </body>
 </html>

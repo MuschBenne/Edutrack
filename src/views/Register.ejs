@@ -1,39 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-	<link rel="stylesheet" href="master.css">
+    <%- include("CommonModules/Head", { title: "Create account" }) %>
 </head>
 <body>
-    <div class="header-container">
-        <!-- Heading Section (Top-left aligned) -->
-        <div class="heading-section">
-            <h2>EduTracker - Track, Analyze, and Improve Study Habits</h2>
-            
+    <%- include("CommonModules/Nav", { active: "register" }) %>
+
+    <main class="container auth">
+        <div class="card auth-card">
+            <h1>Create account</h1>
+            <p class="lead">We are glad to have you with us.</p>
+
+            <form class="form" onsubmit="event.preventDefault(); checkTheData();" novalidate>
+                <label class="field">
+                    Username
+                    <input type="text" id="user" autocomplete="username">
+                    <span class="field-hint">5–20 characters</span>
+                </label>
+                <label class="field">
+                    Password
+                    <input type="password" id="pass" autocomplete="new-password">
+                    <span class="field-hint">8–20 characters, with an uppercase letter, a lowercase letter and a digit</span>
+                </label>
+                <label class="field">
+                    Email
+                    <input type="email" id="email" autocomplete="email">
+                </label>
+                <label class="field">
+                    Programme
+                    <select name="Class" id="class">
+                        <option value="DV">DV</option>
+                        <option value="IT">IT</option>
+                        <option value="ES">ES</option>
+                    </select>
+                </label>
+                <p id="errorMessage" class="form-message" role="alert"></p>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Create account</button>
+            </form>
+
+            <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
         </div>
-
-        <!-- Navigation (Horizonally aligned beside the heading) -->
-		<%- include("CommonModules/Nav") %>
-    </div>
-</body>
-
-<body>
-	<h1 class="centeredItems">We are glad to have you with us!</h1>
-	<div id="inputContainer" class="centeredItems">
-		<input type="text" value="" id="user" placeholder="Username"></input>
-		<input type="password" value="" id="pass" placeholder="Password"></input>
-		<input type="email" value="" id="email" placeholder="Email"></input>
-		<select name="Class" id="class">
-		  <option value="DV">DV</option>
-		  <option value="IT">IT</option>
-		  <option value="ES">ES</option>
-		</select>
-		<input type="button" onclick="checkTheData()" value="Submit"></input>       
-	</div>
-
-	<div class="centeredItems" id="errorMessage" style="color: red; margin-top: 10px;"></div>
+    </main>
 
     <script>
 
@@ -41,7 +48,7 @@
 	let passElement = document.getElementById("pass");
 	let classElement = document.getElementById("class");
 	let emailElement = document.getElementById("email");
-	
+	let errorMessage = document.getElementById("errorMessage");
 
     // Function to validate if the email is in the correct format
     function isValidEmail(email) {
@@ -49,42 +56,43 @@
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailPattern.test(email); // Returns true if valid, false if not
     }
-    
+
     // Function to check if all required fields are filled out correctly
     async function checkTheData() {
         // Check if any of the fields (user, password, class, email) are empty
         if(userElement.value.length == 0 || passElement.value.length == 0 || classElement.value.length == 0 || emailElement.value.length == 0) {
-            alert("Please fill all boxes");
+            errorMessage.innerText = "Please fill in all fields.";
             return; // Stop execution if any field is empty
         }
 
         // Check if the username length is between 5 and 20 characters
         if (userElement.value.length > 20 || userElement.value.length < 5) {
-            alert("Name has to be 5 - 20 characters.");
+            errorMessage.innerText = "Username has to be 5–20 characters.";
             return; // Stop execution if username is not within the length range
         }
 
         // Check if the password matches the required pattern (at least 1 uppercase, 1 lowercase, 1 number, length between 8 and 20)
         if (passElement.value.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,20}$/) == null) {
-            alert("Password must be 8-20 characters long, with at least one uppercase letter, one lowercase letter, and one digit.");
+            errorMessage.innerText = "Password must be 8–20 characters long, with at least one uppercase letter, one lowercase letter and one digit.";
             return; // Stop execution if password doesn't match the pattern
         }
 
         // Check if the entered email is valid using the isValidEmail function
         if (!isValidEmail(emailElement.value)) {
-            alert("Please enter a valid email address.");
+            errorMessage.innerText = "Please enter a valid email address.";
             return; // Stop execution if email is invalid
         }
-        
+
         // If all checks pass, send the data to the server
-        sendTheData();		
+        errorMessage.innerText = "";
+        sendTheData();
     }
 
     // Function to send registration data to the server
     async function sendTheData() {
         // Make a POST request to the server with the registration data
         let response = await fetch("/register", {
-            method: "POST", 
+            method: "POST",
 			// Set method to POST for submitting registration data
             body: JSON.stringify({
                 user: userElement.value, // Get the username from the input
@@ -107,11 +115,12 @@
         else {
             // If the response is an error, parse the response and display the error message
             const responseJSON = await res.json();
-            errorMessage.innerText = responseJSON.message; 
+            errorMessage.innerText = responseJSON.message;
 			// Display the error message to the user
         }
     }
-</script>
-	<%- include("CommonModules/Footer") %>  
+    </script>
+
+    <%- include("CommonModules/Footer") %>
 </body>
 </html>

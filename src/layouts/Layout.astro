@@ -1,6 +1,11 @@
 ---
 // Ersätter CommonModules/Head, Nav och Footer
 import { CONTACT_EMAIL } from '../lib/site';
+// Typsnitten serveras från vår egen domän i stället för Google Fonts, så besökarens IP inte skickas till Google
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource-variable/source-serif-4/opsz.css';
 
 interface Props {
 	title?: string;
@@ -20,12 +25,6 @@ const current = (name: Props['active']) => (active === name ? 'page' : undefined
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{title ? `${title} · EduTrack` : 'EduTrack'}</title>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap"
-		/>
 		<link rel="stylesheet" href="/master.css" />
 		<slot name="head" />
 	</head>

@@ -4,6 +4,9 @@
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "edutrack",
 	"main": "@astrojs/cloudflare/entrypoints/server",
+	// Egen domän i stället för *.workers.dev; Cloudflare skapar DNS-posten och certifikatet.
+	"routes": [{ "pattern": "edutrack.rosenbergab.com", "custom_domain": true }],
+	"workers_dev": false,
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
@@ -12,7 +15,6 @@
 		{
 			"binding": "DB",
 			"database_name": "edutrack",
-			// Byts mot riktigt id efter `wrangler d1 create edutrack --location weur`. Lokalt spelar det ingen roll.
 			"database_id": "13a974ef-4d9c-490c-9628-c8faca4918d4",
 			"migrations_dir": "migrations"
 		}

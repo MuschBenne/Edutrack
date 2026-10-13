@@ -146,7 +146,7 @@ Allt ska rymmas i Cloudflares gratisnivå. Gränserna nedan gäller i skrivande 
 | D1 läsning / skrivning | 5 miljoner / 100 000 rader per dag | Räcker gott om frågorna använder index |
 | D1 lagring | 5 GB | Några MB |
 | Statiska filer | Ingår, anropar inte Workern | CSS, graf-skript, bilder |
-| Domän | `*.workers.dev` gratis | Egen domän kostar en årsavgift hos en registrar |
+| Domän | `edutrack.rosenbergab.com` (befintlig domän, DNS hos Cloudflare) | Ingen extra kostnad |
 
 **Optimeringar:**
 

@@ -24,7 +24,7 @@ GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 ADMIN_EMAILS=you@example.com
 ```
-The Google OAuth client needs `http://localhost:4321/api/auth/google/callback` as an authorized redirect URI.
+The Google OAuth client needs `http://localhost:4321/api/auth/google/callback` and `https://edutrack.rosenbergab.com/api/auth/google/callback` as authorized redirect URIs.
 
 # Running
 ```bash

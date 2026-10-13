@@ -69,6 +69,10 @@ const [universityList, programmes] = await Promise.all([universities.list(env.DB
 					<datalist id="programme-suggestions"></datalist>
 				</label>
 				{error && <p class="form-message" role="alert">{error}</p>}
+				<p class="field-hint">
+					By creating an account you accept the <a href="/terms" target="_blank">terms</a> and confirm you have read the
+					<a href="/privacy" target="_blank">privacy policy</a>.
+				</p>
 				<button type="submit" class="btn btn-primary btn-lg btn-block">Create account</button>
 			</form>
 		</div>

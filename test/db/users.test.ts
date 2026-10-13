@@ -24,16 +24,20 @@ describe('users', () => {
 		expect(await users.create(db, base)).not.toBeNull();
 	});
 
-	it('borttagning tar med registreringar och sessioner', async () => {
+	it('borttagning tar med registreringar, sessioner och inloggningar men lämnar skapade kurser', async () => {
 		const anna = await makeUser('anna');
 		const course = await makeCourse('1DL201');
+		await db.prepare('UPDATE courses SET created_by = ? WHERE id = ?').bind(anna.id, course.id).run();
 		await enrollments.enroll(db, anna.id, course.id);
 		expect(await studySessions.add(db, anna.id, course.id, session())).toBe(true);
+		await db.prepare("INSERT INTO auth_sessions (id, user_id, expires_at) VALUES ('hash', ?, 9999999999)").bind(anna.id).run();
 
 		expect(await users.remove(db, anna.id)).toBe(true);
 		expect(await users.remove(db, anna.id)).toBe(false);
 		expect(await enrollments.studentsIn(db, course.id)).toEqual([]);
 		expect(await studySessions.forCourse(db, course.id)).toEqual([]);
+		expect(await db.prepare('SELECT COUNT(*) AS n FROM auth_sessions WHERE user_id = ?').bind(anna.id).first('n')).toBe(0);
+		expect(await db.prepare('SELECT created_by FROM courses WHERE id = ?').bind(course.id).first('created_by')).toBeNull();
 	});
 
 	it('programförslag per lärosäte, vanligaste först', async () => {

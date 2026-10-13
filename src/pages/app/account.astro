@@ -1,0 +1,47 @@
+---
+import { env } from 'cloudflare:workers';
+import Layout from '../../layouts/Layout.astro';
+import * as universities from '../../db/universities';
+
+const user = Astro.locals.user!;
+const university = await universities.get(env.DB, user.universityId);
+const error = Astro.url.searchParams.get('error') === 'confirm' ? 'The username did not match. Nothing was deleted.' : null;
+---
+
+<Layout title="Account" active="account">
+	<main class="container page narrow">
+		<div class="page-head">
+			<h1>Account</h1>
+		</div>
+
+		<section class="card">
+			<dl class="details">
+				<dt>Username</dt>
+				<dd>{user.username}</dd>
+				<dt>Email</dt>
+				<dd>{user.email}</dd>
+				<dt>University</dt>
+				<dd>{university?.name ?? '–'}</dd>
+				<dt>Programme</dt>
+				<dd>{user.programme}</dd>
+			</dl>
+			<p class="muted">Read how we handle your data in the <a href="/privacy">privacy policy</a>.</p>
+		</section>
+
+		<section class="card danger-zone" id="delete">
+			<h2>Delete account</h2>
+			<p>
+				This permanently deletes your account, course registrations, study sessions and final grades. It cannot be undone. Courses you
+				created stay available to other students.
+			</p>
+			<form class="form" method="post" action="/api/account">
+				<label class="field">
+					Type your username <strong>{user.username}</strong> to confirm
+					<input type="text" name="confirm" autocomplete="off" required />
+				</label>
+				{error && <p class="form-message" role="alert">{error}</p>}
+				<button type="submit" class="btn btn-danger">Delete my account</button>
+			</form>
+		</section>
+	</main>
+</Layout>

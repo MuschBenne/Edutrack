@@ -1,8 +1,10 @@
 ---
 // Ersätter CommonModules/Head, Nav och Footer
+import { CONTACT_EMAIL } from '../lib/site';
+
 interface Props {
 	title?: string;
-	active?: 'home' | 'courses' | 'register-course' | 'admin' | 'login';
+	active?: 'home' | 'courses' | 'register-course' | 'admin' | 'account' | 'login';
 	bodyClass?: string;
 }
 
@@ -39,6 +41,7 @@ const current = (name: Props['active']) => (active === name ? 'page' : undefined
 								<a href="/app" aria-current={current('courses')}>My courses</a>
 								<a href="/app/register-course" aria-current={current('register-course')}>Register to course</a>
 								{user.isAdmin && <a href="/admin" aria-current={current('admin')}>Admin</a>}
+								<a href="/app/account" aria-current={current('account')}>Account</a>
 								<a href="/logout">Log out</a>
 							</>
 						) : (
@@ -53,10 +56,14 @@ const current = (name: Props['active']) => (active === name ? 'page' : undefined
 
 		<footer class="site-footer">
 			<div class="container footer-inner">
-				<span>EduTrack</span>
+				<span class="footer-links">
+					<span>EduTrack</span>
+					<a href="/privacy">Privacy</a>
+					<a href="/terms">Terms</a>
+				</span>
 				<span>
 					Ideas on improvements? Email us at
-					<a href="mailto:benjamin@rosenbergab.com">benjamin@rosenbergab.com</a>
+					<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
 				</span>
 			</div>
 		</footer>

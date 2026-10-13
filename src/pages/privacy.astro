@@ -1,0 +1,78 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { CONTACT_EMAIL, LEGAL_UPDATED, OPERATOR } from '../lib/site';
+---
+
+<Layout title="Privacy policy">
+	<main class="container page narrow prose">
+		<div>
+			<h1>Privacy policy</h1>
+			<p class="muted">Last updated {LEGAL_UPDATED}</p>
+		</div>
+
+		<section>
+			<p>
+				EduTrack is run by {OPERATOR}, who is the data controller for the personal data described here. Questions or requests:
+				<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+			</p>
+
+			<h2>What we store</h2>
+			<ul>
+				<li><strong>From Google when you sign in:</strong> your email address and Google's account id. We do not store your name, photo or password.</li>
+				<li><strong>What you enter when you create your account:</strong> username, university and programme.</li>
+				<li><strong>What you log:</strong> the courses you register to, your study sessions (date, minutes, study type and how it went) and final grades.</li>
+				<li>
+					<strong>Wellbeing ratings:</strong> each study session includes a 1–5 rating of your physical and mental health. These can count as
+					health data, so we only use them to show you your own statistics.
+				</li>
+			</ul>
+
+			<h2>Why, and on what legal basis</h2>
+			<p>
+				We use the data only to run EduTrack: signing you in, showing your courses and statistics, and letting you add courses. The legal
+				basis is that it is needed to provide the service you signed up for (GDPR article 6.1 b). Wellbeing ratings are processed based on
+				your explicit consent (article 9.2 a), which you give by entering them. You withdraw it by deleting the sessions' course or your
+				account. We do not sell data, show ads or use analytics or tracking.
+			</p>
+
+			<h2>Who can see it</h2>
+			<ul>
+				<li>Other students cannot see your account, sessions or grades.</li>
+				<li>Courses you create (code, term and name) are visible to all students at your university. Programme names are shown as anonymous suggestions to others at the same university.</li>
+				<li>Administrators of EduTrack can see accounts, courses, sessions and grades, to manage the service and fix problems.</li>
+			</ul>
+
+			<h2>Service providers</h2>
+			<ul>
+				<li><strong>Cloudflare</strong> hosts the site and the database. The database is stored in Western Europe. Cloudflare handles technical data such as IP addresses to deliver and protect the site and keeps request logs for a few days.</li>
+				<li><strong>Google</strong> handles sign-in, and the site's fonts are loaded from Google Fonts, which means your browser sends your IP address to Google.</li>
+			</ul>
+			<p>
+				Both are US companies and may process data outside the EU. Transfers are covered by the EU–US Data Privacy Framework and the EU's
+				standard contractual clauses.
+			</p>
+
+			<h2>Cookies</h2>
+			<p>
+				We only use cookies that are needed for signing in: a session cookie that keeps you logged in for up to 30 days, and short-lived
+				cookies used during Google sign-in and account creation. There are no tracking or advertising cookies, so no consent banner is
+				needed.
+			</p>
+
+			<h2>How long we keep it</h2>
+			<ul>
+				<li>Your account and everything you logged are kept until you delete your account.</li>
+				<li>Login sessions expire after 30 days. Unfinished sign-ups are removed after 15 minutes.</li>
+				<li>Unregistering from a course deletes your sessions and grade in that course.</li>
+			</ul>
+
+			<h2>Your rights</h2>
+			<p>
+				You can delete your account and all its data yourself on the <a href="/app/account">Account</a> page. You also have the right to
+				get a copy of your data, have incorrect data corrected, object to or restrict processing, and move your data elsewhere. Email
+				<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we will answer within a month. If you think we handle your data
+				wrongly you can complain to the Swedish Authority for Privacy Protection (<a href="https://www.imy.se">IMY</a>).
+			</p>
+		</section>
+	</main>
+</Layout>

@@ -963,3 +963,53 @@ a:hover {
     justify-content: space-between;
     padding: 2px 0;
 }
+
+/* ========================================
+   ACCOUNT AND LEGAL PAGES
+   ======================================== */
+
+.narrow {
+    max-width: 760px;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 24px;
+    margin: 0 0 16px;
+    font-size: 15px;
+}
+
+.details dt {
+    color: var(--ink-muted);
+}
+
+.details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.danger-zone {
+    border-color: var(--danger);
+}
+
+.danger-zone .form {
+    max-width: 360px;
+}
+
+.prose {
+    line-height: 1.65;
+}
+
+.prose h2 {
+    margin-top: 32px;
+}
+
+.prose li + li {
+    margin-top: 6px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 16px;
+}

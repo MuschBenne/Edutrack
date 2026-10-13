@@ -11,6 +11,7 @@ const errors: Record<string, string> = {
 	expired: 'Your sign-in has expired. Please sign in with Google again.',
 };
 const error = errors[Astro.url.searchParams.get('error') ?? ''];
+const deleted = Astro.url.searchParams.has('deleted');
 ---
 
 <Layout title="Log in" active="login">
@@ -19,6 +20,7 @@ const error = errors[Astro.url.searchParams.get('error') ?? ''];
 			<h1>Welcome</h1>
 			<p class="lead">Log in to add today's study sessions.</p>
 
+			{deleted && <p class="notice" role="status">Your account and all its data have been deleted.</p>}
 			{error && <p class="form-message" role="alert">{error}</p>}
 			<a class="btn btn-primary btn-lg btn-block" href="/api/auth/google">Continue with Google</a>
 

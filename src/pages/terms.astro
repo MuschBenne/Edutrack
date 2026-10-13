@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { CONTACT_EMAIL, LEGAL_UPDATED, OPERATOR } from '../lib/site';
+---
+
+<Layout title="Terms of use">
+	<main class="container page narrow prose">
+		<div>
+			<h1>Terms of use</h1>
+			<p class="muted">Last updated {LEGAL_UPDATED}</p>
+		</div>
+
+		<section>
+			<p>EduTrack is a free study log run by {OPERATOR}. By creating an account you accept these terms.</p>
+
+			<h2>Your account</h2>
+			<ul>
+				<li>You sign in with your own Google account and are responsible for what is done with your account.</li>
+				<li>Pick a username that does not impersonate someone else and is not offensive.</li>
+				<li>You can delete your account at any time on the <a href="/app/account">Account</a> page.</li>
+			</ul>
+
+			<h2>Courses you add</h2>
+			<p>
+				Courses you create are shared with all students at your university. Enter the real course code and name. Administrators may rename,
+				merge or remove courses to keep the list correct.
+			</p>
+
+			<h2>Acceptable use</h2>
+			<p>
+				Do not misuse the service, for example by trying to access other people's data, overloading the site or entering offensive content.
+				We may suspend or delete accounts that break these terms.
+			</p>
+
+			<h2>No guarantees</h2>
+			<p>
+				EduTrack is provided as it is, free of charge. We do our best to keep it running and your data safe, but we cannot guarantee that
+				the service is always available or free of errors, and we are not liable for lost data or for decisions based on the statistics.
+				The service may change or shut down. If it shuts down we will tell users in advance where possible.
+			</p>
+
+			<h2>Changes</h2>
+			<p>We may update these terms. The date at the top shows the latest version. Significant changes will be announced on the site.</p>
+
+			<h2>Contact and law</h2>
+			<p>
+				Questions: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Swedish law applies. Read how we handle personal data in the
+				<a href="/privacy">privacy policy</a>.
+			</p>
+		</section>
+	</main>
+</Layout>

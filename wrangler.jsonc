@@ -13,7 +13,7 @@
 			"binding": "DB",
 			"database_name": "edutrack",
 			// Byts mot riktigt id efter `wrangler d1 create edutrack --location weur`. Lokalt spelar det ingen roll.
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "13a974ef-4d9c-490c-9628-c8faca4918d4",
 			"migrations_dir": "migrations"
 		}
 	],

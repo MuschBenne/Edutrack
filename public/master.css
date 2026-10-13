@@ -448,6 +448,10 @@ a:hover {
     display: none;
 }
 
+.form-message-success {
+    color: var(--success);
+}
+
 /* Segmented 1–5 scale built from radio buttons */
 .scale {
     border: 0;

@@ -17,7 +17,7 @@ export type LegacySessionEntry = {
 };
 export type LegacySessionMap = { [date: string]: LegacySessionEntry[] };
 
-type SessionRow = {
+export type SessionRow = {
 	studied_on: string;
 	minutes: number;
 	type: string;
@@ -28,7 +28,7 @@ type SessionRow = {
 
 const COLUMNS = 'studied_on, minutes, type, rating, health, mental_health';
 
-function toSession(row: SessionRow): StudySession {
+export function toSession(row: SessionRow): StudySession {
 	return {
 		studiedOn: row.studied_on,
 		minutes: row.minutes,
@@ -57,20 +57,26 @@ export async function add(db: D1Database, userId: number, courseId: string, s: S
 	return meta.changes > 0;
 }
 
-export async function forUserCourse(db: D1Database, userId: number, courseId: string): Promise<StudySession[]> {
-	const { results } = await db
+// Statement-varianterna låter kurssidan köra flera frågor i en db.batch()
+export function forUserCourseStatement(db: D1Database, userId: number, courseId: string): D1PreparedStatement {
+	return db
 		.prepare(`SELECT ${COLUMNS} FROM study_sessions WHERE user_id = ? AND course_id = ? ORDER BY studied_on, id`)
-		.bind(userId, courseId)
-		.all<SessionRow>();
+		.bind(userId, courseId);
+}
+
+export function forCourseStatement(db: D1Database, courseId: string): D1PreparedStatement {
+	return db.prepare(`SELECT ${COLUMNS} FROM study_sessions WHERE course_id = ? ORDER BY studied_on, id`).bind(courseId);
+}
+
+/** Sessioner i stigande datumordning. */
+export async function forUserCourse(db: D1Database, userId: number, courseId: string): Promise<StudySession[]> {
+	const { results } = await forUserCourseStatement(db, userId, courseId).all<SessionRow>();
 	return results.map(toSession);
 }
 
 /** Alla elevers sessioner i en kurs, för admin-vyn. */
 export async function forCourse(db: D1Database, courseId: string): Promise<StudySession[]> {
-	const { results } = await db
-		.prepare(`SELECT ${COLUMNS} FROM study_sessions WHERE course_id = ? ORDER BY studied_on, id`)
-		.bind(courseId)
-		.all<SessionRow>();
+	const { results } = await forCourseStatement(db, courseId).all<SessionRow>();
 	return results.map(toSession);
 }
 

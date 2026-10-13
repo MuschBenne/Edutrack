@@ -1,13 +1,62 @@
 ---
-// Tillfällig sida så att inloggningen går att testa. Mina kurser porteras i fas 3.
+import { env } from 'cloudflare:workers';
 import Layout from '../../layouts/Layout.astro';
+import { courseOverview } from '../../db/stats';
+import { addDays, formatMinutes, relativeDay, todayIso } from '../../lib/dates';
 
 const user = Astro.locals.user!; // middleware har redan skickat utloggade till /login
+const today = todayIso();
+const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
 ---
 
 <Layout title="My courses" active="courses">
-	<main class="container">
-		<h1>Hi {user.username}</h1>
-		<p class="lead">You are signed in{user.isAdmin && ' as admin'}. My courses arrives in the next phase.</p>
+	<main class="container page">
+		<div class="page-head">
+			<div>
+				<p class="muted">Welcome back, {user.username}</p>
+				<h1>My courses</h1>
+			</div>
+			<a class="btn" href="/app/register-course">
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>
+				Register to course
+			</a>
+		</div>
+
+		{
+			rows.length > 0 ? (
+				<div class="table-wrap">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Course</th>
+								<th class="right">Last 7 days</th>
+								<th class="right">Sessions</th>
+								<th>Last session</th>
+								<th />
+							</tr>
+						</thead>
+						<tbody>
+							{rows.map((row) => {
+								const href = `/app/course/${encodeURIComponent(row.courseId)}`;
+								return (
+									<tr>
+										<td class="title-cell"><a href={href}>{row.name}</a></td>
+										<td class="right">{row.recentMinutes > 0 ? formatMinutes(row.recentMinutes) : '–'}</td>
+										<td class="right">{row.sessionCount}</td>
+										<td class="muted">{relativeDay(row.lastStudiedOn, today)}</td>
+										<td class="right"><a href={href}>Open</a></td>
+									</tr>
+								);
+							})}
+						</tbody>
+					</table>
+				</div>
+			) : (
+				<div class="card empty">
+					<p>You are not registered to any courses yet.</p>
+					<p class="empty-action"><a class="btn btn-primary" href="/app/register-course">Find a course</a></p>
+				</div>
+			)
+		}
 	</main>
 </Layout>

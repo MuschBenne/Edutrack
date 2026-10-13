@@ -1,0 +1,60 @@
+---
+// Ersätter AppModules/Session.ejs. Vanligt formulär som skickas till /api/sessions, ingen JavaScript behövs.
+import { SESSION_ERRORS, type SessionError } from '../lib/sessionForm';
+import { STUDY_TYPES } from '../lib/studyTypes';
+
+interface Props {
+	courseId: string;
+	error?: string | null;
+	saved?: boolean;
+}
+
+const { courseId, error, saved } = Astro.props;
+const message = error && Object.hasOwn(SESSION_ERRORS, error) ? SESSION_ERRORS[error as SessionError] : null;
+
+const scales = [
+	{ name: 'rating', legend: 'How did the session go?', low: 'Poorly', high: 'Very well' },
+	{ name: 'health', legend: 'Physical wellbeing', low: 'Sick', high: 'Feeling good' },
+	{ name: 'mentalHealth', legend: 'Mental wellbeing', low: 'Stressed', high: 'Energized' },
+];
+---
+
+<form class="form" method="post" action="/api/sessions">
+	<input type="hidden" name="courseId" value={courseId} />
+
+	<label class="field">
+		Duration (minutes)
+		<input name="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric" placeholder="85" required />
+	</label>
+
+	<label class="field">
+		Type
+		<select name="type">
+			{Object.entries(STUDY_TYPES).map(([value, label]) => <option value={value}>{label}</option>)}
+		</select>
+	</label>
+
+	{
+		scales.map((scale) => (
+			<fieldset class="scale">
+				<legend>{scale.legend}</legend>
+				<div class="scale-options">
+					{[1, 2, 3, 4, 5].map((i) => (
+						<label>
+							{/* required på en radioknapp gäller hela gruppen */}
+							<input type="radio" name={scale.name} value={i} required={i === 1} />
+							<span>{i}</span>
+						</label>
+					))}
+				</div>
+				<div class="scale-ends">
+					<span>{scale.low}</span><span>{scale.high}</span>
+				</div>
+			</fieldset>
+		))
+	}
+
+	{message && <p class="form-message" role="alert">{message}</p>}
+	{saved && <p class="form-message form-message-success" role="status">Session saved.</p>}
+	<button type="submit" class="btn btn-accent btn-lg btn-block">Save session</button>
+</form>

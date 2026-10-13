@@ -95,18 +95,8 @@ function renderGraphs() {
 
 // Refetch the course session data and replace the COURSEDATA global variable's value with this new data.
 async function fetchGraphData() {
-    let response = await fetch("/app/?action=fetchUserCourseData",
-        {
-		    method: "POST",
-		    body: JSON.stringify({courseId: COURSEDATA.courseId}),
-		    headers: {
-		        "Content-type": "application/json; charset=UTF-8" // Set content type to JSON
-		    }
-	    }
-    );
-
-    let responseJSON = await response.json();
-    COURSEDATA = responseJSON.data;
+    let response = await fetch("/api/sessions?courseId=" + encodeURIComponent(COURSEDATA.courseId));
+    COURSEDATA = await response.json();
 }
 
 // Read the COURSEDATA global variable and parse it into a format suitable for Chart.js

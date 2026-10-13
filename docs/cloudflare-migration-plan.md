@@ -169,10 +169,12 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
    - Skolkonton i Google Workspace kan ha tredjepartsappar blockerade. Testa med ett skolkonto tidigt i fas 2.
 5. **Sidor**
    - HTML-strukturen och CSS-klasserna från den nya designen kopieras över. `<%= x %>` blir `{x}` och `<% if %>`-block blir `{cond && ( … )}`.
-   - Uträkningarna som i dag ligger i `Main.ejs` och `CoursePage.ejs` (senaste 7 dagarna, totalt, snittbetyg) flyttas till SQL eller till `src/lib/stats.ts`.
-   - Kursdatan till graferna skickas som `<script type="application/json">` i stället för `JSON.parse('<%- … %>')`.
+   - Uträkningarna som i dag ligger i `Main.ejs` och `CoursePage.ejs` (senaste 7 dagarna, totalt, snittbetyg) görs i SQL i `src/db/stats.ts`. Kurssidan hämtar kurs, statistik och sessioner i en enda `db.batch()` (`src/db/coursePage.ts`).
+   - "Idag" räknas i svensk tid (`src/lib/dates.ts`), eftersom Workers kör i UTC.
+   - Kursdatan till graferna skickas som `<script type="application/json">` (med `<` escapat) i stället för `JSON.parse('<%- … %>')`. `graph_logic.js` och `static_functions.js` är oförändrade så när som på adressen i `fetchGraphData`.
 6. **API-endpoints**
    - POST-anropen flyttas från `?action=`-parametrar till egna endpoints, t.ex. `POST /api/sessions` och `POST /api/admin/courses`.
+   - Sessionsformuläret är ett vanligt HTML-formulär utan JavaScript. `/api/sessions` validerar, sparar och skickar tillbaka med 303 och en felkod eller `?saved`. Astros inbyggda Origin-kontroll stoppar formulär från andra sajter.
    - Admin-anropen skickar data som JSON i bodyn i stället för i URL:en.
    - `fetch`-anropen i sidornas skript och i `graph_logic.js` uppdateras till de nya adresserna.
 7. **Tester**
@@ -203,7 +205,7 @@ Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills s
 
 1. **Grund (klar 2026-10-13):** projektuppsättning, schema, databaslager och tester för det. Statistiken i SQL skrivs i fas 3, tillsammans med sidorna som visar den.
 2. **Konton (klar 2026-10-13):** sessioner, Google-inloggning, onboarding, layout och landningssidan. `/app` är en tillfällig sida tills fas 3.
-3. **Kärnan:** Mina kurser, kurssidan med grafer, statistiken i SQL och formuläret för ny session.
+3. **Kärnan (klar 2026-10-13):** Mina kurser, kurssidan med grafer, statistiken i SQL och formuläret för ny session.
 4. **Resten:** kursregistrering och admin.
 5. **Lansering:** ta bort `legacy/`, driftsätt, peka om domänen, slå ihop med `main` och stäng ner MongoDB.
 

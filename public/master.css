@@ -475,10 +475,18 @@ a:hover {
     font-weight: 500;
 }
 
+.scale legend .muted {
+    font-weight: 400;
+}
+
 .scale-options {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
+}
+
+.scale-options.has-skip {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.4fr);
 }
 
 .scale-options label {

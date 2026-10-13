@@ -3,8 +3,8 @@ export type StudySession = {
 	minutes: number;
 	type: string;
 	rating: number;
-	health: number;
-	mentalHealth: number;
+	health: number | null; // valfria: hälsodata sparas bara om eleven anger dem
+	mentalHealth: number | null;
 };
 
 /** Formatet som graf-skripten i public/ förväntar sig (samma som i MongoDB-versionen). */
@@ -12,8 +12,8 @@ export type LegacySessionEntry = {
 	time: number;
 	typeOfStudy: string;
 	gradeSess: number;
-	health: number;
-	mentalHealth: number;
+	health: number | null;
+	mentalHealth: number | null;
 };
 export type LegacySessionMap = { [date: string]: LegacySessionEntry[] };
 
@@ -22,8 +22,8 @@ export type SessionRow = {
 	minutes: number;
 	type: string;
 	rating: number;
-	health: number;
-	mental_health: number;
+	health: number | null;
+	mental_health: number | null;
 };
 
 const COLUMNS = 'studied_on, minutes, type, rating, health, mental_health';

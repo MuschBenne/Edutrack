@@ -23,5 +23,15 @@ describe('parseSessionForm', () => {
 		expect(parseSessionForm(form({ type: 'Sleeping' }))).toEqual({ ok: false, error: 'type' });
 		expect(parseSessionForm(form({ rating: '6' }))).toEqual({ ok: false, error: 'scale' });
 		expect(parseSessionForm(form({ health: '0' }))).toEqual({ ok: false, error: 'scale' });
+		expect(parseSessionForm(form({ rating: '' }))).toEqual({ ok: false, error: 'scale' });
+	});
+
+	it('hälsobetygen är valfria', () => {
+		const f = form({ health: '' });
+		f.delete('mentalHealth');
+		expect(parseSessionForm(f)).toEqual({
+			ok: true,
+			value: { minutes: 45, type: 'Lecture', rating: 4, health: null, mentalHealth: null },
+		});
 	});
 });

@@ -23,6 +23,17 @@ describe('studySessions', () => {
 
 		await expect(studySessions.add(db, anna.id, pkd.id, session({ rating: 6 }))).rejects.toThrow();
 		await expect(studySessions.add(db, anna.id, pkd.id, session({ minutes: 0 }))).rejects.toThrow();
+		await expect(studySessions.add(db, anna.id, pkd.id, session({ health: 0 }))).rejects.toThrow();
+	});
+
+	it('sparar sessioner utan hälsobetyg', async () => {
+		const anna = await makeUser('anna');
+		const pkd = await makeCourse('PKD');
+		await enrollments.enroll(db, anna.id, pkd.id);
+		const utan = session({ health: null, mentalHealth: null });
+
+		expect(await studySessions.add(db, anna.id, pkd.id, utan)).toBe(true);
+		expect(await studySessions.forUserCourse(db, anna.id, pkd.id)).toEqual([utan]);
 	});
 
 	it('forCourse samlar alla elevers sessioner', async () => {

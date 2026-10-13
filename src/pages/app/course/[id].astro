@@ -126,8 +126,8 @@ const joined = joinedMessages[Astro.url.searchParams.get('joined') ?? ''];
 												<td>{studyTypeLabel(s.type)}</td>
 												<td class="right">{formatMinutes(s.minutes)}</td>
 												<td class="right">{s.rating}</td>
-												<td class="right">{s.health}</td>
-												<td class="right">{s.mentalHealth}</td>
+												<td class="right">{s.health ?? '–'}</td>
+												<td class="right">{s.mentalHealth ?? '–'}</td>
 											</tr>
 										))}
 									</tbody>

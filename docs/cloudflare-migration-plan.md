@@ -82,8 +82,8 @@ CREATE TABLE study_sessions (
   minutes       INTEGER NOT NULL CHECK (minutes > 0),
   type          TEXT    NOT NULL,
   rating        INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
-  health        INTEGER NOT NULL CHECK (health BETWEEN 1 AND 5),
-  mental_health INTEGER NOT NULL CHECK (mental_health BETWEEN 1 AND 5),
+  health        INTEGER CHECK (health BETWEEN 1 AND 5),         -- valfri (hälsodata, GDPR art. 9)
+  mental_health INTEGER CHECK (mental_health BETWEEN 1 AND 5),  -- valfri
   -- Sessioner försvinner när eleven avregistreras från kursen
   FOREIGN KEY (user_id, course_id)
     REFERENCES enrollments(user_id, course_id) ON DELETE CASCADE

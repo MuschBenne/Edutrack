@@ -12,10 +12,11 @@ interface Props {
 const { courseId, error, saved } = Astro.props;
 const message = error && Object.hasOwn(SESSION_ERRORS, error) ? SESSION_ERRORS[error as SessionError] : null;
 
+// Hälsoskalorna är valfria (hälsodata, GDPR art. 9) och har ett förvalt "hoppa över"-alternativ
 const scales = [
-	{ name: 'rating', legend: 'How did the session go?', low: 'Poorly', high: 'Very well' },
-	{ name: 'health', legend: 'Physical wellbeing', low: 'Sick', high: 'Feeling good' },
-	{ name: 'mentalHealth', legend: 'Mental wellbeing', low: 'Stressed', high: 'Energized' },
+	{ name: 'rating', legend: 'How did the session go?', low: 'Poorly', high: 'Very well', optional: false },
+	{ name: 'health', legend: 'Physical wellbeing', low: 'Sick', high: 'Feeling good', optional: true },
+	{ name: 'mentalHealth', legend: 'Mental wellbeing', low: 'Stressed', high: 'Energized', optional: true },
 ];
 ---
 
@@ -37,15 +38,24 @@ const scales = [
 	{
 		scales.map((scale) => (
 			<fieldset class="scale">
-				<legend>{scale.legend}</legend>
-				<div class="scale-options">
+				<legend>
+					{scale.legend}
+					{scale.optional && <span class="muted"> (optional)</span>}
+				</legend>
+				<div class:list={['scale-options', { 'has-skip': scale.optional }]}>
 					{[1, 2, 3, 4, 5].map((i) => (
 						<label>
 							{/* required på en radioknapp gäller hela gruppen */}
-							<input type="radio" name={scale.name} value={i} required={i === 1} />
+							<input type="radio" name={scale.name} value={i} required={!scale.optional && i === 1} />
 							<span>{i}</span>
 						</label>
 					))}
+					{scale.optional && (
+						<label>
+							<input type="radio" name={scale.name} value="" checked aria-label="Skip" />
+							<span>Skip</span>
+						</label>
+					)}
 				</div>
 				<div class="scale-ends">
 					<span>{scale.low}</span><span>{scale.high}</span>
@@ -53,6 +63,8 @@ const scales = [
 			</fieldset>
 		))
 	}
+
+	<p class="field-hint">Wellbeing ratings are only used for your own statistics. See the <a href="/privacy">privacy policy</a>.</p>
 
 	{message && <p class="form-message" role="alert">{message}</p>}
 	{saved && <p class="form-message form-message-success" role="status">Session saved.</p>}

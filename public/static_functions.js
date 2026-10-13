@@ -14,6 +14,8 @@ function calculateAverageWellbeing(sessionData){
     let entryCount = 0;
     for(date in sessionData){
         sessionData[date].forEach(session => {
+            // health är null när eleven hoppat över skalan
+            if (session.health == null) return;
             wellbeingTotal += session.health;
             entryCount++;
         });

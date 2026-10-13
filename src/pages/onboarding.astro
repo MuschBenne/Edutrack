@@ -1,0 +1,61 @@
+---
+// Nya användare väljer användarnamn och programme efter första Google-inloggningen
+import { env } from 'cloudflare:workers';
+import Layout from '../layouts/Layout.astro';
+import { CLASSES, PENDING_COOKIE, completeOnboarding, getPendingSignup } from '../lib/auth';
+import { setSessionCookie } from '../lib/cookies';
+
+if (Astro.locals.user) return Astro.redirect('/app');
+
+const pendingToken = Astro.cookies.get(PENDING_COOKIE)?.value;
+if (!pendingToken) return Astro.redirect('/login');
+
+let error: string | null = null;
+let username = '';
+let selectedClass: string = CLASSES[0];
+
+if (Astro.request.method === 'POST') {
+	const form = await Astro.request.formData();
+	username = String(form.get('username') ?? '');
+	selectedClass = String(form.get('class') ?? '');
+
+	const result = await completeOnboarding(env.DB, pendingToken, { username, class: selectedClass }, env.ADMIN_EMAILS);
+	if (result.ok) {
+		Astro.cookies.delete(PENDING_COOKIE, { path: '/' });
+		setSessionCookie(Astro.cookies, result);
+		return Astro.redirect('/app', 303);
+	}
+	error = result.message;
+}
+
+const pending = await getPendingSignup(env.DB, pendingToken);
+if (!pending) {
+	Astro.cookies.delete(PENDING_COOKIE, { path: '/' });
+	return Astro.redirect('/login?error=expired');
+}
+---
+
+<Layout title="Create account">
+	<main class="container auth">
+		<div class="card auth-card">
+			<h1>Almost done</h1>
+			<p class="lead">Signed in as {pending.email}. Pick a username and your programme.</p>
+
+			<form class="form" method="post">
+				<label class="field">
+					Username
+					<input type="text" name="username" value={username} autocomplete="username" minlength="5" maxlength="20" required />
+					<span class="field-hint">5–20 characters</span>
+				</label>
+				<label class="field">
+					Programme
+					<select name="class">
+						{CLASSES.map((c) => <option value={c} selected={c === selectedClass}>{c}</option>)}
+					</select>
+				</label>
+				{error && <p class="form-message" role="alert">{error}</p>}
+				<button type="submit" class="btn btn-primary btn-lg btn-block">Create account</button>
+			</form>
+		</div>
+	</main>
+</Layout>

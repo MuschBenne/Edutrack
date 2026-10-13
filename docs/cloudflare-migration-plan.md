@@ -77,19 +77,28 @@ CREATE INDEX idx_sessions_user_course
 CREATE INDEX idx_sessions_course ON study_sessions(course_id, studied_on);
 
 CREATE TABLE auth_sessions (
-  id         TEXT PRIMARY KEY,  -- slumpad token i cookien
+  id         TEXT PRIMARY KEY,  -- SHA-256 av token i cookien
   user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires_at INTEGER NOT NULL
 );
--- Används av den dagliga städningen av utgångna inloggningar
 CREATE INDEX idx_auth_sessions_user ON auth_sessions(user_id);
 CREATE INDEX idx_auth_sessions_expires ON auth_sessions(expires_at);
+
+-- migrations/0002_pending_signups.sql: Google-inloggningar som inte valt namn och klass än
+CREATE TABLE pending_signups (
+  id         TEXT    PRIMARY KEY,  -- SHA-256 av token i cookien
+  google_id  TEXT    NOT NULL,
+  email      TEXT    NOT NULL,
+  expires_at INTEGER NOT NULL      -- 15 minuter
+);
+CREATE INDEX idx_pending_signups_expires ON pending_signups(expires_at);
 ```
 
 - **Admin:** `is_admin` ersätter den hårdkodade listan `['Benji', 'Benke']` i `Login.ts`. Den sätts när kontot skapas, om e-posten finns i secreten `ADMIN_EMAILS` (se steg 4).
 - **Borttagning:** tar man bort en kurs eller användare försvinner deras registreringar och sessioner automatiskt (`ON DELETE CASCADE`). `removeCourse` och `deleteUser` blir en enda `DELETE` var.
 - **Dubbletter:** `UNIQUE` på användarnamn och e-post ersätter de manuella kontrollerna i `registerUser`.
 - **Google-koppling:** `google_id` identifierar användaren vid inloggning. E-posten sparas för visning och admin-kontrollen.
+- **Tokens:** cookien innehåller en slumpad token, databasen bara dess SHA-256. En läckt databas ger alltså inga giltiga inloggningar.
 - **Datum:** sparas som `2026-10-08` i stället för `Wed_Oct_08_2026`, så statistik blir vanliga `SUM` och `GROUP BY`.
 
 ## Kostnad och prestanda
@@ -107,12 +116,12 @@ Allt ska rymmas i Cloudflares gratisnivå. Gränserna nedan gäller i skrivande 
 
 **Optimeringar:**
 
-1. **Förrendera sidor som inte ändras.** `export const prerender = true` i `index.astro` och `login.astro`. Sidorna serveras som statiska filer och kostar ingen CPU-tid.
+1. **Ingen databasfråga för anonyma besök.** Alla sidor renderas per anrop (`output: 'server'`), eftersom navigeringen beror på om man är inloggad. Middleware frågar bara D1 när det finns en sessionscookie.
 2. **En databasfråga per sidvisning.** Middleware slår upp session och användare i en enda `JOIN`. Sidor som behöver flera frågor kör dem i `db.batch()`, som blir en resa till D1.
 3. **Räkna i SQL.** Statistiken (senaste 7 dagarna, totalt, snittbetyg) räknas med `SUM`/`AVG ... GROUP BY studied_on`. Färre rader läses tack vare `idx_sessions_user_course`, och mindre data skickas till webbläsaren.
 4. **Databasens placering.** `--location weur` när databasen skapas.
 5. **Cachning.** Filerna i `public/` får en `Cache-Control`-header. Astros byggda filer har hashade namn och kan cachas för alltid.
-6. **Städa gamla inloggningar.** En Cron Trigger (gratis) kör `DELETE FROM auth_sessions WHERE expires_at < ?` en gång per dygn.
+6. **Städa gamla inloggningar.** Utgångna sessioner och påbörjade registreringar tas bort vid varje ny inloggning. Det kräver inget cron-jobb.
 7. **Ingen KV för sessioner.** KV:s gratisnivå tillåter bara 1 000 skrivningar per dag. D1 räcker.
 
 ## Steg för steg
@@ -129,7 +138,7 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
 | `views/Application/CoursePage.ejs` + `Session.ejs` | `src/pages/app/course/[id].astro` + `src/components/SessionForm.astro` |
 | `views/Application/CourseRegister.ejs` | `src/pages/app/register-course.astro` |
 | `views/Admin.ejs` | `src/pages/admin.astro` |
-| `modules/Login.ts`, `Register.ts`, `Logout.ts` | `src/pages/api/auth/google.ts`, `google/callback.ts`, `logout.ts`, `api/onboarding.ts` + `src/lib/auth.ts` |
+| `modules/Login.ts`, `Register.ts`, `Logout.ts` | `src/pages/api/auth/google.ts`, `google/callback.ts`, `src/pages/logout.ts` + `src/lib/auth.ts`, `google.ts`, `cookies.ts`. Formuläret i `onboarding.astro` hanterar sin egen POST. |
 | `modules/Application.ts` (POST-actions) | `src/pages/api/sessions.ts`, `api/enrollments.ts` |
 | `modules/CourseManager.ts` | `src/pages/api/admin/*.ts` |
 | `db_models/User.ts`, `Course.ts` | `src/db/*.ts` med SQL-frågor |
@@ -146,7 +155,7 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
    - `courses.availableFor(userId)` blir en SQL-fråga med `NOT IN`, i stället för filtrering i JavaScript.
    - `toSessionMap(rows)` bygger om sessionsraderna till dagens format (`{ "Wed_Oct_08_2026": [ … ] }`). Då fungerar `graph_logic.js` och `static_functions.js` utan ändringar.
 3. **Sessioner och inloggning**
-   - När Google-inloggningen lyckats skapas en slumpad token (`crypto.randomUUID()`), som sparas i `auth_sessions` och sätts som en `HttpOnly`-cookie.
+   - När Google-inloggningen lyckats skapas en slumpad token (256 bitar). Hashen sparas i `auth_sessions` och token sätts som en `HttpOnly`-cookie med `SameSite=Lax`, giltig i 30 dagar.
    - `middleware.ts` slår upp cookien vid varje anrop och lägger `user` och `isAdmin` på `Astro.locals`.
    - `/app` och `/admin` skickar vidare till `/login` om ingen är inloggad. Den hårdkodade `secret: 'BJB-AB-Forever'` försvinner.
 4. **Google-inloggning**
@@ -155,7 +164,7 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
    - Biblioteket **Arctic** sköter OAuth-flödet och fungerar i Workers. `state` och PKCE-verifieraren sparas i kortlivade `HttpOnly`-cookies.
    - `api/auth/google.ts` skickar användaren till Google. `google/callback.ts` tar emot svaret och slår upp användaren:
      1. Finns `google_id`: logga in.
-     2. Annars: ny användare, skicka till `/onboarding` där klass och användarnamn väljs innan kontot skapas. Kräver att Google anger `email_verified`.
+     2. Annars: ny användare. Google-id och e-post sparas i `pending_signups` och användaren skickas till `/onboarding`, där användarnamn (5–20 tecken) och programme (DV, IT, ES) väljs innan kontot skapas. Kräver att Google anger `email_verified`.
    - **Admin:** secreten `ADMIN_EMAILS` (kommaseparerad lista, i `.dev.vars` lokalt och via `wrangler secret put ADMIN_EMAILS` i produktion) avgör vilka konton som får `is_admin = 1` när de skapas. Adresserna hamnar aldrig i repot.
    - Skolkonton i Google Workspace kan ha tredjepartsappar blockerade. Testa med ett skolkonto tidigt i fas 2.
 5. **Sidor**
@@ -193,7 +202,7 @@ Om Express-versionen ska användas en tid till kan den första buggen rättas d�
 Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills sista fasen är klar, och på grenen i `legacy/` som referens vid porteringen, och varje fas går att testa för sig med `npm run dev`.
 
 1. **Grund (klar 2026-10-13):** projektuppsättning, schema, databaslager och tester för det. Statistiken i SQL skrivs i fas 3, tillsammans med sidorna som visar den.
-2. **Konton:** sessioner, Google-inloggning, onboarding, layout och landningssidan.
+2. **Konton (klar 2026-10-13):** sessioner, Google-inloggning, onboarding, layout och landningssidan. `/app` är en tillfällig sida tills fas 3.
 3. **Kärnan:** Mina kurser, kurssidan med grafer, statistiken i SQL och formuläret för ny session.
 4. **Resten:** kursregistrering och admin.
 5. **Lansering:** ta bort `legacy/`, driftsätt, peka om domänen, slå ihop med `main` och stäng ner MongoDB.

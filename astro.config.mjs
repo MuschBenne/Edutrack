@@ -5,5 +5,11 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: cloudflare()
+  // Alla sidor renderas per anrop; navigeringen beror på om man är inloggad
+  output: 'server',
+  adapter: cloudflare(),
+  // Gamla adresser från Express-versionen
+  redirects: {
+    '/register': '/login',
+  },
 });

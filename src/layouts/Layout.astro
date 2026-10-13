@@ -1,0 +1,64 @@
+---
+// Ersätter CommonModules/Head, Nav och Footer
+interface Props {
+	title?: string;
+	active?: 'home' | 'courses' | 'register-course' | 'admin' | 'login';
+	bodyClass?: string;
+}
+
+const { title, active, bodyClass } = Astro.props;
+const user = Astro.locals.user;
+const current = (name: Props['active']) => (active === name ? 'page' : undefined);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{title ? `${title} · EduTrack` : 'EduTrack'}</title>
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap"
+		/>
+		<link rel="stylesheet" href="/master.css" />
+		<slot name="head" />
+	</head>
+	<body class={bodyClass}>
+		<header class="site-header">
+			<div class="container header-inner">
+				<a class="brand" href="/">EduTrack</a>
+				<nav class="site-nav" aria-label="Main">
+					<a href="/" aria-current={current('home')}>Home</a>
+					{
+						user ? (
+							<>
+								<a href="/app" aria-current={current('courses')}>My courses</a>
+								<a href="/app/register-course" aria-current={current('register-course')}>Register to course</a>
+								{user.isAdmin && <a href="/admin" aria-current={current('admin')}>Admin</a>}
+								<a href="/logout">Log out</a>
+							</>
+						) : (
+							<a href="/login" class="btn btn-primary" aria-current={current('login')}>Log in</a>
+						)
+					}
+				</nav>
+			</div>
+		</header>
+
+		<slot />
+
+		<footer class="site-footer">
+			<div class="container footer-inner">
+				<span>EduTrack</span>
+				<span>
+					Ideas on improvements? Email us at
+					<a href="mailto:benjamin@rosenbergab.com">benjamin@rosenbergab.com</a>
+				</span>
+			</div>
+		</footer>
+	</body>
+</html>

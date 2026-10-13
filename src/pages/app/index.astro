@@ -1,0 +1,13 @@
+---
+// Tillfällig sida så att inloggningen går att testa. Mina kurser porteras i fas 3.
+import Layout from '../../layouts/Layout.astro';
+
+const user = Astro.locals.user!; // middleware har redan skickat utloggade till /login
+---
+
+<Layout title="My courses" active="courses">
+	<main class="container">
+		<h1>Hi {user.username}</h1>
+		<p class="lead">You are signed in{user.isAdmin && ' as admin'}. My courses arrives in the next phase.</p>
+	</main>
+</Layout>

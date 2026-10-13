@@ -36,6 +36,11 @@ export async function getById(db: D1Database, id: number): Promise<User | null> 
 	return row ? toUser(row) : null;
 }
 
+export async function getByUsername(db: D1Database, username: string): Promise<User | null> {
+	const row = await db.prepare(`SELECT ${COLUMNS} FROM users WHERE username = ?`).bind(username).first<UserRow>();
+	return row ? toUser(row) : null;
+}
+
 export async function getByGoogleId(db: D1Database, googleId: string): Promise<User | null> {
 	const row = await db.prepare(`SELECT ${COLUMNS} FROM users WHERE google_id = ?`).bind(googleId).first<UserRow>();
 	return row ? toUser(row) : null;

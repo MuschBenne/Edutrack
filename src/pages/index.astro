@@ -1,16 +1,66 @@
 ---
-// Tillfällig startsida tills layout och landningssida porteras i fas 2
+import Layout from '../layouts/Layout.astro';
+
+const loggedIn = Astro.locals.user !== null;
 ---
 
-<html lang="sv">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>EduTrack</title>
-	</head>
-	<body>
-		<h1>EduTrack</h1>
-		<p>Under flytt till Cloudflare.</p>
-	</body>
-</html>
+<Layout active="home" bodyClass="landing">
+	<main>
+		<section class="container hero">
+			<div class="hero-copy">
+				<p class="eyebrow">Study log for university students</p>
+				<h1>See how your study habits shape your grades.</h1>
+				<p class="lead">Log each study session per course, then look back at when you studied, how long, and how it went.</p>
+				<div class="hero-actions">
+					{
+						loggedIn ? (
+							<a class="btn btn-primary btn-lg" href="/app">Go to my courses</a>
+						) : (
+							<a class="btn btn-primary btn-lg" href="/login">Get started with Google</a>
+						)
+					}
+				</div>
+			</div>
+
+			<figure class="card hero-figure" aria-label="Example chart of study hours per week">
+				<div class="card-head">
+					<strong>Linear Algebra</strong>
+					<span class="subtle">Hours per week</span>
+				</div>
+				<div class="mini-bars" aria-hidden="true">
+					<div style="height: 30%"></div>
+					<div style="height: 45%"></div>
+					<div style="height: 38%"></div>
+					<div style="height: 62%"></div>
+					<div style="height: 55%"></div>
+					<div style="height: 80%"></div>
+					<div style="height: 92%"></div>
+				</div>
+				<div class="mini-labels" aria-hidden="true">
+					<span>w36</span><span>w37</span><span>w38</span><span>w39</span><span>w40</span><span>w41</span><span>w42</span>
+				</div>
+				<figcaption class="subtle">Example data</figcaption>
+			</figure>
+		</section>
+
+		<section class="features">
+			<div class="container features-grid">
+				<div class="feature">
+					<span class="feature-index">01</span>
+					<h2>What it is</h2>
+					<p>A simple log of your study sessions. Add the time, type of study and how it felt, and EduTrack builds the overview for you.</p>
+				</div>
+				<div class="feature">
+					<span class="feature-index">02</span>
+					<h2>For students</h2>
+					<p>Spot which routines work before the exam, not after. Compare weeks, study types and how rested you were.</p>
+				</div>
+				<div class="feature">
+					<span class="feature-index">03</span>
+					<h2>For universities</h2>
+					<p>Course-level patterns help teachers see where students struggle and improve course design and student support.</p>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>

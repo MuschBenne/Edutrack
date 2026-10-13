@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+if (Astro.locals.user) return Astro.redirect('/app');
+
+// Felkoder från callbacken; okända koder visas inte
+const errors: Record<string, string> = {
+	state: 'The sign-in took too long or was interrupted. Please try again.',
+	google: 'Google sign-in failed. Please try again.',
+	unverified: 'Your Google account email is not verified.',
+	expired: 'Your sign-in has expired. Please sign in with Google again.',
+};
+const error = errors[Astro.url.searchParams.get('error') ?? ''];
+---
+
+<Layout title="Log in" active="login">
+	<main class="container auth">
+		<div class="card auth-card">
+			<h1>Welcome</h1>
+			<p class="lead">Log in to add today's study sessions.</p>
+
+			{error && <p class="form-message" role="alert">{error}</p>}
+			<a class="btn btn-primary btn-lg btn-block" href="/api/auth/google">Continue with Google</a>
+
+			<p class="auth-switch">New here? Continuing with Google creates your account.</p>
+		</div>
+	</main>
+</Layout>

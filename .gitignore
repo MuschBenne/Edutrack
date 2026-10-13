@@ -1,8 +1,24 @@
-node_modules/
-.DS_Store
-eslint.config.mjs
-Project_Diary.md
+# Bygg och genererade filer
+dist/
+.astro/
+.wrangler/
 coverage/
 build/
-build/*
-.env.prod
+
+# Beroenden
+node_modules/
+
+# Hemligheter (lokala secrets för wrangler och gamla Mongo-URL:er)
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+
+# Loggar
+npm-debug.log*
+
+# Övrigt
+.DS_Store
+.idea/
+eslint.config.mjs
+Project_Diary.md

@@ -1,41 +1,31 @@
-# BJB-AB 
+# BJB-AB
 Project Repository for EduTrack
+
+> Migration in progress: the app is being rebuilt with Astro on Cloudflare Workers and D1.
+> See `docs/cloudflare-migration-plan.md`. The old Express/MongoDB app lives in `legacy/` until the migration is done.
 
 # Setup
 
 ## Requirements
-- NodeJS
-- Jest (if running testcases)
-- This application requires MongoDB to be installed locally on your machine.
-Visit this link for instructions:
-https://www.mongodb.com/docs/manual/administration/install-community/#std-label-install-mdb-community-edition  
+- Node.js 22.12 or later
 
-## Clone the repo
+No database needs to be installed: `npm run dev` and the tests use a local D1 (SQLite) database.
+
+## Clone and install
 ```bash
 git clone "https://github.com/FrickTown/BJB-AB.git" && cd BJB-AB
-```
-
-## Install 
-In the root folder:  `BJB-AB/` run:
-```bash
 npm install
+npm run db:migrate:local   # creates the local database tables
 ```
 
 # Running
-To run the code, you have two alternatives.
-One relies on ts-node, and runs the TypeScript code without building and compiling it into JavaScript.
 ```bash
-# Run the TypeScript code directly
-npm run ts
-# or build the code using tsc --strict and run it using node
-npm run build;
-npm start;
+npm run dev       # dev server at http://localhost:4321
+npm run build     # production build
 ```
 
 # Testing
-To run all Jest test cases, simply run
 ```bash
-npm test;
-# or
-jest --runInBand
+npm test          # Vitest, runs inside the Workers runtime against a fresh local D1
+npm run check     # type checking
 ```

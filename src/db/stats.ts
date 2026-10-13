@@ -1,5 +1,9 @@
+import { termOrderSql } from '../lib/terms';
+
 export type CourseOverview = {
-	courseId: string;
+	courseId: number;
+	code: string;
+	term: string;
 	name: string;
 	recentMinutes: number;
 	sessionCount: number;
@@ -21,21 +25,23 @@ export async function courseOverview(db: D1Database, userId: number, since: stri
 	// LEFT JOIN så att kurser utan sessioner också kommer med
 	const { results } = await db
 		.prepare(
-			`SELECT c.course_id, c.name,
+			`SELECT c.id, c.code, c.term, c.name,
 			        COALESCE(SUM(CASE WHEN s.studied_on >= ? THEN s.minutes END), 0) AS recent_minutes,
 			        COUNT(s.id) AS session_count,
 			        MAX(s.studied_on) AS last_studied_on
 			 FROM enrollments e
-			 JOIN courses c ON c.course_id = e.course_id
+			 JOIN courses c ON c.id = e.course_id
 			 LEFT JOIN study_sessions s ON s.user_id = e.user_id AND s.course_id = e.course_id
 			 WHERE e.user_id = ?
-			 GROUP BY c.course_id, c.name
-			 ORDER BY c.name`,
+			 GROUP BY c.id
+			 ORDER BY ${termOrderSql('c.term')} DESC, c.name`,
 		)
 		.bind(since, userId)
-		.all<{ course_id: string; name: string; recent_minutes: number; session_count: number; last_studied_on: string | null }>();
+		.all<{ id: number; code: string; term: string; name: string; recent_minutes: number; session_count: number; last_studied_on: string | null }>();
 	return results.map((r) => ({
-		courseId: r.course_id,
+		courseId: r.id,
+		code: r.code,
+		term: r.term,
 		name: r.name,
 		recentMinutes: r.recent_minutes,
 		sessionCount: r.session_count,
@@ -44,7 +50,7 @@ export async function courseOverview(db: D1Database, userId: number, since: stri
 }
 
 /** Prepared statement så att kurssidan kan köra den i samma db.batch() som övriga frågor. */
-export function courseStatsStatement(db: D1Database, userId: number, courseId: string, since: string): D1PreparedStatement {
+export function courseStatsStatement(db: D1Database, userId: number, courseId: number, since: string): D1PreparedStatement {
 	return db
 		.prepare(
 			`SELECT COALESCE(SUM(minutes), 0) AS total_minutes,

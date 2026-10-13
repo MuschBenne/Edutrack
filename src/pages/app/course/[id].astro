@@ -4,22 +4,33 @@ import Layout from '../../../layouts/Layout.astro';
 import SessionForm from '../../../components/SessionForm.astro';
 import * as coursePage from '../../../db/coursePage';
 import { toSessionMap } from '../../../db/studySessions';
+import { courseLabel } from '../../../db/courses';
 import { addDays, formatMinutes, todayIso } from '../../../lib/dates';
+import { parseId } from '../../../lib/ids';
 import { jsonForScript } from '../../../lib/json';
 import { studyTypeLabel } from '../../../lib/studyTypes';
 
 const user = Astro.locals.user!;
-const courseId = Astro.params.id!;
-const data = await coursePage.load(env.DB, user.id, courseId, addDays(todayIso(), -6), user.isAdmin);
+const courseId = parseId(Astro.params.id);
+const data = courseId && (await coursePage.load(env.DB, user.id, courseId, addDays(todayIso(), -6), user.isAdmin));
 if (!data) return new Response('Course not found, or you are not registered to it.', { status: 404 });
 
 const { course, stats, sessions, allSessions } = data;
 // Graf-skripten läser globala COURSEDATA och ALLCOURSEDATA i MongoDB-versionens format
-const courseData = { courseId: course.courseId, name: course.name, sessions: toSessionMap(sessions) };
+const courseData = { courseId: course.id, name: course.name, sessions: toSessionMap(sessions) };
 const newestFirst = [...sessions].reverse();
 
 const error = Astro.url.searchParams.get('error');
 const saved = Astro.url.searchParams.has('saved');
+
+// Efter "Add course" eller "Register" på /app/register-course
+const joinedMessages: Record<string, string> = {
+	created: 'Course created. You are registered to it.',
+	existing: 'This course already existed, so you have been added to it.',
+	already: 'This course already exists and you are already registered to it.',
+	registered: 'You are now registered to this course.',
+};
+const joined = joinedMessages[Astro.url.searchParams.get('joined') ?? ''];
 ---
 
 <Layout title={course.name} active="courses">
@@ -43,9 +54,12 @@ const saved = Astro.url.searchParams.has('saved');
 			<div>
 				<a class="back-link" href="/app">← My courses</a>
 				<h1>{course.name}</h1>
+				<p class="muted">{courseLabel(course)}</p>
 			</div>
 			<a class="btn btn-primary" href="#add-session">Add study session</a>
 		</div>
+
+		{joined && <p class="notice" role="status">{joined}</p>}
 
 		<div class="stats">
 			<div class="stat">
@@ -135,7 +149,7 @@ const saved = Astro.url.searchParams.has('saved');
 
 			<aside class="card course-aside" id="add-session">
 				<h2>Add study session</h2>
-				<SessionForm courseId={course.courseId} error={error} saved={saved} />
+				<SessionForm courseId={course.id} error={error} saved={saved} />
 			</aside>
 		</div>
 	</main>

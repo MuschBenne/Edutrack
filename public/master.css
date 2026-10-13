@@ -401,7 +401,10 @@ a:hover {
 }
 
 .field input,
-.field select {
+.field select,
+.search-form input,
+.search-form select,
+.inline-form input[type="text"] {
     width: 100%;
     min-height: 44px;
     padding: 10px 12px;
@@ -415,7 +418,10 @@ a:hover {
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.search-form input:focus,
+.search-form select:focus,
+.inline-form input[type="text"]:focus {
     outline: none;
     border-color: var(--ink);
     box-shadow: 0 0 0 1px var(--ink);
@@ -905,4 +911,52 @@ a:hover {
         padding-left: 14px;
         padding-right: 14px;
     }
+}
+
+/* Bekräftelser efter formulär, t.ex. "Course created" */
+.notice {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--success);
+    border-radius: var(--radius);
+    color: var(--success);
+    background: var(--surface);
+    font-size: 14px;
+}
+
+/* Sökfält och filter: fält och knapp på en rad */
+.search-form,
+.inline-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.search-form {
+    margin-bottom: 16px;
+}
+
+.search-form input,
+.search-form select {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.inline-form input[type="text"] {
+    min-width: 0;
+}
+
+.plain-list {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+.plain-list li {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0;
 }

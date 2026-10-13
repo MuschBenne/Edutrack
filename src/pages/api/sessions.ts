@@ -4,6 +4,7 @@ import * as courses from '../../db/courses';
 import * as enrollments from '../../db/enrollments';
 import * as studySessions from '../../db/studySessions';
 import { todayIso } from '../../lib/dates';
+import { parseId } from '../../lib/ids';
 import { parseSessionForm } from '../../lib/sessionForm';
 
 /** Sparar en studiesession från formuläret på kurssidan och skickar tillbaka dit. */
@@ -11,8 +12,9 @@ export const POST: APIRoute = async ({ locals, request, redirect }) => {
 	if (!locals.user) return redirect('/login', 303);
 
 	const form = await request.formData();
-	const courseId = String(form.get('courseId') ?? '');
-	const back = `/app/course/${encodeURIComponent(courseId)}`;
+	const courseId = parseId(form.get('courseId'));
+	if (!courseId) return redirect('/app', 303);
+	const back = `/app/course/${courseId}`;
 
 	const parsed = parseSessionForm(form);
 	if (!parsed.ok) return redirect(`${back}?error=${parsed.error}#add-session`, 303);
@@ -28,9 +30,9 @@ export const POST: APIRoute = async ({ locals, request, redirect }) => {
 export const GET: APIRoute = async ({ locals, url }) => {
 	if (!locals.user) return Response.json({ message: 'Not logged in' }, { status: 401 });
 
-	const courseId = url.searchParams.get('courseId') ?? '';
-	const course = await courses.get(env.DB, courseId);
-	if (!course || !(await enrollments.isEnrolled(env.DB, locals.user.id, courseId))) {
+	const courseId = parseId(url.searchParams.get('courseId'));
+	const course = courseId ? await courses.get(env.DB, courseId) : null;
+	if (!course || !courseId || !(await enrollments.isEnrolled(env.DB, locals.user.id, courseId))) {
 		return Response.json({ message: 'Course not found' }, { status: 404 });
 	}
 

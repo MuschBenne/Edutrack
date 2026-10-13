@@ -2,7 +2,10 @@ import { env } from 'cloudflare:workers';
 import { defineMiddleware } from 'astro:middleware';
 import { SESSION_COOKIE, userFromSessionToken } from './lib/auth';
 
-const LOGIN_REQUIRED = ['/app', '/admin'];
+const LOGIN_REQUIRED = ['/app', '/admin', '/api/admin'];
+const ADMIN_ONLY = ['/admin', '/api/admin'];
+
+const matches = (path: string, prefixes: string[]) => prefixes.some((p) => path === p || path.startsWith(p + '/'));
 
 export const onRequest = defineMiddleware(async (ctx, next) => {
 	ctx.locals.user = null;
@@ -17,9 +20,8 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
 	}
 
 	const path = ctx.url.pathname;
-	const needsLogin = LOGIN_REQUIRED.some((p) => path === p || path.startsWith(p + '/'));
-	if (needsLogin && !ctx.locals.user) return ctx.redirect('/login');
-	if ((path === '/admin' || path.startsWith('/admin/')) && !ctx.locals.user?.isAdmin) {
+	if (matches(path, LOGIN_REQUIRED) && !ctx.locals.user) return ctx.redirect('/login');
+	if (matches(path, ADMIN_ONLY) && !ctx.locals.user?.isAdmin) {
 		return new Response('Access denied, admins only!', { status: 403 });
 	}
 

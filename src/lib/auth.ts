@@ -1,5 +1,6 @@
 import * as authSessions from '../db/authSessions';
 import * as pendingSignups from '../db/pendingSignups';
+import * as universities from '../db/universities';
 import * as users from '../db/users';
 import { nowSeconds, randomToken, sha256Hex } from './tokens';
 
@@ -7,8 +8,6 @@ export const SESSION_COOKIE = 'session';
 export const PENDING_COOKIE = 'pending_signup';
 export const SESSION_DAYS = 30;
 const PENDING_MINUTES = 15;
-
-export const CLASSES = ['DV', 'IT', 'ES'] as const;
 
 /** Det vi behöver ur Googles id-token. */
 export type GoogleClaims = { sub: string; email: string; email_verified: boolean };
@@ -71,6 +70,13 @@ export function validateUsername(username: string): string | null {
 	return null;
 }
 
+/** Fritext, men trimmad så att förslagen i onboarding inte får varianter med extra mellanslag. */
+export function normalizeProgramme(programme: string): string {
+	return programme.trim().replace(/\s+/g, ' ');
+}
+
+export type OnboardingInput = { username: string; universityId: number; programme: string };
+
 /** @param adminEmails Kommaseparerad lista från secreten ADMIN_EMAILS. */
 export function isAdminEmail(adminEmails: string | undefined, email: string): boolean {
 	return (adminEmails ?? '')
@@ -83,7 +89,7 @@ export function isAdminEmail(adminEmails: string | undefined, email: string): bo
 export async function completeOnboarding(
 	db: D1Database,
 	pendingToken: string,
-	input: { username: string; class: string },
+	input: OnboardingInput,
 	adminEmails: string | undefined,
 ): Promise<OnboardingResult> {
 	const pendingHash = await sha256Hex(pendingToken);
@@ -93,13 +99,16 @@ export async function completeOnboarding(
 	const username = input.username.trim();
 	const usernameError = validateUsername(username);
 	if (usernameError) return { ok: false, message: usernameError };
-	if (!(CLASSES as readonly string[]).includes(input.class)) return { ok: false, message: 'Please pick a programme.' };
+	if (!(await universities.get(db, input.universityId))) return { ok: false, message: 'Please pick your university.' };
+	const programme = normalizeProgramme(input.programme);
+	if (programme.length < 2 || programme.length > 80) return { ok: false, message: 'Programme has to be 2–80 characters.' };
 
 	const user = await users.create(db, {
 		googleId: pending.googleId,
 		username,
 		email: pending.email,
-		class: input.class,
+		universityId: input.universityId,
+		programme,
 		isAdmin: isAdminEmail(adminEmails, pending.email),
 	});
 	if (!user) {

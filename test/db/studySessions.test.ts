@@ -6,36 +6,36 @@ import { db, makeCourse, makeUser, session } from '../helpers';
 describe('studySessions', () => {
 	it('sparar sessioner bara för registrerade elever', async () => {
 		const anna = await makeUser('anna');
-		await makeCourse('pkd');
-		await makeCourse('annan');
-		await enrollments.enroll(db, anna.id, 'pkd');
+		const pkd = await makeCourse('PKD');
+		const annan = await makeCourse('ANNAN');
+		await enrollments.enroll(db, anna.id, pkd.id);
 
-		expect(await studySessions.add(db, anna.id, 'pkd', session())).toBe(true);
-		expect(await studySessions.add(db, anna.id, 'annan', session())).toBe(false);
-		expect(await studySessions.add(db, anna.id, 'finns-inte', session())).toBe(false);
-		expect(await studySessions.forUserCourse(db, anna.id, 'pkd')).toEqual([session()]);
+		expect(await studySessions.add(db, anna.id, pkd.id, session())).toBe(true);
+		expect(await studySessions.add(db, anna.id, annan.id, session())).toBe(false);
+		expect(await studySessions.add(db, anna.id, 999_999, session())).toBe(false);
+		expect(await studySessions.forUserCourse(db, anna.id, pkd.id)).toEqual([session()]);
 	});
 
 	it('nekar värden utanför schemats gränser', async () => {
 		const anna = await makeUser('anna');
-		await makeCourse('pkd');
-		await enrollments.enroll(db, anna.id, 'pkd');
+		const pkd = await makeCourse('PKD');
+		await enrollments.enroll(db, anna.id, pkd.id);
 
-		await expect(studySessions.add(db, anna.id, 'pkd', session({ rating: 6 }))).rejects.toThrow();
-		await expect(studySessions.add(db, anna.id, 'pkd', session({ minutes: 0 }))).rejects.toThrow();
+		await expect(studySessions.add(db, anna.id, pkd.id, session({ rating: 6 }))).rejects.toThrow();
+		await expect(studySessions.add(db, anna.id, pkd.id, session({ minutes: 0 }))).rejects.toThrow();
 	});
 
 	it('forCourse samlar alla elevers sessioner', async () => {
 		const anna = await makeUser('anna');
 		const bo = await makeUser('bo');
-		await makeCourse('pkd');
-		await enrollments.enroll(db, anna.id, 'pkd');
-		await enrollments.enroll(db, bo.id, 'pkd');
-		await studySessions.add(db, anna.id, 'pkd', session());
-		await studySessions.add(db, bo.id, 'pkd', session({ studiedOn: '2026-10-09' }));
+		const pkd = await makeCourse('PKD');
+		await enrollments.enroll(db, anna.id, pkd.id);
+		await enrollments.enroll(db, bo.id, pkd.id);
+		await studySessions.add(db, anna.id, pkd.id, session());
+		await studySessions.add(db, bo.id, pkd.id, session({ studiedOn: '2026-10-09' }));
 
-		expect(await studySessions.forCourse(db, 'pkd')).toHaveLength(2);
-		expect(await studySessions.forUserCourse(db, bo.id, 'pkd')).toHaveLength(1);
+		expect(await studySessions.forCourse(db, pkd.id)).toHaveLength(2);
+		expect(await studySessions.forUserCourse(db, bo.id, pkd.id)).toHaveLength(1);
 	});
 });
 

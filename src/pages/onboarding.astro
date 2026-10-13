@@ -1,9 +1,13 @@
 ---
-// Nya användare väljer användarnamn och programme efter första Google-inloggningen
+// Nya användare väljer användarnamn, lärosäte och program efter första Google-inloggningen
 import { env } from 'cloudflare:workers';
 import Layout from '../layouts/Layout.astro';
-import { CLASSES, PENDING_COOKIE, completeOnboarding, getPendingSignup } from '../lib/auth';
+import * as universities from '../db/universities';
+import { programmesByUniversity } from '../db/users';
+import { PENDING_COOKIE, completeOnboarding, getPendingSignup } from '../lib/auth';
 import { setSessionCookie } from '../lib/cookies';
+import { parseId } from '../lib/ids';
+import { jsonForScript } from '../lib/json';
 
 if (Astro.locals.user) return Astro.redirect('/app');
 
@@ -12,14 +16,16 @@ if (!pendingToken) return Astro.redirect('/login');
 
 let error: string | null = null;
 let username = '';
-let selectedClass: string = CLASSES[0];
+let universityId: number | null = null;
+let programme = '';
 
 if (Astro.request.method === 'POST') {
 	const form = await Astro.request.formData();
 	username = String(form.get('username') ?? '');
-	selectedClass = String(form.get('class') ?? '');
+	universityId = parseId(form.get('universityId'));
+	programme = String(form.get('programme') ?? '');
 
-	const result = await completeOnboarding(env.DB, pendingToken, { username, class: selectedClass }, env.ADMIN_EMAILS);
+	const result = await completeOnboarding(env.DB, pendingToken, { username, universityId: universityId ?? 0, programme }, env.ADMIN_EMAILS);
 	if (result.ok) {
 		Astro.cookies.delete(PENDING_COOKIE, { path: '/' });
 		setSessionCookie(Astro.cookies, result);
@@ -33,13 +39,15 @@ if (!pending) {
 	Astro.cookies.delete(PENDING_COOKIE, { path: '/' });
 	return Astro.redirect('/login?error=expired');
 }
+
+const [universityList, programmes] = await Promise.all([universities.list(env.DB), programmesByUniversity(env.DB)]);
 ---
 
 <Layout title="Create account">
 	<main class="container auth">
 		<div class="card auth-card">
 			<h1>Almost done</h1>
-			<p class="lead">Signed in as {pending.email}. Pick a username and your programme.</p>
+			<p class="lead">Signed in as {pending.email}. Tell us a bit about yourself.</p>
 
 			<form class="form" method="post">
 				<label class="field">
@@ -48,14 +56,36 @@ if (!pending) {
 					<span class="field-hint">5–20 characters</span>
 				</label>
 				<label class="field">
-					Programme
-					<select name="class">
-						{CLASSES.map((c) => <option value={c} selected={c === selectedClass}>{c}</option>)}
+					University
+					<select name="universityId" id="university" required>
+						<option value="" selected={universityId === null}>Pick your university</option>
+						{universityList.map((u) => <option value={u.id} selected={u.id === universityId}>{u.name}</option>)}
 					</select>
+				</label>
+				<label class="field">
+					Programme
+					<input type="text" name="programme" value={programme} list="programme-suggestions" minlength="2" maxlength="80" required />
+					<span class="field-hint">E.g. Computer Science. Pick a suggestion if yours is listed.</span>
+					<datalist id="programme-suggestions"></datalist>
 				</label>
 				{error && <p class="form-message" role="alert">{error}</p>}
 				<button type="submit" class="btn btn-primary btn-lg btn-block">Create account</button>
 			</form>
 		</div>
 	</main>
+
+	<script type="application/json" id="programmes" set:html={jsonForScript(programmes)} />
+	<script is:inline>
+		// Förslagen beror på valt lärosäte, så listan byts när valet ändras
+		const programmes = JSON.parse(document.getElementById('programmes').textContent);
+		const select = document.getElementById('university');
+		const datalist = document.getElementById('programme-suggestions');
+		function updateSuggestions() {
+			datalist.replaceChildren(
+				...(programmes[select.value] ?? []).map((name) => Object.assign(document.createElement('option'), { value: name })),
+			);
+		}
+		select.addEventListener('change', updateSuggestions);
+		updateSuggestions();
+	</script>
 </Layout>

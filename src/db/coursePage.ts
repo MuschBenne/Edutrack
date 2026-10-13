@@ -1,4 +1,5 @@
-import { type Course, toCourse } from './courses';
+import { COURSE_COLUMNS, type Course, type CourseRow, toCourse } from './courses';
+import { qualify } from './sql';
 import { type CourseStats, courseStatsStatement, toCourseStats } from './stats';
 import { type SessionRow, type StudySession, forCourseStatement, forUserCourseStatement, toSession } from './studySessions';
 
@@ -17,16 +18,16 @@ export type CoursePageData = {
 export async function load(
 	db: D1Database,
 	userId: number,
-	courseId: string,
+	courseId: number,
 	since: string,
 	includeAllStudents: boolean,
 ): Promise<CoursePageData | null> {
 	const statements = [
 		db
 			.prepare(
-				`SELECT c.course_id, c.name FROM courses c
-				 JOIN enrollments e ON e.course_id = c.course_id
-				 WHERE e.user_id = ? AND c.course_id = ?`,
+				`SELECT ${qualify(COURSE_COLUMNS, 'c')} FROM courses c
+				 JOIN enrollments e ON e.course_id = c.id
+				 WHERE e.user_id = ? AND c.id = ?`,
 			)
 			.bind(userId, courseId),
 		courseStatsStatement(db, userId, courseId, since),
@@ -35,7 +36,7 @@ export async function load(
 	];
 	const [courseRes, statsRes, sessionsRes, allRes] = await db.batch<Record<string, unknown>>(statements);
 
-	const courseRow = courseRes.results[0] as { course_id: string; name: string } | undefined;
+	const courseRow = courseRes.results[0] as CourseRow | undefined;
 	if (!courseRow) return null;
 
 	return {

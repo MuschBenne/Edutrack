@@ -1,0 +1,95 @@
+---
+import { env } from 'cloudflare:workers';
+import Layout from '../../layouts/Layout.astro';
+import * as courses from '../../db/courses';
+import { COURSE_ERRORS } from '../../lib/courseForm';
+import { todayIso } from '../../lib/dates';
+import { termFor, termOptions } from '../../lib/terms';
+
+const user = Astro.locals.user!;
+const params = Astro.url.searchParams;
+const search = params.get('q') ?? '';
+const today = todayIso();
+
+const available = await courses.availableFor(env.DB, user.id, user.universityId, search);
+
+// Felkoder från /api/courses och /api/enrollments; inskrivna värden skickas tillbaka så att formuläret fylls i igen
+const errors: Record<string, string> = { ...COURSE_ERRORS, notfound: 'That course no longer exists.' };
+const error = errors[params.get('error') ?? ''] ?? null;
+const form = { code: params.get('code') ?? '', term: params.get('term') ?? termFor(today), name: params.get('name') ?? '' };
+---
+
+<Layout title="Register to course" active="register-course">
+	<main class="container page">
+		<div class="page-head">
+			<div>
+				<a class="back-link" href="/app">← My courses</a>
+				<h1>Register to course</h1>
+			</div>
+		</div>
+
+		<form class="search-form" method="get" role="search">
+			<input type="search" name="q" value={search} placeholder="Search by course code or name" aria-label="Search courses" />
+			<button type="submit" class="btn">Search</button>
+		</form>
+
+		{
+			available.length > 0 ? (
+				<div class="table-wrap">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Course</th>
+								<th>Code</th>
+								<th>Term</th>
+								<th />
+							</tr>
+						</thead>
+						<tbody>
+							{available.map((course) => (
+								<tr>
+									<td class="title-cell"><strong>{course.name}</strong></td>
+									<td class="muted">{course.code}</td>
+									<td class="muted">{course.term}</td>
+									<td class="right">
+										<form method="post" action="/api/enrollments">
+											<input type="hidden" name="courseId" value={course.id} />
+											<button type="submit" class="btn">Register</button>
+										</form>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			) : (
+				<div class="card empty">{search ? `No courses match "${search}".` : 'No courses to register to yet. Add the first one below.'}</div>
+			)
+		}
+
+		<section class="card section" id="add-course">
+			<h2>Can't find your course? Add it</h2>
+			<p class="muted">If the course already exists for that term, you'll be registered to it instead.</p>
+			<form class="form" method="post" action="/api/courses">
+				<div class="form-row">
+					<label class="field">
+						Course code
+						<input type="text" name="code" value={form.code} placeholder="1DL201" maxlength="20" required />
+					</label>
+					<label class="field">
+						Term
+						<select name="term">
+							{termOptions(today).map((t) => <option value={t} selected={t === form.term}>{t}</option>)}
+						</select>
+					</label>
+				</div>
+				<label class="field">
+					Course name
+					<input type="text" name="name" value={form.name} placeholder="Program Design and Data Structures" maxlength="100" required />
+				</label>
+				{error && <p class="form-message" role="alert">{error}</p>}
+				<button type="submit" class="btn btn-primary">Add course</button>
+			</form>
+		</section>
+	</main>
+</Layout>

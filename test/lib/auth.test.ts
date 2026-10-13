@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as auth from '../../src/lib/auth';
 import { nowSeconds, sha256Hex } from '../../src/lib/tokens';
-import { db, makeUser } from '../helpers';
+import { db, makeUser, universityId } from '../helpers';
 
 // Googles svar mockas genom att claims skickas in direkt; själva kod-utbytet i lib/google.ts testas inte här
 const claims = (overrides: Partial<auth.GoogleClaims> = {}): auth.GoogleClaims => ({
@@ -42,30 +42,33 @@ describe('resolveGoogleLogin', () => {
 describe('completeOnboarding', () => {
 	it('skapar kontot, loggar in och förbrukar registreringen', async () => {
 		const token = await startOnboarding();
-		const result = await auth.completeOnboarding(db, token, { username: 'nyanvändare', class: 'IT' }, undefined);
+		const uni = await universityId();
+		const result = await auth.completeOnboarding(db, token, { username: 'nyanvändare', universityId: uni, programme: '  Data  vetenskap ' }, undefined);
 
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		const user = await auth.userFromSessionToken(db, result.token);
-		expect(user).toMatchObject({ username: 'nyanvändare', class: 'IT', email: 'ny@example.com', isAdmin: false });
+		expect(user).toMatchObject({ username: 'nyanvändare', universityId: uni, programme: 'Data vetenskap', email: 'ny@example.com', isAdmin: false });
 		expect(await auth.getPendingSignup(db, token)).toBeNull();
 	});
 
 	it('ger admin till adresser i ADMIN_EMAILS, oavsett versaler och mellanslag', async () => {
 		const token = await startOnboarding(claims({ email: 'Admin@Example.com' }));
-		const result = await auth.completeOnboarding(db, token, { username: 'adminen', class: 'DV' }, 'annan@x.se, admin@example.com');
+		const result = await auth.completeOnboarding(db, token, { username: 'adminen', universityId: await universityId(), programme: 'IT' }, 'annan@x.se, admin@example.com');
 
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect((await auth.userFromSessionToken(db, result.token))?.isAdmin).toBe(true);
 	});
 
-	it('validerar användarnamn och programme', async () => {
+	it('validerar användarnamn, lärosäte och program', async () => {
 		const token = await startOnboarding();
+		const valid = { username: 'giltigt', universityId: await universityId(), programme: 'IT' };
 
-		expect(await auth.completeOnboarding(db, token, { username: 'kort', class: 'DV' }, undefined)).toMatchObject({ ok: false });
-		expect(await auth.completeOnboarding(db, token, { username: 'har mellanslag', class: 'DV' }, undefined)).toMatchObject({ ok: false });
-		expect(await auth.completeOnboarding(db, token, { username: 'giltigt', class: 'XX' }, undefined)).toMatchObject({ ok: false });
+		expect(await auth.completeOnboarding(db, token, { ...valid, username: 'kort' }, undefined)).toMatchObject({ ok: false });
+		expect(await auth.completeOnboarding(db, token, { ...valid, username: 'har mellanslag' }, undefined)).toMatchObject({ ok: false });
+		expect(await auth.completeOnboarding(db, token, { ...valid, universityId: 999_999 }, undefined)).toMatchObject({ ok: false });
+		expect(await auth.completeOnboarding(db, token, { ...valid, programme: ' x ' }, undefined)).toMatchObject({ ok: false });
 		// Misslyckade försök förbrukar inte registreringen
 		expect(await auth.getPendingSignup(db, token)).not.toBeNull();
 	});
@@ -74,18 +77,19 @@ describe('completeOnboarding', () => {
 		await makeUser('upptaget');
 		const token = await startOnboarding();
 
-		expect(await auth.completeOnboarding(db, token, { username: 'upptaget', class: 'DV' }, undefined)).toEqual({
+		expect(await auth.completeOnboarding(db, token, { username: 'upptaget', universityId: await universityId(), programme: 'IT' }, undefined)).toEqual({
 			ok: false,
 			message: 'That username is already taken.',
 		});
 	});
 
 	it('nekar okänd eller utgången registrering', async () => {
-		expect(await auth.completeOnboarding(db, 'påhittad', { username: 'giltigt', class: 'DV' }, undefined)).toMatchObject({ ok: false });
+		const valid = { username: 'giltigt', universityId: await universityId(), programme: 'IT' };
+		expect(await auth.completeOnboarding(db, 'påhittad', valid, undefined)).toMatchObject({ ok: false });
 
 		const token = await startOnboarding();
 		await db.prepare('UPDATE pending_signups SET expires_at = ?').bind(nowSeconds() - 1).run();
-		expect(await auth.completeOnboarding(db, token, { username: 'giltigt', class: 'DV' }, undefined)).toMatchObject({ ok: false });
+		expect(await auth.completeOnboarding(db, token, valid, undefined)).toMatchObject({ ok: false });
 	});
 });
 

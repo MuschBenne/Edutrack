@@ -35,61 +35,79 @@ Beslut: **Astro**. Det passar en app som mest består av serverrenderade sidor o
 
 ## Databasschema
 
-Dagens nästlade användardokument (`activeCourses` → `sessions` → datum → lista) delas upp i fyra tabeller, plus en tabell för inloggningar. Schemat läggs i `migrations/0001_init.sql` och körs med `wrangler d1 migrations apply`.
+Dagens nästlade användardokument (`activeCourses` → `sessions` → datum → lista) delas upp i tabeller för lärosäten, användare, kurser, registreringar och studiesessioner, plus två tabeller för inloggning. Schemat läggs i `migrations/0001_init.sql` och körs med `wrangler d1 migrations apply`.
 
 ```sql
-CREATE TABLE users (
-  id            INTEGER PRIMARY KEY,
-  username      TEXT NOT NULL UNIQUE,
-  email         TEXT NOT NULL UNIQUE,
-  google_id     TEXT NOT NULL UNIQUE,  -- Googles 'sub', stabilt även om e-posten ändras
-  class         TEXT NOT NULL,
-  is_admin      INTEGER NOT NULL DEFAULT 0
+CREATE TABLE universities (
+  id   INTEGER PRIMARY KEY,
+  name TEXT    NOT NULL UNIQUE
 );
 
+CREATE TABLE users (
+  id            INTEGER PRIMARY KEY,
+  google_id     TEXT    NOT NULL UNIQUE,  -- Googles 'sub', stabilt även om e-posten ändras
+  username      TEXT    NOT NULL UNIQUE,
+  email         TEXT    NOT NULL UNIQUE,
+  university_id INTEGER NOT NULL REFERENCES universities(id),
+  programme     TEXT    NOT NULL,         -- fritext, förslag från andra på samma lärosäte
+  is_admin      INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_users_university ON users(university_id);
+
+-- Varje lärosäte har egna kurser; samma kod finns en gång per termin
 CREATE TABLE courses (
-  course_id TEXT PRIMARY KEY,
-  name      TEXT NOT NULL
+  id            INTEGER PRIMARY KEY,
+  university_id INTEGER NOT NULL REFERENCES universities(id) ON DELETE CASCADE,
+  code          TEXT    NOT NULL,  -- normaliserad: versaler, utan mellanslag, t.ex. '1DL201'
+  term          TEXT    NOT NULL,  -- 'VT26' eller 'HT26'
+  name          TEXT    NOT NULL,
+  created_by    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at    INTEGER NOT NULL,  -- unix-tid i sekunder
+  UNIQUE (university_id, code, term)
 );
 
 CREATE TABLE enrollments (
   user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  course_id TEXT    NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
+  course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
   PRIMARY KEY (user_id, course_id)
 );
+-- För "vilka elever går kursen" (primärnyckeln täcker bara uppslag på user_id först)
 CREATE INDEX idx_enrollments_course ON enrollments(course_id);
 
 CREATE TABLE study_sessions (
   id            INTEGER PRIMARY KEY,
   user_id       INTEGER NOT NULL,
-  course_id     TEXT    NOT NULL,
-  studied_on    TEXT    NOT NULL,  -- '2026-10-08'
+  course_id     INTEGER NOT NULL,
+  studied_on    TEXT    NOT NULL,  -- 'YYYY-MM-DD'
   minutes       INTEGER NOT NULL CHECK (minutes > 0),
   type          TEXT    NOT NULL,
   rating        INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
   health        INTEGER NOT NULL CHECK (health BETWEEN 1 AND 5),
   mental_health INTEGER NOT NULL CHECK (mental_health BETWEEN 1 AND 5),
+  -- Sessioner försvinner när eleven avregistreras från kursen
   FOREIGN KEY (user_id, course_id)
     REFERENCES enrollments(user_id, course_id) ON DELETE CASCADE
 );
-CREATE INDEX idx_sessions_user_course
-  ON study_sessions(user_id, course_id, studied_on);
+CREATE INDEX idx_sessions_user_course ON study_sessions(user_id, course_id, studied_on);
+-- För admin-vyn med alla elevers sessioner i en kurs
 CREATE INDEX idx_sessions_course ON study_sessions(course_id, studied_on);
 
 CREATE TABLE auth_sessions (
-  id         TEXT PRIMARY KEY,  -- SHA-256 av token i cookien
+  id         TEXT    PRIMARY KEY,  -- SHA-256 av token i cookien
   user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  expires_at INTEGER NOT NULL
+  expires_at INTEGER NOT NULL      -- unix-tid i sekunder
 );
 CREATE INDEX idx_auth_sessions_user ON auth_sessions(user_id);
+-- Används av städningen av utgångna inloggningar
 CREATE INDEX idx_auth_sessions_expires ON auth_sessions(expires_at);
 
--- migrations/0002_pending_signups.sql: Google-inloggningar som inte valt namn och klass än
+-- migrations/0002_pending_signups.sql
+-- Google-inloggningar som inte valt användarnamn och klass än (onboarding)
 CREATE TABLE pending_signups (
   id         TEXT    PRIMARY KEY,  -- SHA-256 av token i cookien
   google_id  TEXT    NOT NULL,
   email      TEXT    NOT NULL,
-  expires_at INTEGER NOT NULL      -- 15 minuter
+  expires_at INTEGER NOT NULL      -- unix-tid i sekunder
 );
 CREATE INDEX idx_pending_signups_expires ON pending_signups(expires_at);
 ```
@@ -99,7 +117,21 @@ CREATE INDEX idx_pending_signups_expires ON pending_signups(expires_at);
 - **Dubbletter:** `UNIQUE` på användarnamn och e-post ersätter de manuella kontrollerna i `registerUser`.
 - **Google-koppling:** `google_id` identifierar användaren vid inloggning. E-posten sparas för visning och admin-kontrollen.
 - **Tokens:** cookien innehåller en slumpad token, databasen bara dess SHA-256. En läckt databas ger alltså inga giltiga inloggningar.
+- **Lärosäten:** ett 30-tal svenska universitet och högskolor läggs in av `0001_init.sql`. Admin kan lägga till fler. Användaren väljer lärosäte vid onboarding.
+- **Kurser:** varje lärosäte har egna kurser, och samma kod finns en gång per termin (`UNIQUE (university_id, code, term)`). Kurser har ett heltals-id, så adressen blir `/app/course/42`.
+- **Program:** fritext. I onboarding föreslås program som andra på samma lärosäte redan angett (`<datalist>`), så att alla skriver likadant.
 - **Datum:** sparas som `2026-10-08` i stället för `Wed_Oct_08_2026`, så statistik blir vanliga `SUM` och `GROUP BY`.
+
+## Kurser: skapa och gå med
+
+Användare skapar kurser själva. Det ska inte bli dubbletter, och senare kan admin behöva godkänna nya kurser.
+
+- **Sök först:** `/app/register-course` listar kurserna på användarens lärosäte, senaste terminen först, med sökning på kod och namn. Formuläret "Can't find your course? Add it" ligger under listan.
+- **Normalisering:** koden sparas med versaler och utan mellanslag (`1dl 201` → `1DL201`), 3–12 tecken bland A–Z, 0–9 och bindestreck. Terminen väljs i en lista (förra, nuvarande och nästa, t.ex. VT26, HT26, VT27), inte som fritext.
+- **Finns kursen redan** (samma lärosäte, kod och termin) registreras användaren på den, och det inskrivna namnet ignoreras. Ingen kan alltså döpa om en kurs genom att "skapa" den igen.
+- **Spårbarhet:** `created_by` och `created_at` sparas, och admin ser vem som skapade varje kurs.
+- **Godkännande senare:** läggs till med en kolumn `status` i en ny migrering. Inget befintligt behöver ändras.
+- **Felstavad kod** blir en ny kurs. Admin kan byta namn på eller ta bort den. En funktion för att slå ihop kurser kan läggas till senare.
 
 ## Kostnad och prestanda
 
@@ -133,14 +165,14 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
 | `src/App.ts` (Express, routes, session) | `astro.config.mjs` med Cloudflare-adaptern, `src/middleware.ts` |
 | `views/CommonModules/Head, Nav, Footer` | `src/layouts/Layout.astro` |
 | `views/Landing.ejs` | `src/pages/index.astro` |
-| `views/Login.ejs`, `Register.ejs` | `src/pages/login.astro` (Google-knapp), `onboarding.astro` (val av klass för nya användare) |
+| `views/Login.ejs`, `Register.ejs` | `src/pages/login.astro` (Google-knapp), `onboarding.astro` (användarnamn, lärosäte och program för nya användare) |
 | `views/Application/Main.ejs` | `src/pages/app/index.astro` |
 | `views/Application/CoursePage.ejs` + `Session.ejs` | `src/pages/app/course/[id].astro` + `src/components/SessionForm.astro` |
-| `views/Application/CourseRegister.ejs` | `src/pages/app/register-course.astro` |
+| `views/Application/CourseRegister.ejs` | `src/pages/app/register-course.astro` + `src/pages/api/courses.ts` (skapa eller gå med) och `api/enrollments.ts` (gå med från listan) |
 | `views/Admin.ejs` | `src/pages/admin.astro` |
 | `modules/Login.ts`, `Register.ts`, `Logout.ts` | `src/pages/api/auth/google.ts`, `google/callback.ts`, `src/pages/logout.ts` + `src/lib/auth.ts`, `google.ts`, `cookies.ts`. Formuläret i `onboarding.astro` hanterar sin egen POST. |
 | `modules/Application.ts` (POST-actions) | `src/pages/api/sessions.ts`, `api/enrollments.ts` |
-| `modules/CourseManager.ts` | `src/pages/api/admin/*.ts` |
+| `modules/CourseManager.ts` | `src/pages/api/admin.ts` (alla admin-formulär, fältet `action` väljer vad som görs) + `src/db/admin.ts` |
 | `db_models/User.ts`, `Course.ts` | `src/db/*.ts` med SQL-frågor |
 | `public/` | `public/` (oförändrat) |
 
@@ -164,7 +196,7 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
    - Biblioteket **Arctic** sköter OAuth-flödet och fungerar i Workers. `state` och PKCE-verifieraren sparas i kortlivade `HttpOnly`-cookies.
    - `api/auth/google.ts` skickar användaren till Google. `google/callback.ts` tar emot svaret och slår upp användaren:
      1. Finns `google_id`: logga in.
-     2. Annars: ny användare. Google-id och e-post sparas i `pending_signups` och användaren skickas till `/onboarding`, där användarnamn (5–20 tecken) och programme (DV, IT, ES) väljs innan kontot skapas. Kräver att Google anger `email_verified`.
+     2. Annars: ny användare. Google-id och e-post sparas i `pending_signups` och användaren skickas till `/onboarding`, där användarnamn (5–20 tecken), lärosäte och program (fritext med förslag) väljs innan kontot skapas. Kräver att Google anger `email_verified`.
    - **Admin:** secreten `ADMIN_EMAILS` (kommaseparerad lista, i `.dev.vars` lokalt och via `wrangler secret put ADMIN_EMAILS` i produktion) avgör vilka konton som får `is_admin = 1` när de skapas. Adresserna hamnar aldrig i repot.
    - Skolkonton i Google Workspace kan ha tredjepartsappar blockerade. Testa med ett skolkonto tidigt i fas 2.
 5. **Sidor**
@@ -206,7 +238,9 @@ Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills s
 1. **Grund (klar 2026-10-13):** projektuppsättning, schema, databaslager och tester för det. Statistiken i SQL skrivs i fas 3, tillsammans med sidorna som visar den.
 2. **Konton (klar 2026-10-13):** sessioner, Google-inloggning, onboarding, layout och landningssidan. `/app` är en tillfällig sida tills fas 3.
 3. **Kärnan (klar 2026-10-13):** Mina kurser, kurssidan med grafer, statistiken i SQL och formuläret för ny session.
-4. **Resten:** kursregistrering och admin.
+4. **Resten (klar 2026-10-13):** lärosäten, kurser per termin, kursregistrering och admin.
+   - **Admin-panelen (`/admin`):** filter per lärosäte, byta namn på och ta bort kurser, ta bort användare och ta bort elever från kurser, och lägga till lärosäten. Allt görs med vanliga formulär till `/api/admin`. Admin kan inte ta bort sitt eget konto där.
+   - **Schemat:** `0001_init.sql` skrevs om, eftersom inget hade driftsatts. Lokala databaser behöver nollställas: `rm -rf .wrangler/state/v3/d1 && npm run db:migrate:local`.
 5. **Lansering:** ta bort `legacy/`, driftsätt, peka om domänen, slå ihop med `main` och stäng ner MongoDB.
 
 **Beslut att ta innan fas 1:**

@@ -44,7 +44,7 @@ export function toSession(row: SessionRow): StudySession {
  * @returns false om användaren inte är registrerad på kursen.
  * @throws Om ett värde bryter mot schemats CHECK-villkor (t.ex. betyg utanför 1–5).
  */
-export async function add(db: D1Database, userId: number, courseId: string, s: StudySession): Promise<boolean> {
+export async function add(db: D1Database, userId: number, courseId: number, s: StudySession): Promise<boolean> {
 	// SELECT från enrollments gör att en saknad registrering ger 0 rader i stället för ett FOREIGN KEY-fel
 	const { meta } = await db
 		.prepare(
@@ -58,24 +58,24 @@ export async function add(db: D1Database, userId: number, courseId: string, s: S
 }
 
 // Statement-varianterna låter kurssidan köra flera frågor i en db.batch()
-export function forUserCourseStatement(db: D1Database, userId: number, courseId: string): D1PreparedStatement {
+export function forUserCourseStatement(db: D1Database, userId: number, courseId: number): D1PreparedStatement {
 	return db
 		.prepare(`SELECT ${COLUMNS} FROM study_sessions WHERE user_id = ? AND course_id = ? ORDER BY studied_on, id`)
 		.bind(userId, courseId);
 }
 
-export function forCourseStatement(db: D1Database, courseId: string): D1PreparedStatement {
+export function forCourseStatement(db: D1Database, courseId: number): D1PreparedStatement {
 	return db.prepare(`SELECT ${COLUMNS} FROM study_sessions WHERE course_id = ? ORDER BY studied_on, id`).bind(courseId);
 }
 
 /** Sessioner i stigande datumordning. */
-export async function forUserCourse(db: D1Database, userId: number, courseId: string): Promise<StudySession[]> {
+export async function forUserCourse(db: D1Database, userId: number, courseId: number): Promise<StudySession[]> {
 	const { results } = await forUserCourseStatement(db, userId, courseId).all<SessionRow>();
 	return results.map(toSession);
 }
 
 /** Alla elevers sessioner i en kurs, för admin-vyn. */
-export async function forCourse(db: D1Database, courseId: string): Promise<StudySession[]> {
+export async function forCourse(db: D1Database, courseId: number): Promise<StudySession[]> {
 	const { results } = await forCourseStatement(db, courseId).all<SessionRow>();
 	return results.map(toSession);
 }

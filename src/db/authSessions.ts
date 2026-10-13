@@ -1,13 +1,5 @@
-import type { User } from './users';
-
-type SessionUserRow = {
-	id: number;
-	google_id: string;
-	username: string;
-	email: string;
-	class: string;
-	is_admin: number;
-};
+import { qualify } from './sql';
+import { type User, type UserRow, USER_COLUMNS, toUser } from './users';
 
 /** @param idHash SHA-256 av token i cookien, så att en läckt databas inte ger inloggade sessioner. */
 export async function create(db: D1Database, idHash: string, userId: number, expiresAt: number): Promise<void> {
@@ -21,21 +13,13 @@ export async function create(db: D1Database, idHash: string, userId: number, exp
 export async function getUser(db: D1Database, idHash: string, now: number): Promise<User | null> {
 	const row = await db
 		.prepare(
-			`SELECT u.id, u.google_id, u.username, u.email, u.class, u.is_admin
+			`SELECT ${qualify(USER_COLUMNS, 'u')}
 			 FROM auth_sessions s JOIN users u ON u.id = s.user_id
 			 WHERE s.id = ? AND s.expires_at > ?`,
 		)
 		.bind(idHash, now)
-		.first<SessionUserRow>();
-	if (!row) return null;
-	return {
-		id: row.id,
-		googleId: row.google_id,
-		username: row.username,
-		email: row.email,
-		class: row.class,
-		isAdmin: row.is_admin === 1,
-	};
+		.first<UserRow>();
+	return row ? toUser(row) : null;
 }
 
 export async function remove(db: D1Database, idHash: string): Promise<void> {

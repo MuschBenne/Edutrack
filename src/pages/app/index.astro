@@ -29,6 +29,8 @@ const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
 						<thead>
 							<tr>
 								<th>Course</th>
+								<th>Code</th>
+								<th>Term</th>
 								<th class="right">Last 7 days</th>
 								<th class="right">Sessions</th>
 								<th>Last session</th>
@@ -37,10 +39,12 @@ const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
 						</thead>
 						<tbody>
 							{rows.map((row) => {
-								const href = `/app/course/${encodeURIComponent(row.courseId)}`;
+								const href = `/app/course/${row.courseId}`;
 								return (
 									<tr>
 										<td class="title-cell"><a href={href}>{row.name}</a></td>
+										<td class="muted">{row.code}</td>
+										<td class="muted">{row.term}</td>
 										<td class="right">{row.recentMinutes > 0 ? formatMinutes(row.recentMinutes) : '–'}</td>
 										<td class="right">{row.sessionCount}</td>
 										<td class="muted">{relativeDay(row.lastStudiedOn, today)}</td>

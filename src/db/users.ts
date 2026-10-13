@@ -3,46 +3,49 @@ export type User = {
 	googleId: string;
 	username: string;
 	email: string;
-	class: string;
+	universityId: number;
+	programme: string;
 	isAdmin: boolean;
 };
 
 export type NewUser = Omit<User, 'id'>;
 
-type UserRow = {
+export type UserRow = {
 	id: number;
 	google_id: string;
 	username: string;
 	email: string;
-	class: string;
+	university_id: number;
+	programme: string;
 	is_admin: number;
 };
 
-const COLUMNS = 'id, google_id, username, email, class, is_admin';
+export const USER_COLUMNS = 'id, google_id, username, email, university_id, programme, is_admin';
 
-function toUser(row: UserRow): User {
+export function toUser(row: UserRow): User {
 	return {
 		id: row.id,
 		googleId: row.google_id,
 		username: row.username,
 		email: row.email,
-		class: row.class,
+		universityId: row.university_id,
+		programme: row.programme,
 		isAdmin: row.is_admin === 1,
 	};
 }
 
 export async function getById(db: D1Database, id: number): Promise<User | null> {
-	const row = await db.prepare(`SELECT ${COLUMNS} FROM users WHERE id = ?`).bind(id).first<UserRow>();
+	const row = await db.prepare(`SELECT ${USER_COLUMNS} FROM users WHERE id = ?`).bind(id).first<UserRow>();
 	return row ? toUser(row) : null;
 }
 
 export async function getByUsername(db: D1Database, username: string): Promise<User | null> {
-	const row = await db.prepare(`SELECT ${COLUMNS} FROM users WHERE username = ?`).bind(username).first<UserRow>();
+	const row = await db.prepare(`SELECT ${USER_COLUMNS} FROM users WHERE username = ?`).bind(username).first<UserRow>();
 	return row ? toUser(row) : null;
 }
 
 export async function getByGoogleId(db: D1Database, googleId: string): Promise<User | null> {
-	const row = await db.prepare(`SELECT ${COLUMNS} FROM users WHERE google_id = ?`).bind(googleId).first<UserRow>();
+	const row = await db.prepare(`SELECT ${USER_COLUMNS} FROM users WHERE google_id = ?`).bind(googleId).first<UserRow>();
 	return row ? toUser(row) : null;
 }
 
@@ -54,19 +57,14 @@ export async function create(db: D1Database, user: NewUser): Promise<User | null
 	// ON CONFLICT DO NOTHING utan mål gäller alla UNIQUE-kolumner; RETURNING ger då ingen rad
 	const row = await db
 		.prepare(
-			`INSERT INTO users (google_id, username, email, class, is_admin)
-			 VALUES (?, ?, ?, ?, ?)
+			`INSERT INTO users (google_id, username, email, university_id, programme, is_admin)
+			 VALUES (?, ?, ?, ?, ?, ?)
 			 ON CONFLICT DO NOTHING
-			 RETURNING ${COLUMNS}`,
+			 RETURNING ${USER_COLUMNS}`,
 		)
-		.bind(user.googleId, user.username, user.email, user.class, user.isAdmin ? 1 : 0)
+		.bind(user.googleId, user.username, user.email, user.universityId, user.programme, user.isAdmin ? 1 : 0)
 		.first<UserRow>();
 	return row ? toUser(row) : null;
-}
-
-export async function list(db: D1Database): Promise<User[]> {
-	const { results } = await db.prepare(`SELECT ${COLUMNS} FROM users ORDER BY username`).all<UserRow>();
-	return results.map(toUser);
 }
 
 /**
@@ -76,4 +74,18 @@ export async function list(db: D1Database): Promise<User[]> {
 export async function remove(db: D1Database, id: number): Promise<boolean> {
 	const { meta } = await db.prepare('DELETE FROM users WHERE id = ?').bind(id).run();
 	return meta.changes > 0;
+}
+
+/** Program per lärosäte, vanligaste först. Förslag i onboarding så att alla skriver samma namn. */
+export async function programmesByUniversity(db: D1Database): Promise<Record<number, string[]>> {
+	const { results } = await db
+		.prepare(
+			`SELECT university_id, programme FROM users
+			 GROUP BY university_id, programme
+			 ORDER BY university_id, COUNT(*) DESC, programme`,
+		)
+		.all<{ university_id: number; programme: string }>();
+	const map: Record<number, string[]> = {};
+	for (const r of results) (map[r.university_id] ??= []).push(r.programme);
+	return map;
 }

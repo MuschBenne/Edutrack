@@ -1,0 +1,181 @@
+---
+import { env } from 'cloudflare:workers';
+import Layout from '../layouts/Layout.astro';
+import * as admin from '../db/admin';
+import * as universities from '../db/universities';
+import { parseId } from '../lib/ids';
+
+// Middleware har redan stoppat alla som inte är admin
+const me = Astro.locals.user!;
+const universityId = parseId(Astro.url.searchParams.get('university'));
+const [universityList, courses, users] = await Promise.all([
+	universities.list(env.DB),
+	admin.courses(env.DB, universityId),
+	admin.users(env.DB, universityId),
+]);
+
+const messages: Record<string, { text: string; ok: boolean }> = {
+	'course-renamed': { text: 'Course renamed.', ok: true },
+	'course-deleted': { text: 'Course deleted.', ok: true },
+	'user-deleted': { text: 'User deleted.', ok: true },
+	'student-removed': { text: 'Student removed from course.', ok: true },
+	'university-added': { text: 'University added.', ok: true },
+	'university-exists': { text: 'That university already exists.', ok: false },
+	'invalid-name': { text: 'Name has to be 3–100 characters.', ok: false },
+	'not-self': { text: "You can't delete your own account here.", ok: false },
+	'not-found': { text: 'It no longer exists.', ok: false },
+};
+const message = messages[Astro.url.searchParams.get('msg') ?? ''];
+// Skickas med i varje formulär så att man hamnar på samma filter efteråt
+const back = universityId ? `/admin?university=${universityId}` : '/admin';
+---
+
+<Layout title="Admin" active="admin">
+	<main class="container page">
+		<div class="page-head">
+			<div><h1>Admin</h1></div>
+			<form class="search-form" method="get">
+				<select name="university" aria-label="Filter by university">
+					<option value="">All universities</option>
+					{universityList.map((u) => <option value={u.id} selected={u.id === universityId}>{u.name}</option>)}
+				</select>
+				<button type="submit" class="btn">Filter</button>
+			</form>
+		</div>
+
+		{message && <p class={message.ok ? 'notice' : 'form-message'} role="status">{message.text}</p>}
+
+		<section class="section">
+			<h2>Courses ({courses.length})</h2>
+			{
+				courses.length > 0 ? (
+					<div class="table-wrap">
+						<table class="table table-compact">
+							<thead>
+								<tr>
+									<th>Code</th>
+									<th>Term</th>
+									<th>Name</th>
+									<th>University</th>
+									<th class="right">Students</th>
+									<th>Created by</th>
+									<th />
+								</tr>
+							</thead>
+							<tbody>
+								{courses.map((c) => (
+									<tr>
+										<td>{c.code}</td>
+										<td>{c.term}</td>
+										<td>
+											<form class="inline-form" method="post" action="/api/admin">
+												<input type="hidden" name="action" value="renameCourse" />
+												<input type="hidden" name="courseId" value={c.id} />
+												<input type="hidden" name="back" value={back} />
+												<input type="text" name="name" value={c.name} minlength="3" maxlength="100" required aria-label="Course name" />
+												<button type="submit" class="link-button">Save</button>
+											</form>
+										</td>
+										<td class="muted">{c.university}</td>
+										<td class="right">{c.students}</td>
+										<td class="muted">{c.createdBy ?? '–'}</td>
+										<td class="right">
+											<form method="post" action="/api/admin" onsubmit={`return confirm(${JSON.stringify(`Delete ${c.code} ${c.term} and all its sessions?`)})`}>
+												<input type="hidden" name="action" value="deleteCourse" />
+												<input type="hidden" name="courseId" value={c.id} />
+												<input type="hidden" name="back" value={back} />
+												<button type="submit" class="btn btn-danger">Delete</button>
+											</form>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				) : (
+					<div class="card empty">No courses.</div>
+				)
+			}
+		</section>
+
+		<section class="section">
+			<h2>Users ({users.length})</h2>
+			{
+				users.length > 0 ? (
+					<div class="table-wrap">
+						<table class="table table-compact">
+							<thead>
+								<tr>
+									<th>Username</th>
+									<th>Email</th>
+									<th>University</th>
+									<th>Programme</th>
+									<th>Courses</th>
+									<th />
+								</tr>
+							</thead>
+							<tbody>
+								{users.map((u) => (
+									<tr>
+										<td>
+											{u.username}
+											{u.isAdmin && <span class="muted"> (admin)</span>}
+										</td>
+										<td class="muted">{u.email}</td>
+										<td class="muted">{u.university}</td>
+										<td class="muted">{u.programme}</td>
+										<td>
+											{u.courses.length === 0 ? (
+												<span class="muted">–</span>
+											) : (
+												<details>
+													<summary>{u.courses.length} courses</summary>
+													<ul class="plain-list">
+														{u.courses.map((c) => (
+															<li>
+																{c.code} {c.term} – {c.name}
+																<form class="inline-form" method="post" action="/api/admin">
+																	<input type="hidden" name="action" value="removeStudent" />
+																	<input type="hidden" name="userId" value={u.id} />
+																	<input type="hidden" name="courseId" value={c.id} />
+																	<input type="hidden" name="back" value={back} />
+																	<button type="submit" class="link-button">Remove</button>
+																</form>
+															</li>
+														))}
+													</ul>
+												</details>
+											)}
+										</td>
+										<td class="right">
+											{u.id !== me.id && (
+												<form method="post" action="/api/admin" onsubmit={`return confirm(${JSON.stringify(`Delete ${u.username} and all their data?`)})`}>
+													<input type="hidden" name="action" value="deleteUser" />
+													<input type="hidden" name="userId" value={u.id} />
+													<input type="hidden" name="back" value={back} />
+													<button type="submit" class="btn btn-danger">Delete</button>
+												</form>
+											)}
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				) : (
+					<div class="card empty">No users.</div>
+				)
+			}
+		</section>
+
+		<section class="card section">
+			<h2>Add a university</h2>
+			<form class="inline-form" method="post" action="/api/admin">
+				<input type="hidden" name="action" value="addUniversity" />
+				<input type="hidden" name="back" value={back} />
+				<input type="text" name="name" placeholder="Name" minlength="3" maxlength="100" required aria-label="University name" />
+				<button type="submit" class="btn btn-primary">Add</button>
+			</form>
+		</section>
+	</main>
+</Layout>

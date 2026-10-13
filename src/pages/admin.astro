@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import Layout from '../layouts/Layout.astro';
 import * as admin from '../db/admin';
 import * as universities from '../db/universities';
+import { gradingScaleLabel } from '../lib/grades';
 import { parseId } from '../lib/ids';
 
 // Middleware har redan stoppat alla som inte är admin
@@ -56,6 +57,7 @@ const back = universityId ? `/admin?university=${universityId}` : '/admin';
 									<th>Code</th>
 									<th>Term</th>
 									<th>Name</th>
+									<th>Scale</th>
 									<th>University</th>
 									<th class="right">Students</th>
 									<th>Created by</th>
@@ -76,6 +78,7 @@ const back = universityId ? `/admin?university=${universityId}` : '/admin';
 												<button type="submit" class="link-button">Save</button>
 											</form>
 										</td>
+										<td class="muted">{gradingScaleLabel(c.gradingScale)}</td>
 										<td class="muted">{c.university}</td>
 										<td class="right">{c.students}</td>
 										<td class="muted">{c.createdBy ?? '–'}</td>
@@ -134,6 +137,7 @@ const back = universityId ? `/admin?university=${universityId}` : '/admin';
 														{u.courses.map((c) => (
 															<li>
 																{c.code} {c.term} – {c.name}
+																{c.finalGrade && <strong> ({c.finalGrade})</strong>}
 																<form class="inline-form" method="post" action="/api/admin">
 																	<input type="hidden" name="action" value="removeStudent" />
 																	<input type="hidden" name="userId" value={u.id} />

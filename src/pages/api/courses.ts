@@ -19,6 +19,7 @@ export const POST: APIRoute = async ({ locals, request, redirect }) => {
 			code: String(form.get('code') ?? ''),
 			term: String(form.get('term') ?? ''),
 			name: String(form.get('name') ?? ''),
+			gradingScale: String(form.get('gradingScale') ?? ''),
 		});
 		return redirect(`/app/register-course?${back}#add-course`, 303);
 	}

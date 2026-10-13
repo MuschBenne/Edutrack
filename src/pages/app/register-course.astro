@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import Layout from '../../layouts/Layout.astro';
 import * as courses from '../../db/courses';
 import { COURSE_ERRORS } from '../../lib/courseForm';
+import { GRADING_SCALES } from '../../lib/grades';
 import { todayIso } from '../../lib/dates';
 import { termFor, termOptions } from '../../lib/terms';
 
@@ -16,7 +17,12 @@ const available = await courses.availableFor(env.DB, user.id, user.universityId,
 // Felkoder från /api/courses och /api/enrollments; inskrivna värden skickas tillbaka så att formuläret fylls i igen
 const errors: Record<string, string> = { ...COURSE_ERRORS, notfound: 'That course no longer exists.' };
 const error = errors[params.get('error') ?? ''] ?? null;
-const form = { code: params.get('code') ?? '', term: params.get('term') ?? termFor(today), name: params.get('name') ?? '' };
+const form = {
+	code: params.get('code') ?? '',
+	term: params.get('term') ?? termFor(today),
+	name: params.get('name') ?? '',
+	gradingScale: params.get('gradingScale') ?? '',
+};
 ---
 
 <Layout title="Register to course" active="register-course">
@@ -86,6 +92,14 @@ const form = { code: params.get('code') ?? '', term: params.get('term') ?? termF
 				<label class="field">
 					Course name
 					<input type="text" name="name" value={form.name} placeholder="Program Design and Data Structures" maxlength="100" required />
+				</label>
+				<label class="field">
+					Grading scale
+					<select name="gradingScale" required>
+						<option value="" selected={form.gradingScale === ''}>Pick the course's grading scale</option>
+						{Object.entries(GRADING_SCALES).map(([value, s]) => <option value={value} selected={value === form.gradingScale}>{s.label}</option>)}
+					</select>
+					<span class="field-hint">Ignored if the course already exists.</span>
 				</label>
 				{error && <p class="form-message" role="alert">{error}</p>}
 				<button type="submit" class="btn btn-primary">Add course</button>

@@ -738,6 +738,9 @@ a:hover {
 
 .course-aside {
     flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
 }
 
 .course-aside h2 {

@@ -5,16 +5,16 @@ import * as studySessions from '../../src/db/studySessions';
 import { db, makeCourse, makeUser, session, universityId } from '../helpers';
 
 describe('courses', () => {
-	it('findOrCreate ger samma kurs för samma lärosäte, kod och termin, och behåller första namnet', async () => {
+	it('findOrCreate ger samma kurs för samma lärosäte, kod och termin, och behåller första namnet och skalan', async () => {
 		const uni = await universityId();
-		const input = { universityId: uni, code: '1DL201', term: 'HT26', name: 'Programdesign', createdBy: null, createdAt: 0 };
+		const input = { universityId: uni, code: '1DL201', term: 'HT26', name: 'Programdesign', gradingScale: 'U345' as const, createdBy: null, createdAt: 0 };
 
 		const first = await courses.findOrCreate(db, input);
-		const second = await courses.findOrCreate(db, { ...input, name: 'Annat namn' });
+		const second = await courses.findOrCreate(db, { ...input, name: 'Annat namn', gradingScale: 'AF' });
 
 		expect(first.created).toBe(true);
 		expect(second).toEqual({ course: first.course, created: false });
-		expect(second.course.name).toBe('Programdesign');
+		expect(second.course).toMatchObject({ name: 'Programdesign', gradingScale: 'U345' });
 	});
 
 	it('samma kod blir olika kurser för olika terminer och lärosäten', async () => {

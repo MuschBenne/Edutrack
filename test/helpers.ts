@@ -2,6 +2,7 @@ import { env } from 'cloudflare:test';
 import * as courses from '../src/db/courses';
 import * as users from '../src/db/users';
 import type { StudySession } from '../src/db/studySessions';
+import type { GradingScale } from '../src/lib/grades';
 
 export const db = env.DB;
 
@@ -25,12 +26,16 @@ export async function makeUser(name: string, options: { isAdmin?: boolean; unive
 	return user;
 }
 
-export async function makeCourse(code: string, options: { term?: string; name?: string; university?: string } = {}) {
+export async function makeCourse(
+	code: string,
+	options: { term?: string; name?: string; university?: string; gradingScale?: GradingScale } = {},
+) {
 	const { course } = await courses.findOrCreate(db, {
 		universityId: await universityId(options.university),
 		code,
 		term: options.term ?? 'HT26',
 		name: options.name ?? `Course ${code}`,
+		gradingScale: options.gradingScale ?? 'U345',
 		createdBy: null,
 		createdAt: 0,
 	});

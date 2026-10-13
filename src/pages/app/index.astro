@@ -34,6 +34,7 @@ const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
 								<th class="right">Last 7 days</th>
 								<th class="right">Sessions</th>
 								<th>Last session</th>
+								<th>Grade</th>
 								<th />
 							</tr>
 						</thead>
@@ -48,6 +49,7 @@ const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
 										<td class="right">{row.recentMinutes > 0 ? formatMinutes(row.recentMinutes) : '–'}</td>
 										<td class="right">{row.sessionCount}</td>
 										<td class="muted">{relativeDay(row.lastStudiedOn, today)}</td>
+										<td>{row.finalGrade ?? <span class="muted">–</span>}</td>
 										<td class="right"><a href={href}>Open</a></td>
 									</tr>
 								);

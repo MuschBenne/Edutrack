@@ -1,6 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
 import Layout from '../../../layouts/Layout.astro';
+import FinalGradeForm from '../../../components/FinalGradeForm.astro';
 import SessionForm from '../../../components/SessionForm.astro';
 import * as coursePage from '../../../db/coursePage';
 import { toSessionMap } from '../../../db/studySessions';
@@ -15,7 +16,7 @@ const courseId = parseId(Astro.params.id);
 const data = courseId && (await coursePage.load(env.DB, user.id, courseId, addDays(todayIso(), -6), user.isAdmin));
 if (!data) return new Response('Course not found, or you are not registered to it.', { status: 404 });
 
-const { course, stats, sessions, allSessions } = data;
+const { course, finalGrade, stats, sessions, allSessions } = data;
 // Graf-skripten läser globala COURSEDATA och ALLCOURSEDATA i MongoDB-versionens format
 const courseData = { courseId: course.id, name: course.name, sessions: toSessionMap(sessions) };
 const newestFirst = [...sessions].reverse();
@@ -73,6 +74,10 @@ const joined = joinedMessages[Astro.url.searchParams.get('joined') ?? ''];
 			<div class="stat">
 				<span class="stat-label">Sessions</span>
 				<span class="stat-value">{stats.sessionCount}</span>
+			</div>
+			<div class="stat">
+				<span class="stat-label">Final grade</span>
+				<span class="stat-value">{finalGrade ?? '–'}</span>
 			</div>
 			<div class="stat">
 				<span class="stat-label">Avg. session rating</span>
@@ -147,9 +152,15 @@ const joined = joinedMessages[Astro.url.searchParams.get('joined') ?? ''];
 				}
 			</div>
 
-			<aside class="card course-aside" id="add-session">
-				<h2>Add study session</h2>
-				<SessionForm courseId={course.id} error={error} saved={saved} />
+			<aside class="course-aside">
+				<div class="card" id="add-session">
+					<h2>Add study session</h2>
+					<SessionForm courseId={course.id} error={error} saved={saved} />
+				</div>
+				<div class="card" id="final-grade">
+					<h2>Final grade</h2>
+					<FinalGradeForm course={course} finalGrade={finalGrade} status={Astro.url.searchParams.get('grade')} />
+				</div>
 			</aside>
 		</div>
 	</main>

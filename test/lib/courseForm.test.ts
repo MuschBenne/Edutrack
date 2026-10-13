@@ -4,7 +4,7 @@ import { termFor, termOptions } from '../../src/lib/terms';
 
 function form(values: Record<string, string>) {
 	const f = new FormData();
-	for (const [k, v] of Object.entries({ code: '1dl 201', term: 'HT26', name: '  Program  design ', ...values })) f.set(k, v);
+	for (const [k, v] of Object.entries({ code: '1dl 201', term: 'HT26', name: '  Program  design ', gradingScale: 'UGVG', ...values })) f.set(k, v);
 	return f;
 }
 
@@ -21,7 +21,7 @@ describe('terms', () => {
 describe('parseCourseForm', () => {
 	it('normaliserar kod och namn', () => {
 		expect(normalizeCode(' 1dl 201 ')).toBe('1DL201');
-		expect(parseCourseForm(form({}), '2026-10-13')).toEqual({ ok: true, value: { code: '1DL201', term: 'HT26', name: 'Program design' } });
+		expect(parseCourseForm(form({}), '2026-10-13')).toEqual({ ok: true, value: { code: '1DL201', term: 'HT26', name: 'Program design', gradingScale: 'UGVG' } });
 	});
 
 	it('ger rätt felkod', () => {
@@ -30,5 +30,6 @@ describe('parseCourseForm', () => {
 		expect(parseCourseForm(form({ code: '1DL/201' }), today)).toEqual({ ok: false, error: 'code' });
 		expect(parseCourseForm(form({ term: 'HT20' }), today)).toEqual({ ok: false, error: 'term' });
 		expect(parseCourseForm(form({ name: 'ab' }), today)).toEqual({ ok: false, error: 'name' });
+		expect(parseCourseForm(form({ gradingScale: 'X' }), today)).toEqual({ ok: false, error: 'scale' });
 	});
 });

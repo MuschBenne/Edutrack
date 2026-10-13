@@ -14,10 +14,10 @@ describe('admin', () => {
 		const uppsala = await universityId();
 		const usersInUppsala = await admin.users(db, uppsala);
 		expect(usersInUppsala.map((u) => u.username)).toEqual(['anna']);
-		expect(usersInUppsala[0].courses).toEqual([{ id: course.id, code: '1DL201', term: 'HT26', name: 'Programdesign' }]);
+		expect(usersInUppsala[0].courses).toEqual([{ id: course.id, code: '1DL201', term: 'HT26', name: 'Programdesign', finalGrade: null }]);
 
 		const coursesInUppsala = await admin.courses(db, uppsala);
-		expect(coursesInUppsala).toMatchObject([{ code: '1DL201', students: 1, university: 'Uppsala universitet', createdBy: null }]);
+		expect(coursesInUppsala).toMatchObject([{ code: '1DL201', gradingScale: 'U345', students: 1, university: 'Uppsala universitet', createdBy: null }]);
 
 		expect(await admin.users(db, null)).toHaveLength(2);
 		expect(await admin.courses(db, null)).toHaveLength(2);

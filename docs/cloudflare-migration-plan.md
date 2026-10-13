@@ -131,6 +131,8 @@ Användare skapar kurser själva. Det ska inte bli dubbletter, och senare kan ad
 - **Finns kursen redan** (samma lärosäte, kod och termin) registreras användaren på den, och det inskrivna namnet ignoreras. Ingen kan alltså döpa om en kurs genom att "skapa" den igen.
 - **Spårbarhet:** `created_by` och `created_at` sparas, och admin ser vem som skapade varje kurs.
 - **Godkännande senare:** läggs till med en kolumn `status` i en ny migrering. Inget befintligt behöver ändras.
+- **Betygsskala:** väljs när kursen skapas: U/G, U/G/VG, U/3/4/5 eller A–F (ECTS). Finns kursen redan behålls dess skala.
+- **Slutbetyg:** eleven sätter sitt betyg på kurssidan och kan ändra det efter en omtenta eller ta bort det. Bara betyg på kursens skala godkänns. Betyget sparas i `enrollments.final_grade` (`migrations/0003_final_grades.sql`) och visas i Mina kurser och för admin.
 - **Felstavad kod** blir en ny kurs. Admin kan byta namn på eller ta bort den. En funktion för att slå ihop kurser kan läggas till senare.
 
 ## Kostnad och prestanda

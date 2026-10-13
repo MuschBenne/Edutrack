@@ -5,6 +5,7 @@ export type CourseOverview = {
 	code: string;
 	term: string;
 	name: string;
+	finalGrade: string | null;
 	recentMinutes: number;
 	sessionCount: number;
 	lastStudiedOn: string | null;
@@ -25,7 +26,7 @@ export async function courseOverview(db: D1Database, userId: number, since: stri
 	// LEFT JOIN så att kurser utan sessioner också kommer med
 	const { results } = await db
 		.prepare(
-			`SELECT c.id, c.code, c.term, c.name,
+			`SELECT c.id, c.code, c.term, c.name, e.final_grade,
 			        COALESCE(SUM(CASE WHEN s.studied_on >= ? THEN s.minutes END), 0) AS recent_minutes,
 			        COUNT(s.id) AS session_count,
 			        MAX(s.studied_on) AS last_studied_on
@@ -37,12 +38,13 @@ export async function courseOverview(db: D1Database, userId: number, since: stri
 			 ORDER BY ${termOrderSql('c.term')} DESC, c.name`,
 		)
 		.bind(since, userId)
-		.all<{ id: number; code: string; term: string; name: string; recent_minutes: number; session_count: number; last_studied_on: string | null }>();
+		.all<{ id: number; code: string; term: string; name: string; final_grade: string | null; recent_minutes: number; session_count: number; last_studied_on: string | null }>();
 	return results.map((r) => ({
 		courseId: r.id,
 		code: r.code,
 		term: r.term,
 		name: r.name,
+		finalGrade: r.final_grade,
 		recentMinutes: r.recent_minutes,
 		sessionCount: r.session_count,
 		lastStudiedOn: r.last_studied_on,

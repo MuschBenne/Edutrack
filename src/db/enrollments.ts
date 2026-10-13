@@ -31,6 +31,18 @@ export async function unenroll(db: D1Database, userId: number, courseId: number)
 	return meta.changes > 0;
 }
 
+/**
+ * Sätter eller tar bort (null) elevens slutbetyg. Att betyget finns på kursens skala kontrolleras av anroparen.
+ * @returns false om användaren inte är registrerad på kursen.
+ */
+export async function setFinalGrade(db: D1Database, userId: number, courseId: number, grade: string | null): Promise<boolean> {
+	const { meta } = await db
+		.prepare('UPDATE enrollments SET final_grade = ? WHERE user_id = ? AND course_id = ?')
+		.bind(grade, userId, courseId)
+		.run();
+	return meta.changes > 0;
+}
+
 export async function isEnrolled(db: D1Database, userId: number, courseId: number): Promise<boolean> {
 	const row = await db
 		.prepare('SELECT 1 FROM enrollments WHERE user_id = ? AND course_id = ?')

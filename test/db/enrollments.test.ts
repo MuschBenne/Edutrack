@@ -16,6 +16,19 @@ describe('enrollments', () => {
 		expect(await enrollments.coursesFor(db, anna.id)).toEqual([course]);
 	});
 
+	it('sätter och tar bort slutbetyg bara för registrerade', async () => {
+		const anna = await makeUser('anna');
+		const course = await makeCourse('1DL201');
+		const other = await makeCourse('1MA025');
+		await enrollments.enroll(db, anna.id, course.id);
+
+		expect(await enrollments.setFinalGrade(db, anna.id, course.id, '4')).toBe(true);
+		expect(await db.prepare('SELECT final_grade FROM enrollments').first('final_grade')).toBe('4');
+		expect(await enrollments.setFinalGrade(db, anna.id, course.id, null)).toBe(true);
+		expect(await db.prepare('SELECT final_grade FROM enrollments').first('final_grade')).toBeNull();
+		expect(await enrollments.setFinalGrade(db, anna.id, other.id, '4')).toBe(false);
+	});
+
 	// Gamla removeStudentFromCourse tömde hela elevlistan (filter som inte returnerade något)
 	it('avregistrering tar bara bort rätt elev', async () => {
 		const anna = await makeUser('anna');

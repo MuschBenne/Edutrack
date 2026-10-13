@@ -12,6 +12,7 @@ async function setup() {
 	const b = await makeCourse('BBB222', { name: 'Biologi', term: 'HT26' });
 	for (const u of [anna, bo]) await enrollments.enroll(db, u.id, a.id);
 	await enrollments.enroll(db, anna.id, b.id);
+	await enrollments.setFinalGrade(db, anna.id, a.id, '5');
 
 	await studySessions.add(db, anna.id, a.id, session({ studiedOn: '2026-10-01', minutes: 60, rating: 2 }));
 	await studySessions.add(db, anna.id, a.id, session({ studiedOn: '2026-10-10', minutes: 30, rating: 4 }));
@@ -25,8 +26,8 @@ describe('courseOverview', () => {
 		const { anna, a, b } = await setup();
 
 		expect(await courseOverview(db, anna.id, '2026-10-07')).toEqual([
-			{ courseId: b.id, code: 'BBB222', term: 'HT26', name: 'Biologi', recentMinutes: 0, sessionCount: 0, lastStudiedOn: null },
-			{ courseId: a.id, code: 'AAA111', term: 'VT26', name: 'Algebra', recentMinutes: 45, sessionCount: 3, lastStudiedOn: '2026-10-12' },
+			{ courseId: b.id, code: 'BBB222', term: 'HT26', name: 'Biologi', finalGrade: null, recentMinutes: 0, sessionCount: 0, lastStudiedOn: null },
+			{ courseId: a.id, code: 'AAA111', term: 'VT26', name: 'Algebra', finalGrade: '5', recentMinutes: 45, sessionCount: 3, lastStudiedOn: '2026-10-12' },
 		]);
 	});
 });
@@ -37,6 +38,7 @@ describe('coursePage.load', () => {
 		const data = await coursePage.load(db, anna.id, a.id, '2026-10-07', false);
 
 		expect(data?.course).toEqual(a);
+		expect(data?.finalGrade).toBe('5');
 		expect(data?.stats).toEqual({ totalMinutes: 105, recentMinutes: 45, sessionCount: 3, averageRating: 3 });
 		expect(data?.sessions.map((s) => s.studiedOn)).toEqual(['2026-10-01', '2026-10-10', '2026-10-12']);
 		expect(data?.allSessions).toBeNull();

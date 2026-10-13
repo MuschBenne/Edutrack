@@ -1,3 +1,4 @@
+import type { GradingScale } from '../lib/grades';
 import { termOrderSql } from '../lib/terms';
 
 export type Course = {
@@ -6,14 +7,22 @@ export type Course = {
 	code: string;
 	term: string;
 	name: string;
+	gradingScale: GradingScale;
 };
 
-export type CourseRow = { id: number; university_id: number; code: string; term: string; name: string };
+export type CourseRow = { id: number; university_id: number; code: string; term: string; name: string; grading_scale: GradingScale };
 
-export const COURSE_COLUMNS = 'id, university_id, code, term, name';
+export const COURSE_COLUMNS = 'id, university_id, code, term, name, grading_scale';
 
 export function toCourse(row: CourseRow): Course {
-	return { id: row.id, universityId: row.university_id, code: row.code, term: row.term, name: row.name };
+	return {
+		id: row.id,
+		universityId: row.university_id,
+		code: row.code,
+		term: row.term,
+		name: row.name,
+		gradingScale: row.grading_scale,
+	};
 }
 
 /** '1DL201 · HT26' */
@@ -28,21 +37,29 @@ export async function get(db: D1Database, id: number): Promise<Course | null> {
 
 /**
  * Hämtar kursen med samma lärosäte, kod och termin, eller skapar den.
- * Finns kursen redan behålls dess namn, så att ingen kan döpa om en kurs genom att "skapa" den igen.
+ * Finns kursen redan behålls dess namn och betygsskala, så att ingen kan ändra en kurs genom att "skapa" den igen.
  * @param input.code Redan normaliserad med normalizeCode().
  */
 export async function findOrCreate(
 	db: D1Database,
-	input: { universityId: number; code: string; term: string; name: string; createdBy: number | null; createdAt: number },
+	input: {
+		universityId: number;
+		code: string;
+		term: string;
+		name: string;
+		gradingScale: GradingScale;
+		createdBy: number | null;
+		createdAt: number;
+	},
 ): Promise<{ course: Course; created: boolean }> {
 	const inserted = await db
 		.prepare(
-			`INSERT INTO courses (university_id, code, term, name, created_by, created_at)
-			 VALUES (?, ?, ?, ?, ?, ?)
+			`INSERT INTO courses (university_id, code, term, name, grading_scale, created_by, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?)
 			 ON CONFLICT (university_id, code, term) DO NOTHING
 			 RETURNING ${COURSE_COLUMNS}`,
 		)
-		.bind(input.universityId, input.code, input.term, input.name, input.createdBy, input.createdAt)
+		.bind(input.universityId, input.code, input.term, input.name, input.gradingScale, input.createdBy, input.createdAt)
 		.first<CourseRow>();
 	if (inserted) return { course: toCourse(inserted), created: true };
 

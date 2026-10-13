@@ -1,0 +1,31 @@
+---
+import type { Course } from '../db/courses';
+import { GRADING_SCALES } from '../lib/grades';
+
+interface Props {
+	course: Course;
+	finalGrade: string | null;
+	/** Status efter POST till /api/grades: 'saved', 'cleared' eller 'invalid'. */
+	status?: string | null;
+}
+
+const { course, finalGrade, status } = Astro.props;
+const scale = GRADING_SCALES[course.gradingScale];
+// Högsta betyget först, så att listan läses som en rangordning
+const grades = [...scale.grades].reverse();
+---
+
+<form class="form" method="post" action="/api/grades">
+	<input type="hidden" name="courseId" value={course.id} />
+	<label class="field">
+		Final grade <span class="muted">({scale.label})</span>
+		<select name="grade">
+			<option value="" selected={finalGrade === null}>Not graded yet</option>
+			{grades.map((g) => <option value={g} selected={g === finalGrade}>{g}</option>)}
+		</select>
+	</label>
+	{status === 'saved' && <p class="form-message form-message-success" role="status">Grade saved.</p>}
+	{status === 'cleared' && <p class="form-message form-message-success" role="status">Grade removed.</p>}
+	{status === 'invalid' && <p class="form-message" role="alert">That grade is not on this course's scale.</p>}
+	<button type="submit" class="btn">Save grade</button>
+</form>

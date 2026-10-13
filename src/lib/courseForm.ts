@@ -1,3 +1,4 @@
+import { type GradingScale, isGradingScale } from './grades';
 import { termOptions } from './terms';
 
 /** '1dl 201' → '1DL201', så att samma kod alltid blir samma kurs. */
@@ -9,10 +10,11 @@ export const COURSE_ERRORS = {
 	code: 'Course code has to be 3–12 letters, digits or dashes, e.g. 1DL201.',
 	term: 'Pick a term.',
 	name: 'Course name has to be 3–100 characters.',
+	scale: 'Pick a grading scale.',
 } as const;
 
 export type CourseError = keyof typeof COURSE_ERRORS;
-export type CourseInput = { code: string; term: string; name: string };
+export type CourseInput = { code: string; term: string; name: string; gradingScale: GradingScale };
 
 export function parseCourseForm(form: FormData, today: string): { ok: true; value: CourseInput } | { ok: false; error: CourseError } {
 	const code = normalizeCode(String(form.get('code') ?? ''));
@@ -25,5 +27,8 @@ export function parseCourseForm(form: FormData, today: string): { ok: true; valu
 	const name = String(form.get('name') ?? '').trim().replace(/\s+/g, ' ');
 	if (name.length < 3 || name.length > 100) return { ok: false, error: 'name' };
 
-	return { ok: true, value: { code, term, name } };
+	const gradingScale = String(form.get('gradingScale') ?? '');
+	if (!isGradingScale(gradingScale)) return { ok: false, error: 'scale' };
+
+	return { ok: true, value: { code, term, name, gradingScale } };
 }

@@ -1,4 +1,4 @@
-# BJB-AB
+# EduTrack
 Project Repository for EduTrack
 
 Astro app on Cloudflare Workers with a D1 (SQLite) database and Google sign-in.
@@ -13,7 +13,7 @@ No database needs to be installed: `npm run dev` and the tests use a local D1 (S
 
 ## Clone and install
 ```bash
-git clone "https://github.com/FrickTown/BJB-AB.git" && cd BJB-AB
+git clone "https://github.com/MuschBenne/Edutrack.git" && cd Edutrack
 npm install
 npm run db:migrate:local   # creates the local database tables
 ```

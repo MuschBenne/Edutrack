@@ -57,6 +57,7 @@ CREATE TABLE enrollments (
   course_id TEXT    NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
   PRIMARY KEY (user_id, course_id)
 );
+CREATE INDEX idx_enrollments_course ON enrollments(course_id);
 
 CREATE TABLE study_sessions (
   id            INTEGER PRIMARY KEY,
@@ -73,6 +74,7 @@ CREATE TABLE study_sessions (
 );
 CREATE INDEX idx_sessions_user_course
   ON study_sessions(user_id, course_id, studied_on);
+CREATE INDEX idx_sessions_course ON study_sessions(course_id, studied_on);
 
 CREATE TABLE auth_sessions (
   id         TEXT PRIMARY KEY,  -- slumpad token i cookien
@@ -80,6 +82,7 @@ CREATE TABLE auth_sessions (
   expires_at INTEGER NOT NULL
 );
 -- Används av den dagliga städningen av utgångna inloggningar
+CREATE INDEX idx_auth_sessions_user ON auth_sessions(user_id);
 CREATE INDEX idx_auth_sessions_expires ON auth_sessions(expires_at);
 ```
 
@@ -133,8 +136,9 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
 | `public/` | `public/` (oförändrat) |
 
 1. **Uppsättning**
-   - Skapa projektet med `npm create cloudflare@latest -- edutrack --framework=astro`, som lägger till Cloudflare-adaptern och `wrangler`.
-   - Lägg till en D1-bindning `DB` i `wrangler.jsonc` och skapa databasen med `wrangler d1 create edutrack --location weur` (Västeuropa, nära användarna).
+   - Projektet skapades med `npm create astro@latest -- --template minimal` och `npx astro add cloudflare` (Astro 7, `@astrojs/cloudflare` 14). `npm create cloudflare` fastnar på en interaktiv fråga.
+   - Bindningar nås med `import { env } from 'cloudflare:workers'`. `Astro.locals.runtime.env` finns inte längre.
+   - D1-bindningen `DB` finns i `wrangler.jsonc` med ett platshållar-id. Det riktiga id:t fås när databasen skapas med `wrangler d1 create edutrack --location weur` (Västeuropa, nära användarna).
    - Flytta in `public/` (CSS och graf-skript) direkt.
    - Utveckling sker med `npm run dev`, som kör en lokal D1. Ingen databas behöver installeras.
 2. **Databaslager (`src/db/`)**
@@ -163,8 +167,8 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
    - Admin-anropen skickar data som JSON i bodyn i stället för i URL:en.
    - `fetch`-anropen i sidornas skript och i `graph_logic.js` uppdateras till de nya adresserna.
 7. **Tester**
-   - Jest mot lokal MongoDB ersätts av Vitest med `@cloudflare/vitest-pool-workers`, som kör mot en lokal D1 som nollställs per test.
-   - De 11 befintliga testfallen behåller sitt innehåll. Lägg till tester för buggarna i nästa avsnitt och för callbackens två fall (känt `google_id`, ny användare) och admin-flaggan via `ADMIN_EMAILS`, med Googles svar mockat.
+   - Jest mot lokal MongoDB ersätts av Vitest med `@cloudflare/vitest-plugin` (tidigare `vitest-pool-workers`, som bytt namn), som kör mot en lokal D1 som töms före varje test.
+   - De gamla Jest-testerna byggde på Mongoose och har skrivits om för databaslagret. De täcker samma funktioner plus buggarna i nästa avsnitt. I fas 2 tillkommer tester för callbackens två fall (känt `google_id`, ny användare) och admin-flaggan via `ADMIN_EMAILS`, med Googles svar mockat.
 8. **Driftsättning**
    - `wrangler d1 migrations apply edutrack --remote`, sedan `npm run deploy`. Databasen startar tom.
    - Lägg in secrets: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` och `ADMIN_EMAILS`.
@@ -186,13 +190,13 @@ Om Express-versionen ska användas en tid till kan den första buggen rättas d�
 
 ## Ordning och öppna beslut
 
-Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills sista fasen är klar, och varje fas går att testa för sig med `npm run dev`.
+Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills sista fasen är klar, och på grenen i `legacy/` som referens vid porteringen, och varje fas går att testa för sig med `npm run dev`.
 
-1. **Grund:** projektuppsättning, schema, databaslager och tester för det. Inga sidor ännu.
+1. **Grund (klar 2026-10-13):** projektuppsättning, schema, databaslager och tester för det. Statistiken i SQL skrivs i fas 3, tillsammans med sidorna som visar den.
 2. **Konton:** sessioner, Google-inloggning, onboarding, layout och landningssidan.
-3. **Kärnan:** Mina kurser, kurssidan med grafer och formuläret för ny session.
+3. **Kärnan:** Mina kurser, kurssidan med grafer, statistiken i SQL och formuläret för ny session.
 4. **Resten:** kursregistrering och admin.
-5. **Lansering:** driftsätt, peka om domänen, slå ihop med `main` och stäng ner MongoDB.
+5. **Lansering:** ta bort `legacy/`, driftsätt, peka om domänen, slå ihop med `main` och stäng ner MongoDB.
 
 **Beslut att ta innan fas 1:**
 

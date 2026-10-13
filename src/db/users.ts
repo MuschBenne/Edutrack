@@ -34,11 +34,6 @@ export function toUser(row: UserRow): User {
 	};
 }
 
-export async function getById(db: D1Database, id: number): Promise<User | null> {
-	const row = await db.prepare(`SELECT ${USER_COLUMNS} FROM users WHERE id = ?`).bind(id).first<UserRow>();
-	return row ? toUser(row) : null;
-}
-
 export async function getByUsername(db: D1Database, username: string): Promise<User | null> {
 	const row = await db.prepare(`SELECT ${USER_COLUMNS} FROM users WHERE username = ?`).bind(username).first<UserRow>();
 	return row ? toUser(row) : null;
@@ -71,6 +66,10 @@ export async function create(db: D1Database, user: NewUser): Promise<User | null
  * Tar bort en användare. Registreringar, studiesessioner och inloggningar försvinner via ON DELETE CASCADE.
  * @returns true om användaren fanns.
  */
+export async function setAdmin(db: D1Database, id: number, isAdmin: boolean): Promise<void> {
+	await db.prepare('UPDATE users SET is_admin = ? WHERE id = ?').bind(isAdmin ? 1 : 0, id).run();
+}
+
 export async function remove(db: D1Database, id: number): Promise<boolean> {
 	const { meta } = await db.prepare('DELETE FROM users WHERE id = ?').bind(id).run();
 	return meta.changes > 0;

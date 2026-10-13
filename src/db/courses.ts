@@ -1,4 +1,4 @@
-import type { GradingScale } from '../lib/grades';
+import { GRADING_SCALES, type GradingScale } from '../lib/grades';
 import { termOrderSql } from '../lib/terms';
 
 export type Course = {
@@ -51,7 +51,7 @@ export async function findOrCreate(
 		createdBy: number | null;
 		createdAt: number;
 	},
-): Promise<{ course: Course; created: boolean }> {
+): Promise<{ course: Course; created: boolean } | null> {
 	const inserted = await db
 		.prepare(
 			`INSERT INTO courses (university_id, code, term, name, grading_scale, created_by, created_at)
@@ -63,17 +63,47 @@ export async function findOrCreate(
 		.first<CourseRow>();
 	if (inserted) return { course: toCourse(inserted), created: true };
 
-	const existing = await db
+	// Finns, annars hade INSERT lyckats; null bara om kursen raderades mellan frågorna
+	const existing = await find(db, input.universityId, input.code, input.term);
+	return existing ? { course: existing, created: false } : null;
+}
+
+export async function find(db: D1Database, universityId: number, code: string, term: string): Promise<Course | null> {
+	const row = await db
 		.prepare(`SELECT ${COURSE_COLUMNS} FROM courses WHERE university_id = ? AND code = ? AND term = ?`)
-		.bind(input.universityId, input.code, input.term)
+		.bind(universityId, code, term)
 		.first<CourseRow>();
-	return { course: toCourse(existing!), created: false }; // finns, annars hade INSERT lyckats
+	return row ? toCourse(row) : null;
+}
+
+/** Antal kurser användaren skapat sedan `since` (unix-sekunder), för gränsen per dygn. */
+export async function countCreatedSince(db: D1Database, userId: number, since: number): Promise<number> {
+	const row = await db
+		.prepare('SELECT COUNT(*) AS n FROM courses WHERE created_by = ? AND created_at >= ?')
+		.bind(userId, since)
+		.first<{ n: number }>();
+	return row?.n ?? 0;
 }
 
 /** @returns true om kursen fanns. */
 export async function rename(db: D1Database, id: number, name: string): Promise<boolean> {
 	const { meta } = await db.prepare('UPDATE courses SET name = ? WHERE id = ?').bind(name, id).run();
 	return meta.changes > 0;
+}
+
+/**
+ * Byter betygsskala. Slutbetyg som inte finns på den nya skalan nollställs i samma batch.
+ * @returns true om kursen fanns.
+ */
+export async function setGradingScale(db: D1Database, id: number, scale: GradingScale): Promise<boolean> {
+	const grades = GRADING_SCALES[scale].grades;
+	const [updated] = await db.batch([
+		db.prepare('UPDATE courses SET grading_scale = ? WHERE id = ?').bind(scale, id),
+		db
+			.prepare(`UPDATE enrollments SET final_grade = NULL WHERE course_id = ? AND final_grade NOT IN (${grades.map(() => '?').join(', ')})`)
+			.bind(id, ...grades),
+	]);
+	return updated.meta.changes > 0;
 }
 
 /**

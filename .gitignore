@@ -2,13 +2,11 @@
 dist/
 .astro/
 .wrangler/
-coverage/
-build/
 
 # Beroenden
 node_modules/
 
-# Hemligheter (lokala secrets för wrangler och gamla Mongo-URL:er)
+# Hemligheter (lokala secrets för wrangler)
 .env
 .env.*
 .dev.vars
@@ -20,5 +18,3 @@ npm-debug.log*
 # Övrigt
 .DS_Store
 .idea/
-eslint.config.mjs
-Project_Diary.md

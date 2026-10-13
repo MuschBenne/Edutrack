@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:test';
 import * as courses from '../src/db/courses';
 import * as users from '../src/db/users';
-import type { StudySession } from '../src/db/studySessions';
+import { type SessionRow, type StudySession, forUserCourseStatement, toSession } from '../src/db/studySessions';
 import type { GradingScale } from '../src/lib/grades';
 
 export const db = env.DB;
@@ -30,7 +30,7 @@ export async function makeCourse(
 	code: string,
 	options: { term?: string; name?: string; university?: string; gradingScale?: GradingScale } = {},
 ) {
-	const { course } = await courses.findOrCreate(db, {
+	const result = await courses.findOrCreate(db, {
 		universityId: await universityId(options.university),
 		code,
 		term: options.term ?? 'HT26',
@@ -39,9 +39,31 @@ export async function makeCourse(
 		createdBy: null,
 		createdAt: 0,
 	});
-	return course;
+	if (!result) throw new Error(`Kunde inte skapa ${code}`);
+	return result.course;
 }
 
 export function session(overrides: Partial<StudySession> = {}): StudySession {
 	return { studiedOn: '2026-10-08', minutes: 30, type: 'Lecture', rating: 3, health: 3, mentalHealth: 3, ...overrides };
+}
+
+/** Användarens sessioner i en kurs, via samma fråga som kurssidan. */
+export async function sessionsOf(userId: number, courseId: number): Promise<StudySession[]> {
+	const { results } = await forUserCourseStatement(db, userId, courseId).all<SessionRow>();
+	return results.map(toSession);
+}
+
+/** Användarnamn på kursens elever, i bokstavsordning. */
+export async function studentsIn(courseId: number): Promise<string[]> {
+	const { results } = await db
+		.prepare('SELECT u.username FROM enrollments e JOIN users u ON u.id = e.user_id WHERE e.course_id = ? ORDER BY u.username')
+		.bind(courseId)
+		.all<{ username: string }>();
+	return results.map((r) => r.username);
+}
+
+/** Id på kurserna användaren är registrerad på. */
+export async function courseIdsOf(userId: number): Promise<number[]> {
+	const { results } = await db.prepare('SELECT course_id FROM enrollments WHERE user_id = ? ORDER BY course_id').bind(userId).all<{ course_id: number }>();
+	return results.map((r) => r.course_id);
 }

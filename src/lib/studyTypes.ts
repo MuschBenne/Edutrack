@@ -1,4 +1,4 @@
-/** Lagrade värden och visningsnamn. Värdena måste matcha `colors` i public/graph_logic.js. */
+/** Lagrade värden och visningsnamn. Färgerna i src/scripts/courseCharts.ts är typade mot nycklarna. */
 export const STUDY_TYPES = {
 	Selfstudies: 'Self studies',
 	Lecture: 'Lecture',

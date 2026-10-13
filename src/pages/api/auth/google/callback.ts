@@ -13,6 +13,8 @@ export const GET: APIRoute = async ({ cookies, redirect, url }) => {
 	cookies.delete(STATE_COOKIE, { path: '/' });
 	cookies.delete(VERIFIER_COOKIE, { path: '/' });
 
+	// Användaren avbröt hos Google (t.ex. error=access_denied)
+	if (url.searchParams.has('error')) return redirect('/login?error=cancelled');
 	if (!code || !state || !codeVerifier || state !== storedState) {
 		return redirect('/login?error=state');
 	}
@@ -25,7 +27,7 @@ export const GET: APIRoute = async ({ cookies, redirect, url }) => {
 		return redirect('/login?error=google');
 	}
 
-	const result = await resolveGoogleLogin(env.DB, claims);
+	const result = await resolveGoogleLogin(env.DB, claims, env.ADMIN_EMAILS);
 	switch (result.kind) {
 		case 'session':
 			setSessionCookie(cookies, result);

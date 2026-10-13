@@ -9,8 +9,11 @@ const errors: Record<string, string> = {
 	google: 'Google sign-in failed. Please try again.',
 	unverified: 'Your Google account email is not verified.',
 	expired: 'Your sign-in has expired. Please sign in with Google again.',
+	cancelled: 'Sign-in was cancelled.',
 };
-const error = errors[Astro.url.searchParams.get('error') ?? ''];
+const errorKey = Astro.url.searchParams.get('error') ?? '';
+// hasOwn så att t.ex. ?error=valueOf inte träffar en ärvd metod
+const error = Object.hasOwn(errors, errorKey) ? errors[errorKey] : null;
 const deleted = Astro.url.searchParams.has('deleted');
 ---
 

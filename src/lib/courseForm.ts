@@ -6,11 +6,15 @@ export function normalizeCode(code: string): string {
 	return code.replace(/\s+/g, '').toUpperCase();
 }
 
+/** Skydd mot att någon fyller kurslistan; admins undantas. */
+export const MAX_COURSES_PER_DAY = 5;
+
 export const COURSE_ERRORS = {
 	code: 'Course code has to be 3–12 letters, digits or dashes, e.g. 1DL201.',
 	term: 'Pick a term.',
 	name: 'Course name has to be 3–100 characters.',
 	scale: 'Pick a grading scale.',
+	limit: `You can create at most ${MAX_COURSES_PER_DAY} new courses per day. Try again tomorrow.`,
 } as const;
 
 export type CourseError = keyof typeof COURSE_ERRORS;

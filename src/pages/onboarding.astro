@@ -1,5 +1,6 @@
 ---
 // Nya användare väljer användarnamn, lärosäte och program efter första Google-inloggningen
+import { readForm } from '../lib/form';
 import { env } from 'cloudflare:workers';
 import Layout from '../layouts/Layout.astro';
 import * as universities from '../db/universities';
@@ -20,7 +21,8 @@ let universityId: number | null = null;
 let programme = '';
 
 if (Astro.request.method === 'POST') {
-	const form = await Astro.request.formData();
+	// Ett trasigt formulär behandlas som tomt och ger valideringsfel
+	const form = (await readForm(Astro.request)) ?? new FormData();
 	username = String(form.get('username') ?? '');
 	universityId = parseId(form.get('universityId'));
 	programme = String(form.get('programme') ?? '');

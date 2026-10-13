@@ -1,15 +1,16 @@
 import { COURSE_COLUMNS, type Course, type CourseRow, toCourse } from './courses';
 import { qualify } from './sql';
 import { type CourseStats, courseStatsStatement, toCourseStats } from './stats';
-import { type SessionRow, type StudySession, forCourseStatement, forUserCourseStatement, toSession } from './studySessions';
+import type { ChartSession } from '../lib/chartData';
+import { type SessionRow, type StudySession, forCourseChartStatement, forUserCourseStatement, toSession } from './studySessions';
 
 export type CoursePageData = {
 	course: Course;
 	finalGrade: string | null;
 	stats: CourseStats;
 	sessions: StudySession[];
-	/** Alla elevers sessioner; bara för admin. */
-	allSessions: StudySession[] | null;
+	/** Alla elevers sessioner till admin-grafen; bara för admin. */
+	allSessions: ChartSession[] | null;
 };
 
 /**
@@ -33,7 +34,7 @@ export async function load(
 			.bind(userId, courseId),
 		courseStatsStatement(db, userId, courseId, since),
 		forUserCourseStatement(db, userId, courseId),
-		...(includeAllStudents ? [forCourseStatement(db, courseId)] : []),
+		...(includeAllStudents ? [forCourseChartStatement(db, courseId)] : []),
 	];
 	const [courseRes, statsRes, sessionsRes, allRes] = await db.batch<Record<string, unknown>>(statements);
 
@@ -45,6 +46,6 @@ export async function load(
 		finalGrade: courseRow.final_grade,
 		stats: toCourseStats(statsRes.results[0] as Parameters<typeof toCourseStats>[0]),
 		sessions: (sessionsRes.results as SessionRow[]).map(toSession),
-		allSessions: allRes ? (allRes.results as SessionRow[]).map(toSession) : null,
+		allSessions: allRes ? (allRes.results as ChartSession[]) : null,
 	};
 }

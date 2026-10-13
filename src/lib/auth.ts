@@ -43,13 +43,16 @@ export async function endSession(db: D1Database, token: string): Promise<void> {
  * Steget efter att Google bekräftat vem användaren är.
  * Känt Google-id ger en session. Annars mellanlagras id och e-post tills användaren valt namn och klass.
  */
-export async function resolveGoogleLogin(db: D1Database, claims: GoogleClaims): Promise<GoogleLoginResult> {
+export async function resolveGoogleLogin(db: D1Database, claims: GoogleClaims, adminEmails: string | undefined): Promise<GoogleLoginResult> {
 	if (!claims.email_verified) {
 		return { kind: 'error', message: 'Your Google account email is not verified.' };
 	}
 
 	const existing = await users.getByGoogleId(db, claims.sub);
 	if (existing) {
+		// ADMIN_EMAILS kan ha ändrats sedan kontot skapades; flaggan följer listan vid varje inloggning
+		const isAdmin = isAdminEmail(adminEmails, existing.email);
+		if (isAdmin !== existing.isAdmin) await users.setAdmin(db, existing.id, isAdmin);
 		return { kind: 'session', ...(await startSession(db, existing.id)) };
 	}
 

@@ -12,7 +12,7 @@ const claims = (overrides: Partial<auth.GoogleClaims> = {}): auth.GoogleClaims =
 });
 
 async function startOnboarding(c = claims()) {
-	const result = await auth.resolveGoogleLogin(db, c);
+	const result = await auth.resolveGoogleLogin(db, c, undefined);
 	if (result.kind !== 'onboarding') throw new Error(`Väntade onboarding, fick ${result.kind}`);
 	return result.token;
 }
@@ -20,7 +20,7 @@ async function startOnboarding(c = claims()) {
 describe('resolveGoogleLogin', () => {
 	it('känt Google-id ger en session för rätt användare', async () => {
 		const anna = await makeUser('anna');
-		const result = await auth.resolveGoogleLogin(db, claims({ sub: 'google-anna', email: 'anna@example.com' }));
+		const result = await auth.resolveGoogleLogin(db, claims({ sub: 'google-anna', email: 'anna@example.com' }), undefined);
 
 		expect(result.kind).toBe('session');
 		if (result.kind !== 'session') return;
@@ -35,7 +35,19 @@ describe('resolveGoogleLogin', () => {
 	});
 
 	it('nekar overifierad e-post', async () => {
-		expect((await auth.resolveGoogleLogin(db, claims({ email_verified: false }))).kind).toBe('error');
+		expect((await auth.resolveGoogleLogin(db, claims({ email_verified: false }), undefined)).kind).toBe('error');
+	});
+
+	it('admin-flaggan följer ADMIN_EMAILS vid varje inloggning', async () => {
+		await makeUser('anna');
+		const login = async (adminEmails: string | undefined) => {
+			const result = await auth.resolveGoogleLogin(db, claims({ sub: 'google-anna', email: 'anna@example.com' }), adminEmails);
+			if (result.kind !== 'session') throw new Error(`Väntade session, fick ${result.kind}`);
+			return (await auth.userFromSessionToken(db, result.token))?.isAdmin;
+		};
+
+		expect(await login('ANNA@example.com, boss@example.com')).toBe(true);
+		expect(await login('boss@example.com')).toBe(false);
 	});
 });
 

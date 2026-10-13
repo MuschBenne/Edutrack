@@ -2,15 +2,14 @@ import { describe, expect, it } from 'vitest';
 import * as enrollments from '../../src/db/enrollments';
 import * as studySessions from '../../src/db/studySessions';
 import * as users from '../../src/db/users';
-import { db, makeCourse, makeUser, session, universityId } from '../helpers';
+import { db, makeCourse, makeUser, session, sessionsOf, studentsIn, universityId } from '../helpers';
 
 describe('users', () => {
 	it('skapar och hittar en användare via id och Google-id', async () => {
 		const created = await makeUser('anna', { isAdmin: true });
 
 		expect(created).toMatchObject({ isAdmin: true, programme: 'Computer Science', universityId: await universityId() });
-		expect(await users.getById(db, created.id)).toEqual(created);
-		expect(await users.getByGoogleId(db, 'google-anna')).toEqual(created);
+				expect(await users.getByGoogleId(db, 'google-anna')).toEqual(created);
 		expect(await users.getByGoogleId(db, 'okänd')).toBeNull();
 	});
 
@@ -34,8 +33,8 @@ describe('users', () => {
 
 		expect(await users.remove(db, anna.id)).toBe(true);
 		expect(await users.remove(db, anna.id)).toBe(false);
-		expect(await enrollments.studentsIn(db, course.id)).toEqual([]);
-		expect(await studySessions.forCourse(db, course.id)).toEqual([]);
+		expect(await studentsIn(course.id)).toEqual([]);
+		expect(await sessionsOf(anna.id, course.id)).toEqual([]);
 		expect(await db.prepare('SELECT COUNT(*) AS n FROM auth_sessions WHERE user_id = ?').bind(anna.id).first('n')).toBe(0);
 		expect(await db.prepare('SELECT created_by FROM courses WHERE id = ?').bind(course.id).first('created_by')).toBeNull();
 	});

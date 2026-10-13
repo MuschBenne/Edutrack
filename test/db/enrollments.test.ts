@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as enrollments from '../../src/db/enrollments';
-import { db, makeCourse, makeUser } from '../helpers';
+import { courseIdsOf, db, makeCourse, makeUser, studentsIn } from '../helpers';
 
 describe('enrollments', () => {
 	it('registrerar och nekar dubblett, okänd kurs och annat lärosätes kurs', async () => {
@@ -13,7 +13,7 @@ describe('enrollments', () => {
 		expect(await enrollments.enroll(db, anna.id, 999_999)).toBe(false);
 		expect(await enrollments.enroll(db, anna.id, lund.id)).toBe(false);
 		expect(await enrollments.isEnrolled(db, anna.id, course.id)).toBe(true);
-		expect(await enrollments.coursesFor(db, anna.id)).toEqual([course]);
+		expect(await courseIdsOf(anna.id)).toEqual([course.id]);
 	});
 
 	it('sätter och tar bort slutbetyg bara för registrerade', async () => {
@@ -39,6 +39,6 @@ describe('enrollments', () => {
 
 		expect(await enrollments.unenroll(db, anna.id, course.id)).toBe(true);
 		expect(await enrollments.unenroll(db, anna.id, course.id)).toBe(false);
-		expect(await enrollments.studentsIn(db, course.id)).toEqual(['bo']);
+		expect(await studentsIn(course.id)).toEqual(['bo']);
 	});
 });

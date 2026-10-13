@@ -7,6 +7,14 @@ import { addDays, formatMinutes, relativeDay, todayIso } from '../../lib/dates';
 const user = Astro.locals.user!; // middleware har redan skickat utloggade till /login
 const today = todayIso();
 const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
+
+// Efter avregistrering, eller när en kurs man stod på inte längre finns
+const messages: Record<string, { text: string; error: boolean }> = {
+	unregistered: { text: 'You have been unregistered and your sessions in the course were deleted.', error: false },
+	notenrolled: { text: 'You are no longer registered to that course. Nothing was saved.', error: true },
+};
+const msgKey = Astro.url.searchParams.get('msg') ?? '';
+const message = Object.hasOwn(messages, msgKey) ? messages[msgKey] : null;
 ---
 
 <Layout title="My courses" active="courses">
@@ -21,6 +29,8 @@ const rows = await courseOverview(env.DB, user.id, addDays(today, -6));
 				Register to course
 			</a>
 		</div>
+
+		{message && <p class:list={['notice', { 'notice-error': message.error }]} role="status">{message.text}</p>}
 
 		{
 			rows.length > 0 ? (

@@ -7,16 +7,6 @@ export type StudySession = {
 	mentalHealth: number | null;
 };
 
-/** Formatet som graf-skripten i public/ förväntar sig (samma som i MongoDB-versionen). */
-export type LegacySessionEntry = {
-	time: number;
-	typeOfStudy: string;
-	gradeSess: number;
-	health: number | null;
-	mentalHealth: number | null;
-};
-export type LegacySessionMap = { [date: string]: LegacySessionEntry[] };
-
 export type SessionRow = {
 	studied_on: string;
 	minutes: number;
@@ -64,45 +54,9 @@ export function forUserCourseStatement(db: D1Database, userId: number, courseId:
 		.bind(userId, courseId);
 }
 
-export function forCourseStatement(db: D1Database, courseId: number): D1PreparedStatement {
-	return db.prepare(`SELECT ${COLUMNS} FROM study_sessions WHERE course_id = ? ORDER BY studied_on, id`).bind(courseId);
-}
-
-/** Sessioner i stigande datumordning. */
-export async function forUserCourse(db: D1Database, userId: number, courseId: number): Promise<StudySession[]> {
-	const { results } = await forUserCourseStatement(db, userId, courseId).all<SessionRow>();
-	return results.map(toSession);
-}
-
-/** Alla elevers sessioner i en kurs, för admin-vyn. */
-export async function forCourse(db: D1Database, courseId: number): Promise<StudySession[]> {
-	const { results } = await forCourseStatement(db, courseId).all<SessionRow>();
-	return results.map(toSession);
-}
-
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-/** '2026-10-08' → 'Thu_Oct_08_2026', samma som gamla `new Date().toDateString().replaceAll(' ', '_')`. */
-export function toLegacyDateKey(isoDate: string): string {
-	const [y, m, d] = isoDate.split('-').map(Number);
-	// UTC så att tidszonen där koden körs inte kan flytta datumet en dag
-	const date = new Date(Date.UTC(y, m - 1, d));
-	return `${DAYS[date.getUTCDay()]}_${MONTHS[m - 1]}_${String(d).padStart(2, '0')}_${y}`;
-}
-
-/** Bygger om sessioner till { 'Thu_Oct_08_2026': [ … ] } så att graph_logic.js och static_functions.js fungerar oförändrade. */
-export function toSessionMap(sessions: StudySession[]): LegacySessionMap {
-	const map: LegacySessionMap = {};
-	for (const s of sessions) {
-		const key = toLegacyDateKey(s.studiedOn);
-		(map[key] ??= []).push({
-			time: s.minutes,
-			typeOfStudy: s.type,
-			gradeSess: s.rating,
-			health: s.health,
-			mentalHealth: s.mentalHealth,
-		});
-	}
-	return map;
+/** Alla elevers sessioner i en kurs för admin-grafen; bara det grafen visar, inga betyg eller hälsodata. */
+export function forCourseChartStatement(db: D1Database, courseId: number): D1PreparedStatement {
+	return db
+		.prepare('SELECT studied_on AS date, minutes, type FROM study_sessions WHERE course_id = ? ORDER BY studied_on, id')
+		.bind(courseId);
 }

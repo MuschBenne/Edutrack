@@ -15,7 +15,3 @@ export function isGradingScale(value: string): value is GradingScale {
 export function isGradeOnScale(scale: GradingScale, grade: string): boolean {
 	return (GRADING_SCALES[scale].grades as readonly string[]).includes(grade);
 }
-
-export function gradingScaleLabel(scale: string): string {
-	return isGradingScale(scale) ? GRADING_SCALES[scale].label : scale;
-}

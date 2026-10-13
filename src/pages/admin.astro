@@ -3,11 +3,12 @@ import { env } from 'cloudflare:workers';
 import Layout from '../layouts/Layout.astro';
 import * as admin from '../db/admin';
 import * as universities from '../db/universities';
-import { gradingScaleLabel } from '../lib/grades';
+import { GRADING_SCALES } from '../lib/grades';
 import { parseId } from '../lib/ids';
 
-// Middleware har redan stoppat alla som inte är admin
-const me = Astro.locals.user!;
+const me = Astro.locals.user;
+// Middleware stoppar redan andra; kontrollen upprepas om en route skulle ändras
+if (!me?.isAdmin) return new Response('Access denied, admins only!', { status: 403 });
 const universityId = parseId(Astro.url.searchParams.get('university'));
 const [universityList, courses, users] = await Promise.all([
 	universities.list(env.DB),
@@ -18,6 +19,8 @@ const [universityList, courses, users] = await Promise.all([
 const messages: Record<string, { text: string; ok: boolean }> = {
 	'course-renamed': { text: 'Course renamed.', ok: true },
 	'course-deleted': { text: 'Course deleted.', ok: true },
+	'scale-changed': { text: 'Grading scale changed. Final grades that are not on the new scale were cleared.', ok: true },
+	'invalid-scale': { text: 'Unknown grading scale.', ok: false },
 	'user-deleted': { text: 'User deleted.', ok: true },
 	'student-removed': { text: 'Student removed from course.', ok: true },
 	'university-added': { text: 'University added.', ok: true },
@@ -26,7 +29,9 @@ const messages: Record<string, { text: string; ok: boolean }> = {
 	'not-self': { text: "You can't delete your own account here.", ok: false },
 	'not-found': { text: 'It no longer exists.', ok: false },
 };
-const message = messages[Astro.url.searchParams.get('msg') ?? ''];
+const msgKey = Astro.url.searchParams.get('msg') ?? '';
+// hasOwn så att t.ex. ?msg=valueOf inte träffar en ärvd metod
+const message = Object.hasOwn(messages, msgKey) ? messages[msgKey] : null;
 // Skickas med i varje formulär så att man hamnar på samma filter efteråt
 const back = universityId ? `/admin?university=${universityId}` : '/admin';
 ---
@@ -78,7 +83,26 @@ const back = universityId ? `/admin?university=${universityId}` : '/admin';
 												<button type="submit" class="link-button">Save</button>
 											</form>
 										</td>
-										<td class="muted">{gradingScaleLabel(c.gradingScale)}</td>
+										<td>
+											<form
+												class="inline-form"
+												method="post"
+												action="/api/admin"
+												onsubmit="return confirm('Change the grading scale? Final grades that are not on the new scale will be cleared.')"
+											>
+												<input type="hidden" name="action" value="setGradingScale" />
+												<input type="hidden" name="courseId" value={c.id} />
+												<input type="hidden" name="back" value={back} />
+												<select name="gradingScale" aria-label="Grading scale">
+													{Object.entries(GRADING_SCALES).map(([key, scale]) => (
+														<option value={key} selected={key === c.gradingScale}>
+															{scale.label}
+														</option>
+													))}
+												</select>
+												<button type="submit" class="link-button">Save</button>
+											</form>
+										</td>
 										<td class="muted">{c.university}</td>
 										<td class="right">{c.students}</td>
 										<td class="muted">{c.createdBy ?? '–'}</td>

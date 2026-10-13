@@ -1,6 +1,3 @@
-import { qualify } from './sql';
-import { COURSE_COLUMNS, type Course, type CourseRow, toCourse } from './courses';
-
 /**
  * Registrerar en användare på en kurs vid användarens eget lärosäte.
  * @returns false om kursen inte finns, hör till ett annat lärosäte eller användaren redan är registrerad.
@@ -49,32 +46,4 @@ export async function isEnrolled(db: D1Database, userId: number, courseId: numbe
 		.bind(userId, courseId)
 		.first();
 	return row !== null;
-}
-
-/** Kurser som användaren är registrerad på. */
-export async function coursesFor(db: D1Database, userId: number): Promise<Course[]> {
-	const { results } = await db
-		.prepare(
-			`SELECT ${qualify(COURSE_COLUMNS, 'c')} FROM enrollments e
-			 JOIN courses c ON c.id = e.course_id
-			 WHERE e.user_id = ?
-			 ORDER BY c.name`,
-		)
-		.bind(userId)
-		.all<CourseRow>();
-	return results.map(toCourse);
-}
-
-/** Användarnamn för alla elever på en kurs. */
-export async function studentsIn(db: D1Database, courseId: number): Promise<string[]> {
-	const { results } = await db
-		.prepare(
-			`SELECT u.username FROM enrollments e
-			 JOIN users u ON u.id = e.user_id
-			 WHERE e.course_id = ?
-			 ORDER BY u.username`,
-		)
-		.bind(courseId)
-		.all<{ username: string }>();
-	return results.map((r) => r.username);
 }

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import * as courses from '../../db/courses';
 import * as enrollments from '../../db/enrollments';
+import { readForm } from '../../lib/form';
 import { isGradeOnScale } from '../../lib/grades';
 import { parseId } from '../../lib/ids';
 
@@ -10,7 +11,8 @@ export const POST: APIRoute = async ({ locals, request, redirect }) => {
 	const user = locals.user;
 	if (!user) return redirect('/login', 303);
 
-	const form = await request.formData();
+	const form = await readForm(request);
+	if (!form) return new Response('Expected a form', { status: 400 });
 	const courseId = parseId(form.get('courseId'));
 	const course = courseId ? await courses.get(env.DB, courseId) : null;
 	if (!course) return redirect('/app', 303);
@@ -21,5 +23,7 @@ export const POST: APIRoute = async ({ locals, request, redirect }) => {
 	if (grade !== null && !isGradeOnScale(course.gradingScale, grade)) return redirect(`${back}?grade=invalid#final-grade`, 303);
 
 	const saved = await enrollments.setFinalGrade(env.DB, user.id, course.id, grade);
-	return redirect(`${back}?grade=${saved ? (grade ? 'saved' : 'cleared') : 'invalid'}#final-grade`, 303);
+	// Kurssidan kräver registrering, så meddelandet visas på /app
+	if (!saved) return redirect('/app?msg=notenrolled', 303);
+	return redirect(`${back}?grade=${grade ? 'saved' : 'cleared'}#final-grade`, 303);
 };

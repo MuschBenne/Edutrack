@@ -41,7 +41,9 @@ const current = (name: Props['active']) => (active === name ? 'page' : undefined
 								<a href="/app/register-course" aria-current={current('register-course')}>Register to course</a>
 								{user.isAdmin && <a href="/admin" aria-current={current('admin')}>Admin</a>}
 								<a href="/app/account" aria-current={current('account')}>Account</a>
-								<a href="/logout">Log out</a>
+								<form method="post" action="/logout" class="nav-form">
+									<button type="submit" class="nav-link">Log out</button>
+								</form>
 							</>
 						) : (
 							<a href="/login" class="btn btn-primary" aria-current={current('login')}>Log in</a>

@@ -3,5 +3,5 @@
 	"compilerOptions": {
 		"types": ["@cloudflare/vitest-plugin/types"]
 	},
-	"include": ["./**/*.ts", "../src/db/**/*.ts", "../src/lib/auth.ts", "../src/lib/tokens.ts", "../src/lib/dates.ts", "../src/lib/sessionForm.ts", "../src/lib/studyTypes.ts", "../src/lib/terms.ts", "../src/lib/courseForm.ts", "../src/lib/grades.ts", "../worker-configuration.d.ts"]
+	"include": ["./**/*.ts", "../src/db/**/*.ts", "../src/lib/auth.ts", "../src/lib/tokens.ts", "../src/lib/dates.ts", "../src/lib/sessionForm.ts", "../src/lib/studyTypes.ts", "../src/lib/terms.ts", "../src/lib/courseForm.ts", "../src/lib/grades.ts", "../src/lib/chartData.ts", "../worker-configuration.d.ts"]
 }

@@ -10,7 +10,6 @@ export const SESSION_ERRORS = {
 	minutes: 'Enter the duration as a whole number of minutes, between 1 and 1440.',
 	type: 'Pick a type of study.',
 	scale: 'Pick a value from 1 to 5 for how the session went.',
-	enrollment: 'You are not registered to this course.',
 } as const;
 
 export type SessionError = keyof typeof SESSION_ERRORS;

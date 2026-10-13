@@ -7,7 +7,7 @@ Senast uppdaterad 2026-10-13
 Vi bygger om EduTrack i **Astro** på Cloudflare Workers, med **D1** (SQLite) som databas. Det ersätter Express, EJS, Mongoose och express-session.
 
 - **Varför byta ramverk:** EJS kan inte köras i Workers, eftersom mallarna kompileras med `new Function`. Alla sidor måste skrivas om ändå, och då är det bättre att landa i ett ramverk byggt för Cloudflare.
-- **Vad som behålls:** designen (`master.css`), klientkoden för graferna (`graph_logic.js`, `static_functions.js`) och appens funktioner.
+- **Vad som behålls:** designen (`master.css`), graferna och appens funktioner. Grafkoden skrevs senare om till `src/scripts/courseCharts.ts` och `src/lib/chartData.ts` (se fas 5).
 - **Data:** vi börjar med en tom databas. Inget flyttas från MongoDB.
 - **Vad som blir bättre:** data i riktiga tabeller med datum, inga nästlade dokument, och fem kända buggar försvinner (se sista avsnittet).
 - **Kostnad:** både Workers och D1 har gratisnivåer som räcker gott för ett skolprojekt.
@@ -187,7 +187,7 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
 2. **Databaslager (`src/db/`)**
    - Små funktioner som tar emot databasen: `users.ts`, `courses.ts`, `enrollments.ts`, `studySessions.ts`.
    - `courses.availableFor(userId)` blir en SQL-fråga med `NOT IN`, i stället för filtrering i JavaScript.
-   - `toSessionMap(rows)` bygger om sessionsraderna till dagens format (`{ "Wed_Oct_08_2026": [ … ] }`). Då fungerar `graph_logic.js` och `static_functions.js` utan ändringar.
+   - Kurssidan skickar sessionerna till graferna som en lista med datum, minuter och typ (`src/lib/chartData.ts`). Det gamla formatet med datumnycklar (`toSessionMap`) är borttaget.
 3. **Sessioner och inloggning**
    - När Google-inloggningen lyckats skapas en slumpad token (256 bitar). Hashen sparas i `auth_sessions` och token sätts som en `HttpOnly`-cookie med `SameSite=Lax`, giltig i 30 dagar.
    - `middleware.ts` slår upp cookien vid varje anrop och lägger `user` och `isAdmin` på `Astro.locals`.
@@ -205,12 +205,11 @@ Sidor och funktioner är desamma som i dag. Tabellen visar vart varje del av dag
    - HTML-strukturen och CSS-klasserna från den nya designen kopieras över. `<%= x %>` blir `{x}` och `<% if %>`-block blir `{cond && ( … )}`.
    - Uträkningarna som i dag ligger i `Main.ejs` och `CoursePage.ejs` (senaste 7 dagarna, totalt, snittbetyg) görs i SQL i `src/db/stats.ts`. Kurssidan hämtar kurs, statistik och sessioner i en enda `db.batch()` (`src/db/coursePage.ts`).
    - "Idag" räknas i svensk tid (`src/lib/dates.ts`), eftersom Workers kör i UTC.
-   - Kursdatan till graferna skickas som `<script type="application/json">` (med `<` escapat) i stället för `JSON.parse('<%- … %>')`. `graph_logic.js` och `static_functions.js` är oförändrade så när som på adressen i `fetchGraphData`.
+   - Kursdatan till graferna skickas som `<script type="application/json">` (med `<` escapat) i stället för `JSON.parse('<%- … %>')`. Graferna ritas av `src/scripts/courseCharts.ts`, som Astro paketerar med Chart.js från npm. Datan innehåller bara datum, minuter och typ.
 6. **API-endpoints**
    - POST-anropen flyttas från `?action=`-parametrar till egna endpoints, t.ex. `POST /api/sessions` och `POST /api/admin/courses`.
    - Sessionsformuläret är ett vanligt HTML-formulär utan JavaScript. `/api/sessions` validerar, sparar och skickar tillbaka med 303 och en felkod eller `?saved`. Astros inbyggda Origin-kontroll stoppar formulär från andra sajter.
    - Admin-anropen skickar data som JSON i bodyn i stället för i URL:en.
-   - `fetch`-anropen i sidornas skript och i `graph_logic.js` uppdateras till de nya adresserna.
 7. **Tester**
    - Jest mot lokal MongoDB ersätts av Vitest med `@cloudflare/vitest-plugin` (tidigare `vitest-pool-workers`, som bytt namn), som kör mot en lokal D1 som töms före varje test.
    - De gamla Jest-testerna byggde på Mongoose och har skrivits om för databaslagret. De täcker samma funktioner plus buggarna i nästa avsnitt. I fas 2 tillkommer tester för callbackens två fall (känt `google_id`, ny användare) och admin-flaggan via `ADMIN_EMAILS`, med Googles svar mockat.
@@ -235,7 +234,7 @@ Om Express-versionen ska användas en tid till kan den första buggen rättas d�
 
 ## Ordning och öppna beslut
 
-Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills sista fasen är klar, och på grenen i `legacy/` som referens vid porteringen, och varje fas går att testa för sig med `npm run dev`.
+Arbetet gjordes på grenen `cloudflare-migration`, som slogs ihop med `main` vid lanseringen.
 
 1. **Grund (klar 2026-10-13):** projektuppsättning, schema, databaslager och tester för det. Statistiken i SQL skrivs i fas 3, tillsammans med sidorna som visar den.
 2. **Konton (klar 2026-10-13):** sessioner, Google-inloggning, onboarding, layout och landningssidan. `/app` är en tillfällig sida tills fas 3.
@@ -243,7 +242,8 @@ Arbetet görs på en egen gren. Express-versionen ligger kvar på `main` tills s
 4. **Resten (klar 2026-10-13):** lärosäten, kurser per termin, kursregistrering och admin.
    - **Admin-panelen (`/admin`):** filter per lärosäte, byta namn på och ta bort kurser, ta bort användare och ta bort elever från kurser, och lägga till lärosäten. Allt görs med vanliga formulär till `/api/admin`. Admin kan inte ta bort sitt eget konto där.
    - **Schemat:** `0001_init.sql` skrevs om, eftersom inget hade driftsatts. Lokala databaser behöver nollställas: `rm -rf .wrangler/state/v3/d1 && npm run db:migrate:local`.
-5. **Lansering:** ta bort `legacy/`, driftsätt, peka om domänen, slå ihop med `main` och stäng ner MongoDB.
+5. **Lansering (klar 2026-10-13):** `legacy/` borttagen, driftsatt på `edutrack.rosenbergab.com` (DNS hos Cloudflare), ihopslagen med `main`, Render och MongoDB nedstängda.
+   - **Tillagt efter granskning:** radera konto, avregistrera sig från en kurs, integritetspolicy och villkor, valfria hälsobetyg (`0004`), egna typsnitt och Chart.js från npm, säkerhetsheaders, utloggning via POST, admin-flaggan synkas vid inloggning, admin kan byta betygsskala och högst 5 nya kurser per användare och dygn.
 
 **Beslut att ta innan fas 1:**
 
